@@ -1,5 +1,6 @@
 #define NOMINMAX
 
+#include "Aimbot.h"
 #include "AntiAim.h"
 #include "../Interfaces.h"
 #include "../SDK/Engine.h"
@@ -130,6 +131,29 @@ void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& 
     if (!shouldRun(cmd))
         return;
 
+    Vector angle{ };
+    auto bestFov = 255.f;
+    Vector bestTarget{ };
+    for (int i = 1; i <= interfaces->engine->getMaxClients(); i++) {
+        auto entity = interfaces->entityList->getEntity(i);
+        if (!entity || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive()
+            || !entity->isOtherEnemy(localPlayer.get()))
+            continue;
+
+        const auto headPosition = entity->getBonePosition(8);
+        auto angle = Aimbot::calculateRelativeAngle(localPlayer->getBonePosition(8), headPosition, cmd->viewangles);
+        bool clamped{ false };
+
+        const auto fov = std::hypot(angle.x, angle.y);
+        if (fov > bestFov)
+            continue;
+
+        if (fov < bestFov) {
+            bestFov = fov;
+            bestTarget = headPosition;
+        }
+    }
+
     if (antiAimConfig.enabled) {
         switch (antiAimConfig.pitchAngle) {
         case 0: //Off
@@ -149,6 +173,11 @@ void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& 
         case 0: //Off
             break;
         case 1: //Back
+            if (bestTarget.notNull()) {
+                auto angle = Aimbot::calculateRelativeAngle(localPlayer->getBonePosition(8), bestTarget, cmd->viewangles);
+                cmd->viewangles.y += angle.y;
+            }
+
             cmd->viewangles.y += 180.f;
             invert ^= 1;
             break;
