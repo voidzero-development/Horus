@@ -3,13 +3,14 @@
 enum class FrameStage;
 class GameEvent;
 struct ImDrawList;
+struct Vector;
 
 namespace Visuals
 {
     void playerModel(FrameStage stage) noexcept;
     void colorWorld() noexcept;
     void modifySmoke(FrameStage stage) noexcept;
-    void thirdperson() noexcept;
+    void thirdperson(Vector angle) noexcept;
     void removeVisualRecoil(FrameStage stage) noexcept;
     void removeBlur(FrameStage stage) noexcept;
     void updateBrightness() noexcept;

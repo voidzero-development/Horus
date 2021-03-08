@@ -143,6 +143,7 @@ static HRESULT __stdcall reset(IDirect3DDevice9* device, D3DPRESENT_PARAMETERS* 
 
 #endif
 
+Vector angle;
 static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTime, UserCmd* cmd) noexcept
 {
     auto result = hooks->clientMode.callOriginal<bool, IS_WIN32() ? 24 : 25>(inputSampleTime, cmd);
@@ -193,8 +194,9 @@ static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTim
 
     if (!(cmd->buttons & (UserCmd::IN_ATTACK | UserCmd::IN_ATTACK2))) {
         Misc::chokePackets(sendPacket);
-        AntiAim::run(cmd, previousViewAngles, currentViewAngles, sendPacket);
     }
+
+    AntiAim::run(cmd, previousViewAngles, currentViewAngles, sendPacket);
 
     auto viewAnglesDelta{ cmd->viewangles - previousViewAngles };
     viewAnglesDelta.normalize();
@@ -214,13 +216,15 @@ static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTim
 
     previousViewAngles = cmd->viewangles;
 
+    if (sendPacket)
+        angle = cmd->viewangles;
+
     return false;
 }
 
 static void __STDCALL doPostScreenEffects(LINUX_ARGS(void* thisptr,) void* param) noexcept
 {
     if (interfaces->engine->isInGame()) {
-        Visuals::thirdperson();
         Misc::inverseRagdollGravity();
         Visuals::reduceFlashEffect();
         Visuals::updateBrightness();
@@ -281,6 +285,7 @@ static void __STDCALL frameStageNotify(LINUX_ARGS(void* thisptr,) FrameStage sta
         Misc::fakePrime();
     }
     if (interfaces->engine->isInGame()) {
+        Visuals::thirdperson(angle);
         Visuals::skybox(stage);
         Visuals::removeBlur(stage);
         Misc::oppositeHandKnife(stage);
