@@ -177,7 +177,6 @@ void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& 
                 auto angle = Aimbot::calculateRelativeAngle(localPlayer->getBonePosition(8), bestTarget, cmd->viewangles);
                 cmd->viewangles.y += angle.y;
             }
-
             cmd->viewangles.y += 180.f;
             invert ^= 1;
             break;
@@ -190,7 +189,7 @@ void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& 
         }
 
         if (!sendPacket) {
-            invert ? cmd->viewangles.y += 58.f : cmd->viewangles.y -= 58.f;
+            invert ? cmd->viewangles.y += localPlayer->getMaxDesyncAngle() * 2 : cmd->viewangles.y -= localPlayer->getMaxDesyncAngle() * 2;
         }
     }
 }
