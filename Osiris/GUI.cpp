@@ -1338,14 +1338,6 @@ void GUI::renderMiscWindow(bool contentOnly) noexcept
         if (ImGui::IsItemHovered())
             ImGui::SetTooltip("audio file must be put in csgo/sound/ directory");
     }
-    ImGui::PopID();
-    ImGui::SetNextItemWidth(90.0f);
-    ImGui::InputInt("Choked packets", &config->misc.chokedPackets, 1, 5);
-    config->misc.chokedPackets = std::clamp(config->misc.chokedPackets, 0, 64);
-    ImGui::SameLine();
-    ImGui::PushID("Choked packets Key");
-    hotkey2("", config->misc.chokedPacketsKey);
-    ImGui::PopID();
     /*
     ImGui::Text("Quick healthshot");
     ImGui::SameLine();

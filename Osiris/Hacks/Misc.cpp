@@ -628,12 +628,6 @@ void Misc::autoPistol(UserCmd* cmd) noexcept
     }
 }
 
-void Misc::chokePackets(bool& sendPacket) noexcept
-{
-    if (config->misc.chokedPacketsKey == KeyBind::NONE || config->misc.chokedPacketsKey.isDown())
-        sendPacket = interfaces->engine->getNetworkChannel()->chokedPackets >= config->misc.chokedPackets;
-}
-
 void Misc::autoReload(UserCmd* cmd) noexcept
 {
     if (config->misc.autoReload && localPlayer) {

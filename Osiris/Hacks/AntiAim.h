@@ -10,6 +10,7 @@ struct Vector;
 namespace AntiAim
 {
     void run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& currentViewAngles, bool& sendPacket) noexcept;
+    void fakeLag(UserCmd* cmd, bool& sendPacket) noexcept;
 
     // GUI
     void menuBarItem() noexcept;

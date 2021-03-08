@@ -239,8 +239,6 @@ public:
         ColorToggle3 bombTimer{ 1.0f, 0.55f, 0.0f };
         KeyBind prepareRevolverKey = KeyBind::NONE;
         int hitSound{ 0 };
-        int chokedPackets{ 0 };
-        KeyBind chokedPacketsKey = KeyBind::NONE;
         int quickHealthshotKey{ 0 };
         float maxAngleDelta{ 255.0f };
         int killSound{ 0 };

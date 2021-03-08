@@ -15,6 +15,10 @@ struct AntiAimConfig {
     bool enabled = false;
     int pitchAngle = 0;
     int yawOffset = 0;
+
+    bool fakeLag = false;
+    int flLimit = 1;
+    
 } antiAimConfig;
 
 bool isLbyUpdating() noexcept
@@ -73,12 +77,57 @@ bool autoDir(Entity* entity, Vector eye) noexcept
     return true;
 }
 
+bool shouldRun(UserCmd* cmd) noexcept
+{
+    if (!localPlayer || !localPlayer->isAlive())
+        return false;
+
+    if ((cmd->buttons & (UserCmd::IN_USE)))
+        return false;
+
+    if (localPlayer->moveType() == MoveType::LADDER || localPlayer->moveType() == MoveType::NOCLIP)
+        return false;
+
+    auto activeWeapon = localPlayer->getActiveWeapon();
+    if (!activeWeapon || !activeWeapon->clip())
+        return true;
+
+    /*if (activeWeapon->isThrowing())
+        return false;*/
+
+    if (localPlayer->shotsFired() > 0 && !activeWeapon->isFullAuto() || localPlayer->waitForNoAttack())
+        return true;
+
+    if (localPlayer->nextAttack() > memory->globalVars->serverTime())
+        return true;
+
+    if (activeWeapon->nextPrimaryAttack() > memory->globalVars->serverTime())
+        return true;
+
+    if (activeWeapon->nextSecondaryAttack() > memory->globalVars->serverTime())
+        return true;
+
+    if (localPlayer->nextAttack() <= memory->globalVars->serverTime() && (cmd->buttons & (UserCmd::IN_ATTACK)))
+        return false;
+
+    if (activeWeapon->nextPrimaryAttack() <= memory->globalVars->serverTime() && (cmd->buttons & (UserCmd::IN_ATTACK)))
+        return false;
+
+    /*if (activeWeapon->itemDefinitionIndex2() == WeaponId::Revolver && activeWeapon->readyTime() > memory->globalVars->serverTime())
+        return true;*/
+
+    /*if ((activeWeapon->itemDefinitionIndex2() == WeaponId::Famas || activeWeapon->itemDefinitionIndex2() == WeaponId::Glock) && activeWeapon->burstMode() && activeWeapon->burstShotRemaining() > 0)
+        return true;*/
+
+    return true;
+}
+
 void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& currentViewAngles, bool& sendPacket) noexcept
 {
     bool lby = isLbyUpdating();
     bool invert = autoDir(localPlayer.get(), cmd->viewangles);
         
-    if (cmd->buttons & (UserCmd::IN_ATTACK | UserCmd::IN_ATTACK2 | UserCmd::IN_USE))
+    if (!shouldRun(cmd))
         return;
 
     if (antiAimConfig.enabled) {
@@ -117,6 +166,24 @@ void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& 
     }
 }
 
+void AntiAim::fakeLag(UserCmd* cmd, bool& sendPacket) noexcept
+{
+    auto chokedPackets = 0;
+
+    if (!localPlayer->isAlive())
+        return;
+
+    chokedPackets = antiAimConfig.enabled ? 1 : 0;
+
+    if (antiAimConfig.fakeLag)
+        chokedPackets = std::clamp(antiAimConfig.flLimit, 1, 16);
+
+    if (!shouldRun(cmd))
+        return;
+
+    sendPacket = interfaces->engine->getNetworkChannel()->chokedPackets >= chokedPackets;
+}
+
 static bool antiAimOpen = false;
 
 void AntiAim::menuBarItem() noexcept
@@ -147,6 +214,8 @@ void AntiAim::drawGUI(bool contentOnly) noexcept
     ImGui::Checkbox("Enabled", &antiAimConfig.enabled);
     ImGui::Combo("Pitch angle", &antiAimConfig.pitchAngle, "Off\0Down\0Zero\0Up\0");
     ImGui::Combo("Yaw offset", &antiAimConfig.yawOffset, "Off\0Back\0");
+    ImGui::Checkbox("Fake lag", &antiAimConfig.fakeLag);
+    ImGui::SliderInt("Limit", &antiAimConfig.flLimit, 1, 16, "%d");
     if (!contentOnly)
         ImGui::End();
 }
@@ -156,6 +225,8 @@ static void to_json(json& j, const AntiAimConfig& o, const AntiAimConfig& dummy 
     WRITE("Enabled", enabled);
     WRITE("Pitch angle", pitchAngle);
     WRITE("Yaw offset", yawOffset);
+    WRITE("Fake lag", fakeLag);
+    WRITE("Limit", flLimit);
 }
 
 json AntiAim::toJson() noexcept
@@ -170,6 +241,8 @@ static void from_json(const json& j, AntiAimConfig& a)
     read(j, "Enabled", a.enabled);
     read(j, "Pitch angle", a.pitchAngle);
     read(j, "Yaw offset", a.yawOffset);
+    read(j, "Fake lag", a.fakeLag);
+    read(j, "Limit", a.flLimit);
 }
 
 void AntiAim::fromJson(const json& j) noexcept

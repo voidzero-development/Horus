@@ -477,8 +477,6 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Prepare revolver", m.prepareRevolver);
     read(j, "Prepare revolver key", m.prepareRevolverKey);
     read(j, "Hit sound", m.hitSound);
-    read(j, "Choked packets", m.chokedPackets);
-    read(j, "Choked packets key", m.chokedPacketsKey);
     read(j, "Quick healthshot key", m.quickHealthshotKey);
     read(j, "Grenade predict", m.nadePredict);
     read(j, "Fix tablet signal", m.fixTabletSignal);
@@ -853,8 +851,6 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Prepare revolver", prepareRevolver);
     WRITE("Prepare revolver key", prepareRevolverKey);
     WRITE("Hit sound", hitSound);
-    WRITE("Choked packets", chokedPackets);
-    WRITE("Choked packets key", chokedPacketsKey);
     WRITE("Quick healthshot key", quickHealthshotKey);
     WRITE("Grenade predict", nadePredict);
     WRITE("Fix tablet signal", fixTabletSignal);
