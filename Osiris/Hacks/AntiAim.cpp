@@ -14,6 +14,7 @@
 
 struct AntiAimConfig {
     bool enabled = false;
+    bool lbyBreak = false;
     int pitchAngle = 0;
     int yawOffset = 0;
 
@@ -184,7 +185,8 @@ void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& 
 
         if (lby) {
             sendPacket = false;
-            invert ? cmd->viewangles.y -= 119.95f : cmd->viewangles.y += 119.95f;
+            if (antiAimConfig.lbyBreak)
+                invert ? cmd->viewangles.y -= 119.95f : cmd->viewangles.y += 119.95f;
             return;
         }
 
@@ -240,6 +242,7 @@ void AntiAim::drawGUI(bool contentOnly) noexcept
         ImGui::Begin("Anti aim", &antiAimOpen, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
     }
     ImGui::Checkbox("Enabled", &antiAimConfig.enabled);
+    ImGui::Checkbox("Extend LBY", &antiAimConfig.lbyBreak);
     ImGui::Combo("Pitch angle", &antiAimConfig.pitchAngle, "Off\0Down\0Zero\0Up\0");
     ImGui::Combo("Yaw offset", &antiAimConfig.yawOffset, "Off\0Back\0");
     ImGui::Checkbox("Fake lag", &antiAimConfig.fakeLag);
@@ -251,6 +254,7 @@ void AntiAim::drawGUI(bool contentOnly) noexcept
 static void to_json(json& j, const AntiAimConfig& o, const AntiAimConfig& dummy = {})
 {
     WRITE("Enabled", enabled);
+    WRITE("Extend LBY", lbyBreak);
     WRITE("Pitch angle", pitchAngle);
     WRITE("Yaw offset", yawOffset);
     WRITE("Fake lag", fakeLag);
@@ -267,6 +271,7 @@ json AntiAim::toJson() noexcept
 static void from_json(const json& j, AntiAimConfig& a)
 {
     read(j, "Enabled", a.enabled);
+    read(j, "Extend LBY", a.lbyBreak);
     read(j, "Pitch angle", a.pitchAngle);
     read(j, "Yaw offset", a.yawOffset);
     read(j, "Fake lag", a.fakeLag);
