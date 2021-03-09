@@ -176,12 +176,12 @@ void Visuals::modifySmoke(FrameStage stage) noexcept
     }
 }
 
-void Visuals::thirdperson(Vector angle) noexcept
+void Visuals::thirdperson(FrameStage stage, Vector angle) noexcept
 {
     if (!config->visuals.thirdperson)
         return;
     
-    if (memory->input->isCameraInThirdPerson = (!config->visuals.thirdpersonKey.isSet() || config->visuals.thirdpersonKey.isToggled()) && localPlayer && localPlayer->isAlive())
+    if (stage == FrameStage::RENDER_START && (memory->input->isCameraInThirdPerson = (!config->visuals.thirdpersonKey.isSet() || config->visuals.thirdpersonKey.isToggled()) && localPlayer && localPlayer->isAlive()))
         *reinterpret_cast<Vector*>(reinterpret_cast<uintptr_t>(localPlayer.get()) + 0x31D8) = angle;
     memory->input->cameraOffset.z = static_cast<float>(config->visuals.thirdpersonDistance); 
 }
