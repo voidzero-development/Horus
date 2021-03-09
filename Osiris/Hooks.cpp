@@ -494,6 +494,13 @@ static float __STDCALL getScreenAspectRatio(LINUX_ARGS(void* thisptr,) int width
     return hooks->engine.callOriginal<float, 101>(width, height);
 }
 
+static bool __FASTCALL isConnected() noexcept
+{
+    if (static_cast<int*>(_ReturnAddress()) == memory->isLoadOutAvailable && config->misc.unlockInventory)
+        return false;
+    return hooks->engine.callOriginal<bool, 27>();
+}
+
 static void __STDCALL renderSmokeOverlay(LINUX_ARGS(void* thisptr,) bool update) noexcept
 {
     if (config->visuals.noSmoke || config->visuals.wireframeSmoke)
@@ -601,6 +608,7 @@ void Hooks::install() noexcept
     clientMode.hookAt(IS_WIN32() ? 58 : 61, updateColorCorrectionWeights);
 
     engine.init(interfaces->engine);
+    engine.hookAt(27, isConnected);
     engine.hookAt(82, isPlayingDemo);
     engine.hookAt(101, getScreenAspectRatio);
     engine.hookAt(IS_WIN32() ? 218 : 219, getDemoPlaybackParameters);

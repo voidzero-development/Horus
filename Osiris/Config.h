@@ -206,6 +206,7 @@ public:
         bool disablePanoramablur{ false };
         bool killMessage{ false };
         bool nadePredict{ false };
+        bool unlockInventory{ false };
         bool fixTabletSignal{ false };
         bool fakePrime{ false };
         bool fastPlant{ false };
