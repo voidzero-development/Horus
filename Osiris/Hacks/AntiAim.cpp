@@ -126,9 +126,6 @@ bool shouldRun(UserCmd* cmd) noexcept
 
 void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& currentViewAngles, bool& sendPacket) noexcept
 {
-    bool lby = isLbyUpdating();
-    bool invert = autoDir(localPlayer.get(), cmd->viewangles);
-        
     if (!shouldRun(cmd))
         return;
 
@@ -170,6 +167,7 @@ void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& 
             break;
         }
 
+        float yawOffset{ 0.f };
         switch (antiAimConfig.yawOffset) {
         case 0: //Off
             break;
@@ -178,10 +176,16 @@ void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& 
                 auto angle = Aimbot::calculateRelativeAngle(localPlayer->getBonePosition(8), bestTarget, cmd->viewangles);
                 cmd->viewangles.y += angle.y;
             }
-            cmd->viewangles.y += 180.f;
-            invert ^= 1;
+            yawOffset += 180.f;
             break;
         }
+
+        bool lby = isLbyUpdating();
+        bool invert = autoDir(localPlayer.get(), cmd->viewangles);
+        if (fabsf(yawOffset) > 90.f)
+            invert ^= 1;
+
+        cmd->viewangles.y += yawOffset;
 
         if (lby) {
             sendPacket = false;
@@ -206,7 +210,7 @@ void AntiAim::fakeLag(UserCmd* cmd, bool& sendPacket) noexcept
     chokedPackets = antiAimConfig.enabled ? 1 : 0;
 
     if (antiAimConfig.fakeLag)
-        chokedPackets = std::clamp(antiAimConfig.flLimit, 1, 16);
+        chokedPackets = std::clamp(antiAimConfig.flLimit, 1, 14);
 
     if (!shouldRun(cmd))
         return;
@@ -246,7 +250,7 @@ void AntiAim::drawGUI(bool contentOnly) noexcept
     ImGui::Combo("Pitch angle", &antiAimConfig.pitchAngle, "Off\0Down\0Zero\0Up\0");
     ImGui::Combo("Yaw offset", &antiAimConfig.yawOffset, "Off\0Back\0");
     ImGui::Checkbox("Fake lag", &antiAimConfig.fakeLag);
-    ImGui::SliderInt("Limit", &antiAimConfig.flLimit, 1, 16, "%d");
+    ImGui::SliderInt("Limit", &antiAimConfig.flLimit, 1, 14, "%d");
     if (!contentOnly)
         ImGui::End();
 }
