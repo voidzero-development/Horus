@@ -270,10 +270,6 @@ void Aimbot::run(UserCmd* cmd) noexcept
         return;
 
     if (config->aimbot[weaponIndex].enabled && (cmd->buttons & UserCmd::IN_ATTACK || config->aimbot[weaponIndex].autoShot || config->aimbot[weaponIndex].aimlock)) {
-
-        if (config->aimbot[weaponIndex].scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped())
-            return;
-
         auto bestFov = config->aimbot[weaponIndex].fov;
         Vector bestTarget{ };
         const auto localPlayerEyePosition = localPlayer->getEyePosition();
@@ -299,6 +295,12 @@ void Aimbot::run(UserCmd* cmd) noexcept
 
                 if (!entity->isVisible(bonePosition) && (config->aimbot[weaponIndex].visibleOnly || !canScan(entity, bonePosition, activeWeapon->getWeaponData(), config->aimbot[weaponIndex].killshot ? entity->health() : config->aimbot[weaponIndex].minDamage, config->aimbot[weaponIndex].friendlyFire)))
                     continue;
+
+                if (config->aimbot[weaponIndex].scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped() && localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP))) {
+                    if (config->aimbot[weaponIndex].autoScope)
+                        cmd->buttons |= UserCmd::IN_ATTACK2;
+                    return;
+                }
 
                 if (localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP)) && ((entity->getAbsOrigin() - localPlayer->getAbsOrigin()).length()) <= activeWeapon->getWeaponData()->range)
                     shouldRunAutoStop.at(weaponIndex) = config->aimbot[weaponIndex].autoStop;
@@ -335,9 +337,6 @@ void Aimbot::run(UserCmd* cmd) noexcept
             cmd->viewangles += angle;
             if (!config->aimbot[weaponIndex].silent)
                 interfaces->engine->setViewAngles(cmd->viewangles);
-
-            if (config->aimbot[weaponIndex].autoScope && activeWeapon->nextPrimaryAttack() <= memory->globalVars->serverTime() && activeWeapon->isSniperRifle() && !localPlayer->isScoped())
-                cmd->buttons |= UserCmd::IN_ATTACK2;
 
             if (config->aimbot[weaponIndex].autoShot && activeWeapon->nextPrimaryAttack() <= memory->globalVars->serverTime() && !clamped)
                 cmd->buttons |= UserCmd::IN_ATTACK;
