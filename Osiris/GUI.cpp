@@ -1345,6 +1345,7 @@ void GUI::renderMiscWindow(bool contentOnly) noexcept
     */
     ImGui::Checkbox("Grenade Prediction", &config->misc.nadePredict);
     ImGui::Checkbox("Unlock inventory", &config->misc.unlockInventory);
+    ImGui::Checkbox("Auto GG", &config->misc.autoGG);
     ImGui::Checkbox("Fix tablet signal", &config->misc.fixTabletSignal);
     ImGui::SetNextItemWidth(120.0f);
     ImGui::SliderFloat("Max angle delta", &config->misc.maxAngleDelta, 0.0f, 255.0f, "%.2f");

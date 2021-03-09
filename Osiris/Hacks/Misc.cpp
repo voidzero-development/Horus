@@ -1004,6 +1004,25 @@ void Misc::autoAccept(const char* soundEntry) noexcept
 #endif
 }
 
+void Misc::autoGG() noexcept
+{
+    if (!config->misc.autoGG)
+        return;
+
+    std::vector<const char*> messages{
+    "good game",
+    "gg",
+    "GG",
+    "ggwp",
+    };
+
+    std::string cmd = "say \"";
+    cmd += messages[randomFloat(0, messages.size() - 1)];
+    cmd += '"';
+
+    interfaces->engine->clientCmdUnrestricted(cmd.c_str());
+}
+
 void Misc::updateInput() noexcept
 {
 

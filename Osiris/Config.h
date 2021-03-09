@@ -207,6 +207,7 @@ public:
         bool killMessage{ false };
         bool nadePredict{ false };
         bool unlockInventory{ false };
+        bool autoGG{ false };
         bool fixTabletSignal{ false };
         bool fakePrime{ false };
         bool fastPlant{ false };

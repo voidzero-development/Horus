@@ -47,6 +47,7 @@ namespace Misc
     void preserveKillfeed(bool roundStart = false) noexcept;
     void drawOffscreenEnemies(ImDrawList* drawList) noexcept;
     void autoAccept(const char* soundEntry) noexcept;
+    void autoGG() noexcept;
 
     void updateInput() noexcept;
 }
