@@ -222,6 +222,19 @@ public:
         return name;
     }
 
+    bool isThrowing() {
+        if (this->isGrenade())
+        {
+            if (!this->pinPulled())
+            {
+                float throwtime = this->throwTime();
+                if (throwtime > 0)
+                    return true;
+            }
+        }
+        return false;
+    }
+
     bool canSee(Entity* other, const Vector& pos) noexcept;
     bool visibleTo(Entity* other) noexcept;
 
@@ -265,7 +278,12 @@ public:
     NETVAR(ragdoll, "CCSPlayer", "m_hRagdoll", int)
     NETVAR(shotsFired, "CCSPlayer", "m_iShotsFired", int)
     NETVAR(waitForNoAttack, "CCSPlayer", "m_bWaitForNoAttack", bool)
+    NETVAR(readyTime, "CBaseCombatWeapon", "m_flPostponeFireReadyTime", float)
+    NETVAR(burstMode, "CBaseCombatWeapon", "m_bBurstMode", bool)
+    NETVAR(burstShotRemaining, "CBaseCombatWeapon", "m_iBurstShotsRemaining", int)
     NETVAR(recoilIndex, "CBaseCombatWeapon", "m_flRecoilIndex", float)
+    NETVAR(pinPulled, "CBaseCSGrenade", "m_bPinPulled", bool);
+    NETVAR(throwTime, "CBaseCSGrenade", "m_fThrowTime", float);
 
     NETVAR(viewModelIndex, "CBaseCombatWeapon", "m_iViewModelIndex", int)
     NETVAR(worldModelIndex, "CBaseCombatWeapon", "m_iWorldModelIndex", int)

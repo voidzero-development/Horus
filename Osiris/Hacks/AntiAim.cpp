@@ -94,8 +94,8 @@ bool shouldRun(UserCmd* cmd) noexcept
     if (!activeWeapon || !activeWeapon->clip())
         return true;
 
-    /*if (activeWeapon->isThrowing())
-        return false;*/
+    if (activeWeapon->isThrowing())
+        return false;
 
     if (localPlayer->shotsFired() > 0 && !activeWeapon->isFullAuto() || localPlayer->waitForNoAttack())
         return true;
@@ -115,11 +115,11 @@ bool shouldRun(UserCmd* cmd) noexcept
     if (activeWeapon->nextPrimaryAttack() <= memory->globalVars->serverTime() && (cmd->buttons & (UserCmd::IN_ATTACK)))
         return false;
 
-    /*if (activeWeapon->itemDefinitionIndex2() == WeaponId::Revolver && activeWeapon->readyTime() > memory->globalVars->serverTime())
-        return true;*/
+    if (activeWeapon->itemDefinitionIndex2() == WeaponId::Revolver && activeWeapon->readyTime() > memory->globalVars->serverTime())
+        return true;
 
-    /*if ((activeWeapon->itemDefinitionIndex2() == WeaponId::Famas || activeWeapon->itemDefinitionIndex2() == WeaponId::Glock) && activeWeapon->burstMode() && activeWeapon->burstShotRemaining() > 0)
-        return true;*/
+    if ((activeWeapon->itemDefinitionIndex2() == WeaponId::Famas || activeWeapon->itemDefinitionIndex2() == WeaponId::Glock) && activeWeapon->burstMode() && activeWeapon->burstShotRemaining() > 0)
+        return true;
 
     return true;
 }
