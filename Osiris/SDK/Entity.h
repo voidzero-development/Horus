@@ -6,6 +6,7 @@
 #include "Engine.h"
 #include "EngineTrace.h"
 #include "EntityList.h"
+#include "GlobalVars.h"
 #include "LocalPlayer.h"
 #include "matrix3x4.h"
 #include "ModelRender.h"
@@ -121,18 +122,37 @@ public:
 
     bool setupBones(matrix3x4* out, int maxBones, int boneMask, float currentTime) noexcept
     {
-        if (config->misc.fixBoneMatrix) {
-            int* render = reinterpret_cast<int*>(this + 0x274);
-            int backup = *render;
-            Vector absOrigin = getAbsOrigin();
-            *render = 0;
-            memory->setAbsOrigin(this, origin());
-            auto result = VirtualMethod::call<bool, 13>(this + sizeof(uintptr_t), out, maxBones, boneMask, currentTime);
-            memory->setAbsOrigin(this, absOrigin);
-            *render = backup;
+        if (localPlayer && this == localPlayer.get() && localPlayer->isAlive())
+        {
+            int* effects = reinterpret_cast<int*>(this + 0xF0);
+            int* shouldSkipFrame = reinterpret_cast<int*>(this + 0xA68);
+            int backupEffects = *effects;
+            int backupShouldSkipFrame = *shouldSkipFrame;
+            *shouldSkipFrame = 0;
+            *effects |= 8;
+            auto result = VirtualMethod::call<bool, 13>(this + 4, out, maxBones, boneMask, currentTime);
+            *effects = backupEffects;
+            *shouldSkipFrame = backupShouldSkipFrame;
             return result;
         }
-        return VirtualMethod::call<bool, 13>(this + sizeof(uintptr_t), out, maxBones, boneMask, currentTime);
+        else
+        {
+            *reinterpret_cast<int*>(this + 0xA28) = 0;
+            *reinterpret_cast<int*>(this + 0xA30) = memory->globalVars->framecount;
+            int* render = reinterpret_cast<int*>(this + 0x274);
+            int* shouldSkipFrame = (int*)(this + 0xA68);
+            int* effects = reinterpret_cast<int*>(this + 0xF0);
+            int backup = *render;
+            int backupEffects = *effects;
+            *shouldSkipFrame = 0;
+            *render = 0;
+            boneMask |= 0x200;
+            *effects |= 8;
+            auto result = VirtualMethod::call<bool, 13>(this + 4, out, maxBones, boneMask, currentTime);
+            *render = backup;
+            *effects = backupEffects;
+            return result;
+        }
     }
 
     Vector getBonePosition(int bone) noexcept
