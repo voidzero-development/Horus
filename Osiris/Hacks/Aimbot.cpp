@@ -18,6 +18,11 @@ static bool hitChance(Entity* localPlayer, Entity* entity, Entity* weaponData, c
     if (!hitChance)
         return true;
 
+    const auto range = weaponData->getWeaponData()->range;
+
+    if (((entity->getAbsOrigin() - localPlayer->getAbsOrigin()).length()) > range)
+        return false;
+
     constexpr int maxSeed = 255;
 
     const Angle angles(destination + cmd->viewangles);
@@ -28,7 +33,6 @@ static bool hitChance(Entity* localPlayer, Entity* entity, Entity* weaponData, c
     const auto weapSpread = weaponData->getSpread();
     const auto weapInaccuracy = weaponData->getInaccuracy();
     const auto localEyePosition = localPlayer->getEyePosition();
-    const auto range = weaponData->getWeaponData()->range;
 
     for (int i = 0; i < maxSeed; i++)
     {
