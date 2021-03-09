@@ -200,7 +200,7 @@ void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& 
         }
 
         if (!sendPacket) {
-            invert ? cmd->viewangles.y += localPlayer->getMaxDesyncAngle() * 2 : cmd->viewangles.y -= localPlayer->getMaxDesyncAngle() * 2;
+            invert ? cmd->viewangles.y -= localPlayer->getMaxDesyncAngle() * 2 : cmd->viewangles.y += localPlayer->getMaxDesyncAngle() * 2;
         }
     }
 }
