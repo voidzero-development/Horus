@@ -1,7 +1,10 @@
+#define NOMINMAX
+
 #include "Aimbot.h"
 #include "../Config.h"
 #include "../Interfaces.h"
 #include "../Memory.h"
+#include "../SDK/Angle.h"
 #include "../SDK/Entity.h"
 #include "../SDK/UserCmd.h"
 #include "../SDK/Vector.h"
@@ -9,6 +12,51 @@
 #include "../SDK/GlobalVars.h"
 #include "../SDK/PhysicsSurfaceProps.h"
 #include "../SDK/WeaponData.h"
+
+static bool hitChance(Entity* localPlayer, Entity* entity, Entity* weaponData, const Vector& destination, const UserCmd* cmd, const int hitChance) noexcept
+{
+    if (!hitChance)
+        return true;
+
+    constexpr int maxSeed = 255;
+
+    const Angle angles(destination + cmd->viewangles);
+
+    int hits = 0;
+    const int hitsNeed = static_cast<int>(static_cast<float>(maxSeed) * (static_cast<float>(hitChance) / 100.f));
+
+    const auto weapSpread = weaponData->getSpread();
+    const auto weapInaccuracy = weaponData->getInaccuracy();
+    const auto localEyePosition = localPlayer->getEyePosition();
+    const auto range = weaponData->getWeaponData()->range;
+
+    for (int i = 0; i < maxSeed; i++)
+    {
+        const auto weaponIndex = weaponData->itemDefinitionIndex2();
+        const auto recoilIndex = weaponData->recoilIndex();
+
+        const float spreadX = randomFloat(0.f, 2.f * static_cast<float>(M_PI));
+        const float spreadY = randomFloat(0.f, 2.f * static_cast<float>(M_PI));
+        auto inaccuracy = weapInaccuracy * randomFloat(0.f, 1.f);
+        auto spread = weapSpread * randomFloat(0.f, 1.f);
+
+        Vector spreadView{ (cosf(spreadX) * inaccuracy) + (cosf(spreadY) * spread),
+                           (sinf(spreadX) * inaccuracy) + (sinf(spreadY) * spread) };
+        Vector direction{ (angles.forward + (angles.right * spreadView.x) + (angles.up * spreadView.y)) * range };
+
+        static Trace trace;
+        interfaces->engineTrace->clipRayToEntity({ localEyePosition, localEyePosition + direction }, 0x4600400B, entity, trace);
+        if (trace.entity == entity)
+            ++hits;
+
+        if (hits >= hitsNeed)
+            return true;
+
+        if ((maxSeed - i + hits) < hitsNeed)
+            return false;
+    }
+    return false;
+}
 
 Vector Aimbot::calculateRelativeAngle(const Vector& source, const Vector& destination, const Vector& viewAngles) noexcept
 {
@@ -157,7 +205,7 @@ void Aimbot::run(UserCmd* cmd) noexcept
     if (config->aimbotOnKey && !keyPressed)
         return;
 
-    if (config->aimbot[weaponIndex].enabled && (cmd->buttons & UserCmd::IN_ATTACK || config->aimbot[weaponIndex].autoShot || config->aimbot[weaponIndex].aimlock) && activeWeapon->getInaccuracy() <= config->aimbot[weaponIndex].maxAimInaccuracy) {
+    if (config->aimbot[weaponIndex].enabled && (cmd->buttons & UserCmd::IN_ATTACK || config->aimbot[weaponIndex].autoShot || config->aimbot[weaponIndex].aimlock)) {
 
         if (config->aimbot[weaponIndex].scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped())
             return;
@@ -186,6 +234,9 @@ void Aimbot::run(UserCmd* cmd) noexcept
                     continue;
 
                 if (!entity->isVisible(bonePosition) && (config->aimbot[weaponIndex].visibleOnly || !canScan(entity, bonePosition, activeWeapon->getWeaponData(), config->aimbot[weaponIndex].killshot ? entity->health() : config->aimbot[weaponIndex].minDamage, config->aimbot[weaponIndex].friendlyFire)))
+                    continue;
+
+                if (!hitChance(localPlayer.get(), entity, activeWeapon, angle, cmd, config->aimbot[weaponIndex].hitChance))
                     continue;
 
                 if (fov < bestFov) {
@@ -221,7 +272,7 @@ void Aimbot::run(UserCmd* cmd) noexcept
             if (config->aimbot[weaponIndex].autoScope && activeWeapon->nextPrimaryAttack() <= memory->globalVars->serverTime() && activeWeapon->isSniperRifle() && !localPlayer->isScoped())
                 cmd->buttons |= UserCmd::IN_ATTACK2;
 
-            if (config->aimbot[weaponIndex].autoShot && activeWeapon->nextPrimaryAttack() <= memory->globalVars->serverTime() && !clamped && activeWeapon->getInaccuracy() <= config->aimbot[weaponIndex].maxShotInaccuracy)
+            if (config->aimbot[weaponIndex].autoShot && activeWeapon->nextPrimaryAttack() <= memory->globalVars->serverTime() && !clamped)
                 cmd->buttons |= UserCmd::IN_ATTACK;
 
             if (clamped)

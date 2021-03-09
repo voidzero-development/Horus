@@ -7,14 +7,21 @@
 class matrix3x4;
 
 struct Vector {
-    Vector() = default;
-    constexpr Vector(float x, float y, float z) noexcept : x{ x }, y{ y }, z{ z } {}
-
     constexpr auto notNull() const noexcept
     {
         return x || y || z;
     }
-    
+
+    constexpr float operator[](int i) const noexcept
+    {
+        return ((float*)this)[i];
+    }
+
+    constexpr float& operator[](int i) noexcept
+    {
+        return ((float*)this)[i];
+    }
+
     constexpr auto operator==(const Vector& v) const noexcept
     {
         return x == v.x && y == v.y && z == v.z;
@@ -65,6 +72,14 @@ struct Vector {
         return *this;
     }
 
+    constexpr auto operator*=(float mul) noexcept
+    {
+        x *= mul;
+        y *= mul;
+        z *= mul;
+        return *this;
+    }
+
     constexpr auto operator-(const Vector& v) const noexcept
     {
         return Vector{ x - v.x, y - v.y, z - v.z };
@@ -74,7 +89,7 @@ struct Vector {
     {
         return Vector{ x + v.x, y + v.y, z + v.z };
     }
-    
+
     constexpr auto operator*(const Vector& v) const noexcept
     {
         return Vector{ x * v.x, y * v.y, z * v.z };

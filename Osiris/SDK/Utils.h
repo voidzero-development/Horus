@@ -7,3 +7,4 @@ constexpr auto degreesToRadians = [](float degrees) constexpr noexcept { return 
 constexpr auto radiansToDegrees = [](float radians) constexpr noexcept { return radians * 180.0f / std::numbers::pi_v<float>; };
 
 std::tuple<float, float, float> rainbowColor(float speed) noexcept;
+float randomFloat(float min, float max) noexcept;

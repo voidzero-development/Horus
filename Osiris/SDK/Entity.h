@@ -80,6 +80,7 @@ public:
     VIRTUAL_METHOD(int, getMuzzleAttachmentIndex1stPerson, WIN32_LINUX(467, 535), (Entity* viewModel), (this, viewModel))
     VIRTUAL_METHOD(int, getMuzzleAttachmentIndex3rdPerson, WIN32_LINUX(468, 536), (), (this))
     VIRTUAL_METHOD(float, getInaccuracy, WIN32_LINUX(482, 550), (), (this))
+    VIRTUAL_METHOD(float, getSpread, 452, (), (this))
 
 #if IS_WIN32()
     auto getEyePosition() noexcept
@@ -264,6 +265,7 @@ public:
     NETVAR(ragdoll, "CCSPlayer", "m_hRagdoll", int)
     NETVAR(shotsFired, "CCSPlayer", "m_iShotsFired", int)
     NETVAR(waitForNoAttack, "CCSPlayer", "m_bWaitForNoAttack", bool)
+    NETVAR(recoilIndex, "CBaseCombatWeapon", "m_flRecoilIndex", float)
 
     NETVAR(viewModelIndex, "CBaseCombatWeapon", "m_iViewModelIndex", int)
     NETVAR(worldModelIndex, "CBaseCombatWeapon", "m_iWorldModelIndex", int)
