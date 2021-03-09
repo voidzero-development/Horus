@@ -320,6 +320,8 @@ public:
     NETVAR(thrower, "CBaseGrenade", "m_hThrower", int)
         
     NETVAR(mapHasBombTarget, "CCSGameRulesProxy", "m_bMapHasBombTarget", bool)
+    NETVAR(freezePeriod, "CCSGameRulesProxy", "m_bFreezePeriod", bool)
+    NETVAR(isValveDS, "CCSGameRulesProxy", "m_bIsValveDS", bool)
 
     NETVAR(fireXDelta, "CInferno", "m_fireXDelta", int[100])
     NETVAR(fireYDelta, "CInferno", "m_fireYDelta", int[100])

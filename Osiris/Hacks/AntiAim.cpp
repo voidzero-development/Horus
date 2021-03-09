@@ -84,6 +84,9 @@ bool shouldRun(UserCmd* cmd) noexcept
     if (!localPlayer || !localPlayer->isAlive())
         return false;
 
+    if (((*memory->gameRules)->freezePeriod()))
+        return false;
+
     if ((cmd->buttons & (UserCmd::IN_USE)))
         return false;
 
