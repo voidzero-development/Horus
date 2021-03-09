@@ -177,6 +177,66 @@ void Aimbot::updateInput() noexcept
         keyPressed = !keyPressed;
 }
 
+std::array<bool, 40> shouldRunAutoStop;
+
+void Aimbot::autoStop(UserCmd* cmd) noexcept
+{
+    if (!localPlayer || !localPlayer->isAlive())
+        return;
+
+    const auto activeWeapon = localPlayer->getActiveWeapon();
+    if (!activeWeapon || !activeWeapon->clip())
+        return;
+
+    auto weaponIndex = getWeaponIndex(activeWeapon->itemDefinitionIndex2());
+    if (!weaponIndex)
+        return;
+
+    auto weaponClass = getWeaponClass(activeWeapon->itemDefinitionIndex2());
+    if (!config->aimbot[weaponIndex].enabled)
+        weaponIndex = weaponClass;
+
+    if (!config->aimbot[weaponIndex].enabled)
+        weaponIndex = 0;
+
+    if (!config->aimbot[weaponIndex].autoStop || !shouldRunAutoStop.at(weaponIndex))
+        return;
+
+    if (!config->aimbot[weaponIndex].betweenShots && activeWeapon->nextPrimaryAttack() > memory->globalVars->serverTime())
+        return;
+
+    if (!config->aimbot[weaponIndex].ignoreFlash && localPlayer->isFlashed())
+        return;
+
+    if (config->aimbotOnKey && !keyPressed)
+        return;
+
+    if (config->aimbot[weaponIndex].enabled && (cmd->buttons & UserCmd::IN_ATTACK || config->aimbot[weaponIndex].autoShot))
+    {
+        if (config->aimbot[weaponIndex].scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped())
+            return;
+
+        const auto weaponData = activeWeapon->getWeaponData();
+        if (!weaponData)
+            return;
+
+        const float maxSpeed = (localPlayer->isScoped() ? weaponData->maxSpeedAlt : weaponData->maxSpeed) / 3;
+
+        if (cmd->forwardmove && cmd->sidemove) {
+            const float maxSpeedRoot = maxSpeed * static_cast<float>(M_SQRT1_2);
+            cmd->forwardmove = cmd->forwardmove < 0.0f ? -maxSpeedRoot : maxSpeedRoot;
+            cmd->sidemove = cmd->sidemove < 0.0f ? -maxSpeedRoot : maxSpeedRoot;
+        }
+        else if (cmd->forwardmove) {
+            cmd->forwardmove = cmd->forwardmove < 0.0f ? -maxSpeed : maxSpeed;
+        }
+        else if (cmd->sidemove) {
+            cmd->sidemove = cmd->sidemove < 0.0f ? -maxSpeed : maxSpeed;
+        }
+    }
+    shouldRunAutoStop.at(weaponIndex) = false;
+}
+
 void Aimbot::run(UserCmd* cmd) noexcept
 {
     if (!localPlayer || localPlayer->nextAttack() > memory->globalVars->serverTime() || localPlayer->isDefusing() || localPlayer->waitForNoAttack())
@@ -229,7 +289,7 @@ void Aimbot::run(UserCmd* cmd) noexcept
             for (auto bone : { 8, 4, 3, 7, 6, 5 }) {
                 const auto bonePosition = entity->getBonePosition(config->aimbot[weaponIndex].bone > 1 ? 10 - config->aimbot[weaponIndex].bone : bone);
                 const auto angle = calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch);
-                
+
                 const auto fov = std::hypot(angle.x, angle.y);
                 if (fov > bestFov)
                     continue;
@@ -239,6 +299,9 @@ void Aimbot::run(UserCmd* cmd) noexcept
 
                 if (!entity->isVisible(bonePosition) && (config->aimbot[weaponIndex].visibleOnly || !canScan(entity, bonePosition, activeWeapon->getWeaponData(), config->aimbot[weaponIndex].killshot ? entity->health() : config->aimbot[weaponIndex].minDamage, config->aimbot[weaponIndex].friendlyFire)))
                     continue;
+
+                if (localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP)) && ((entity->getAbsOrigin() - localPlayer->getAbsOrigin()).length()) <= activeWeapon->getWeaponData()->range)
+                    shouldRunAutoStop.at(weaponIndex) = config->aimbot[weaponIndex].autoStop;
 
                 if (!hitChance(localPlayer.get(), entity, activeWeapon, angle, cmd, config->aimbot[weaponIndex].hitChance))
                     continue;
