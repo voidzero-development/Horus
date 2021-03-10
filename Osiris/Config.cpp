@@ -234,6 +234,7 @@ static void from_json(const json& j, Config::Aimbot& a)
     read(j, "Fov", a.fov);
     read(j, "Smooth", a.smooth);
     read(j, "Bone", a.bone);
+    read(j, "Multi point", a.multiPoint);
     read(j, "Hit chance", a.hitChance);
     read(j, "Min damage", a.minDamage);
     read(j, "Killshot", a.killshot);
@@ -688,6 +689,7 @@ static void to_json(json& j, const Config::Aimbot& o, const Config::Aimbot& dumm
     WRITE("Fov", fov);
     WRITE("Smooth", smooth);
     WRITE("Bone", bone);
+    WRITE("Multi point", multiPoint);
     WRITE("Hit chance", hitChance);
     WRITE("Min damage", minDamage);
     WRITE("Killshot", killshot);
