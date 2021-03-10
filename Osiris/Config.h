@@ -45,6 +45,7 @@ public:
         float smooth{ 1.0f };
         int bone{ 0 };
         int hitChance{ 0 };
+        int multiPoint{ 0 };
         int minDamage{ 1 };
         bool killshot{ false };
         bool betweenShots{ true };

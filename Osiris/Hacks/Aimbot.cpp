@@ -1,5 +1,3 @@
-#define NOMINMAX
-
 #include "Aimbot.h"
 #include "../Config.h"
 #include "../Interfaces.h"
@@ -12,6 +10,8 @@
 #include "../SDK/GlobalVars.h"
 #include "../SDK/PhysicsSurfaceProps.h"
 #include "../SDK/WeaponData.h"
+#include "../SDK/StudioRender.h"
+#include "../SDK/ModelInfo.h"
 
 static bool hitChance(Entity* localPlayer, Entity* entity, Entity* weaponData, const Vector& destination, const UserCmd* cmd, const int hitChance) noexcept
 {
@@ -167,6 +167,96 @@ static bool canScan(Entity* entity, const Vector& destination, const WeaponInfo*
     return false;
 }
 
+std::vector<Vector> multipoint(Entity* entity, matrix3x4 matrix[256], int iHitbox, int weaponIndex, bool firstScan)
+{
+    auto angleVectors = [](const Vector& angles, Vector* forward)
+    {
+        float	sp, sy, cp, cy;
+
+        sy = sin(degreesToRadians(angles.y));
+        cy = cos(degreesToRadians(angles.y));
+
+        sp = sin(degreesToRadians(angles.x));
+        cp = cos(degreesToRadians(angles.x));
+
+        forward->x = cp * cy;
+        forward->y = cp * sy;
+        forward->z = -sp;
+    };
+
+    auto vectorTransformWrapper = [](const Vector& in1, const matrix3x4 in2, Vector& out)
+    {
+        auto vectorTransform = [](const float* in1, const matrix3x4 in2, float* out)
+        {
+            auto dotProducts = [](const float* v1, const float* v2)
+            {
+                return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];
+            };
+            out[0] = dotProducts(in1, in2[0]) + in2[0][3];
+            out[1] = dotProducts(in1, in2[1]) + in2[1][3];
+            out[2] = dotProducts(in1, in2[2]) + in2[2][3];
+        };
+        vectorTransform(&in1.x, in2, &out.x);
+    };
+
+    const Model* mod = entity->getModel();
+    if (!mod)
+        return {};
+    StudioHdr* hdr = interfaces->modelInfo->getStudioModel(mod);
+    if (!hdr)
+        return {};
+    StudioHitboxSet* set = hdr->getHitboxSet(0);
+    if (!set)
+        return {};
+    StudioBbox* hitbox = set->getHitbox(iHitbox);
+    if (!hitbox)
+        return {};
+    Vector vMin, vMax, vCenter;
+    vectorTransformWrapper(hitbox->bbMin, matrix[hitbox->bone], vMin);
+    vectorTransformWrapper(hitbox->bbMax, matrix[hitbox->bone], vMax);
+    vCenter = (vMin + vMax) * 0.5f;
+
+    std::vector<Vector> vecArray;
+
+    if (config->aimbot[weaponIndex].multiPoint == 0 || firstScan)
+    {
+        vecArray.emplace_back(vCenter);
+        return vecArray;
+    }
+
+    Vector currentAngles = Aimbot::calculateRelativeAngle(vCenter, localPlayer->getEyePosition(), Vector{});
+
+    Vector forward;
+    angleVectors(currentAngles, &forward);
+
+    Vector right = forward.cross(Vector{ 0, 0, 1 });
+    Vector left = Vector{ -right.x, -right.y, right.z };
+
+    Vector top = Vector{ 0, 0, 1 };
+    Vector bot = Vector{ 0, 0, -1 };
+
+    float multiPoint = (min(config->aimbot[weaponIndex].multiPoint, 95)) * 0.01f;
+
+    switch (iHitbox) {
+    case 0:
+        for (auto i = 0; i < 4; ++i)
+            vecArray.emplace_back(vCenter);
+
+        vecArray[1] += top * (hitbox->capsuleRadius * multiPoint);
+        vecArray[2] += right * (hitbox->capsuleRadius * multiPoint);
+        vecArray[3] += left * (hitbox->capsuleRadius * multiPoint);
+        break;
+    default://rest
+        for (auto i = 0; i < 3; ++i)
+            vecArray.emplace_back(vCenter);
+
+        vecArray[1] += right * (hitbox->capsuleRadius * multiPoint);
+        vecArray[2] += left * (hitbox->capsuleRadius * multiPoint);
+        break;
+    }
+    return vecArray;
+}
+
 static bool keyPressed = false;
 
 void Aimbot::updateInput() noexcept
@@ -270,6 +360,7 @@ void Aimbot::run(UserCmd* cmd) noexcept
         return;
 
     if (config->aimbot[weaponIndex].enabled && (cmd->buttons & UserCmd::IN_ATTACK || config->aimbot[weaponIndex].autoShot || config->aimbot[weaponIndex].aimlock)) {
+        std::array<bool, 19> hitbox{ true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true };
         auto bestFov = config->aimbot[weaponIndex].fov;
         Vector bestTarget{ };
         const auto localPlayerEyePosition = localPlayer->getEyePosition();
@@ -282,38 +373,45 @@ void Aimbot::run(UserCmd* cmd) noexcept
                 || !entity->isOtherEnemy(localPlayer.get()) && !config->aimbot[weaponIndex].friendlyFire || entity->gunGameImmunity())
                 continue;
 
-            for (auto bone : { 8, 4, 3, 7, 6, 5 }) {
-                const auto bonePosition = entity->getBonePosition(config->aimbot[weaponIndex].bone > 1 ? 10 - config->aimbot[weaponIndex].bone : bone);
-                const auto angle = calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch);
-
-                const auto fov = std::hypot(angle.x, angle.y);
-                if (fov > bestFov)
+            for (int i = 0; i < 19; i++)
+            {
+                if (!(hitbox[i]))
                     continue;
 
-                if (!config->aimbot[weaponIndex].ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
-                    continue;
+                bool firstScan = true;
+                matrix3x4 boneMatrices[256]; 
+                entity->setupBones(boneMatrices, 256, 0x7FF00, memory->globalVars->currenttime);
+                for (auto bonePosition : multipoint(entity, boneMatrices, i, weaponIndex, firstScan)) {
+                    firstScan = false;
+                    const auto angle = calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch);
 
-                if (!entity->isVisible(bonePosition) && (config->aimbot[weaponIndex].visibleOnly || !canScan(entity, bonePosition, activeWeapon->getWeaponData(), config->aimbot[weaponIndex].killshot ? entity->health() : config->aimbot[weaponIndex].minDamage, config->aimbot[weaponIndex].friendlyFire)))
-                    continue;
+                    const auto fov = std::hypot(angle.x, angle.y);
+                    if (fov > bestFov)
+                        continue;
 
-                if (config->aimbot[weaponIndex].scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped() && localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP))) {
-                    if (config->aimbot[weaponIndex].autoScope)
-                        cmd->buttons |= UserCmd::IN_ATTACK2;
-                    return;
+                    if (!config->aimbot[weaponIndex].ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
+                        continue;
+
+                    if (!entity->isVisible(bonePosition) && (config->aimbot[weaponIndex].visibleOnly || !canScan(entity, bonePosition, activeWeapon->getWeaponData(), config->aimbot[weaponIndex].killshot ? entity->health() : config->aimbot[weaponIndex].minDamage, config->aimbot[weaponIndex].friendlyFire)))
+                        continue;
+
+                    if (config->aimbot[weaponIndex].scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped() && localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP))) {
+                        if (config->aimbot[weaponIndex].autoScope)
+                            cmd->buttons |= UserCmd::IN_ATTACK2;
+                        return;
+                    }
+
+                    if (localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP)) && ((entity->getAbsOrigin() - localPlayer->getAbsOrigin()).length()) <= activeWeapon->getWeaponData()->range)
+                        shouldRunAutoStop.at(weaponIndex) = config->aimbot[weaponIndex].autoStop;
+
+                    if (!hitChance(localPlayer.get(), entity, activeWeapon, angle, cmd, config->aimbot[weaponIndex].hitChance))
+                        continue;
+
+                    if (fov < bestFov) {
+                        bestFov = fov;
+                        bestTarget = bonePosition;
+                    }
                 }
-
-                if (localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP)) && ((entity->getAbsOrigin() - localPlayer->getAbsOrigin()).length()) <= activeWeapon->getWeaponData()->range)
-                    shouldRunAutoStop.at(weaponIndex) = config->aimbot[weaponIndex].autoStop;
-
-                if (!hitChance(localPlayer.get(), entity, activeWeapon, angle, cmd, config->aimbot[weaponIndex].hitChance))
-                    continue;
-
-                if (fov < bestFov) {
-                    bestFov = fov;
-                    bestTarget = bonePosition;
-                }
-                if (config->aimbot[weaponIndex].bone)
-                    break;
             }
         }
 
