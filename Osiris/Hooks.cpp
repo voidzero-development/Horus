@@ -25,6 +25,7 @@
 
 #include "Config.h"
 #include "EventListener.h"
+#include "ExtraHooks.h"
 #include "GameData.h"
 #include "GUI.h"
 #include "Hooks.h"
@@ -32,6 +33,7 @@
 #include "Memory.h"
 
 #include "Hacks/Aimbot.h"
+#include "Hacks/Animations.h"
 #include "Hacks/AntiAim.h"
 #include "Hacks/Backtrack.h"
 #include "Hacks/Chams.h"
@@ -184,6 +186,8 @@ static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTim
     Misc::slowwalk(cmd);
     Aimbot::autoStop(cmd);
 
+    extraHook.init();
+
     EnginePrediction::run(cmd);
 
     Aimbot::run(cmd);
@@ -216,6 +220,9 @@ static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTim
 
     if (sendPacket)
         angle = cmd->viewangles;
+
+    Animations::update(cmd, sendPacket);
+    Animations::fake();
 
     return false;
 }
@@ -281,6 +288,7 @@ static void __STDCALL frameStageNotify(LINUX_ARGS(void* thisptr,) FrameStage sta
         Misc::disablePanoramablur();
         Visuals::colorWorld();
         Misc::fakePrime();
+        Animations::real();
     }
     if (interfaces->engine->isInGame()) {
         Visuals::thirdperson(stage, angle);
@@ -693,6 +701,7 @@ void Hooks::uninstall() noexcept
     surface.restore();
     svCheats.restore();
     viewRender.restore();
+    extraHook.restore();
 
     netvars->restore();
 
