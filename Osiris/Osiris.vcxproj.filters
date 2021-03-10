@@ -155,15 +155,6 @@
     <ClCompile Include="imgui\imgui_tables.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
-    <ClCompile Include="Hacks\Animations.cpp">
-      <Filter>Hacks</Filter>
-    </ClCompile>
-    <ClCompile Include="ExtraHooks.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MemAlloc.h">
-      <Filter>Header Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI.h">
@@ -474,12 +465,6 @@
     </ClInclude>
     <ClInclude Include="SDK\Angle.h">
       <Filter>SDK</Filter>
-    </ClInclude>
-    <ClInclude Include="Hacks\Animations.h">
-      <Filter>Hacks</Filter>
-    </ClInclude>
-    <ClInclude Include="ExtraHooks.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

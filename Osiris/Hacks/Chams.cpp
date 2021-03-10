@@ -5,7 +5,6 @@
 #include "../Config.h"
 #include "../Hooks.h"
 #include "../Interfaces.h"
-#include "Animations.h"
 #include "Backtrack.h"
 #include "../SDK/Entity.h"
 #include "../SDK/EntityList.h"
@@ -166,25 +165,6 @@ void Chams::renderPlayer(Entity* player) noexcept
     } else if (player->isDefusing() && std::any_of(config->chams["Defusing"].materials.cbegin(), config->chams["Defusing"].materials.cend(), [](const Config::Chams::Material& mat) { return mat.enabled; })) {
         applyChams(config->chams["Defusing"].materials, health);
     } else if (player == localPlayer.get()) {
-        if (Animations::data.gotMatrix) {
-            for (auto& i : Animations::data.fakeMatrix)
-            {
-                i[0][3] += info->origin.x;
-                i[1][3] += info->origin.y;
-                i[2][3] += info->origin.z;
-            }
-            if (!appliedChams)
-                hooks->modelRender.callOriginal<void, 21>(ctx, state, std::cref(info), customBoneToWorld);
-            applyChams(config->chams["Fake"].materials, health);
-            hooks->modelRender.callOriginal<void, 21>(ctx, state, std::cref(info), Animations::data.fakeMatrix);
-            interfaces->studioRender->forcedMaterialOverride(nullptr);
-            for (auto& i : Animations::data.fakeMatrix)
-            {
-                i[0][3] -= info->origin.x;
-                i[1][3] -= info->origin.y;
-                i[2][3] -= info->origin.z;
-            }
-        }
         applyChams(config->chams["Local player"].materials, health);
     } else if (localPlayer->isOtherEnemy(player)) {
         applyChams(config->chams["Enemies"].materials, health);

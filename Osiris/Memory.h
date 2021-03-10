@@ -12,7 +12,6 @@ class GameEventManager;
 class Input;
 class ItemSystem;
 class KeyValues;
-class MemAlloc;
 class MoveHelper;
 class MoveData;
 class PlantedC4;
@@ -96,11 +95,6 @@ public:
     uintptr_t money;
     uintptr_t demoFileEndReached;
     Entity** gameRules;
-    void(__thiscall* setAbsAngle)(Entity*, const Vector&);
-    uintptr_t updateState;
-    uintptr_t createState;
-    uintptr_t invalidateBoneCache;
-    MemAlloc* memAlloc;
 
     short makePanoramaSymbol(const char* name) const noexcept
     {

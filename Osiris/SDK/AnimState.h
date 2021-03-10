@@ -2,53 +2,14 @@
 
 #include <cstddef>
 
-#include "Vector.h"
-
 struct AnimState {
-    std::byte pad[91];
-    void* baseEntity;
-    void* activeWeapon;
-    void* lastActiveWeapon;
-    float lastClientSideAnimationUpdateTime;
-    int lastClientSideAnimationUpdateFramecount;
-    float eyePitch;
-    float eyeYaw;
-    float pitch;
-    float goalFeetYaw;
-    float currentFeetYaw;
-    float currentTorsoYaw;
-    float unknownVelocityLean;
-    float leanAmount;
-    std::byte pad1[4];
-    float feetCycle;
-    float feetYawRate;
-    float unknown2;
+    std::byte pad[164];
     float duckAmount;
-    float landingDuckAdditiveSomething;
-    float unknown3;
-    Vector origin;
-    Vector lastOrigin;
-    float velocityX;
-    float velocityY;
-    std::byte pad2[4];
-    float unknownFloat1;
-    std::byte pad3[8];
-    float unknownFloat2;
-    float unknownFloat3;
-    float unknown;
-    float speed2d;
-    float upVelocity;
-    float speedNormalized;
+    std::byte pad1[80];
     float footSpeed;
     float footSpeed2;
-    float timeSinceStartedMoving;
-    float timeSinceStoppedMoving;
-    unsigned char onGround;
-    unsigned char inHitGroundAnimation;
-    std::byte pad4[10];
-    float lastOriginZ;
-    float headHeightOrOffsetFromHittingGroundAnimation;
+    std::byte pad2[22];
     float stopToFullRunningFraction;
-    std::byte pad5[532];
+    std::byte pad3[532];
     float velocitySubtractY;
 };

@@ -13,7 +13,6 @@
   <ItemGroup>
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="EventListener.cpp" />
-    <ClCompile Include="ExtraHooks.cpp" />
     <ClCompile Include="GameData.cpp" />
     <ClCompile Include="Hacks\Aimbot.cpp" />
     <ClCompile Include="Hacks\AntiAim.cpp" />
@@ -33,7 +32,6 @@
     <ClCompile Include="imgui\imgui_stdlib.cpp" />
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="InputUtil.cpp" />
-    <ClCompile Include="MemAlloc.h" />
     <ClCompile Include="MinHook\buffer.c" />
     <ClCompile Include="MinHook\hde\hde32.c" />
     <ClCompile Include="MinHook\hde\hde64.c" />
@@ -51,7 +49,6 @@
     <ClCompile Include="imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="Memory.cpp" />
-    <ClCompile Include="Hacks\Animations.cpp" />
     <ClCompile Include="SDK\Entity.cpp" />
     <ClCompile Include="SDK\GlobalVars.cpp" />
     <ClCompile Include="SDK\KeyValues.cpp" />
@@ -61,7 +58,6 @@
     <ClInclude Include="Config.h" />
     <ClInclude Include="ConfigStructs.h" />
     <ClInclude Include="EventListener.h" />
-    <ClInclude Include="ExtraHooks.h" />
     <ClInclude Include="fnv.h" />
     <ClInclude Include="GameData.h" />
     <ClInclude Include="Hacks\Aimbot.h" />
@@ -93,7 +89,6 @@
     <ClInclude Include="Netvars.h" />
     <ClInclude Include="nlohmann\json.hpp" />
     <ClInclude Include="SDK\Angle.h" />
-    <ClInclude Include="Hacks\Animations.h" />
     <ClInclude Include="SDK\AnimState.h" />
     <ClInclude Include="SDK\Client.h" />
     <ClInclude Include="SDK\ConVar.h" />
