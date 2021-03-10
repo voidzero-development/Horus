@@ -185,7 +185,7 @@ void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& 
 
         bool lby = isLbyUpdating();
         bool invert = autoDir(localPlayer.get(), cmd->viewangles);
-        if (fabsf(yawOffset) > 90.f) {
+        if (fabsf(yawOffset + angle.y) > 90.f) {
             cmd->buttons ^= UserCmd::IN_FORWARD | UserCmd::IN_BACK | UserCmd::IN_MOVELEFT | UserCmd::IN_MOVERIGHT;
             invert ^= 1;
         }
