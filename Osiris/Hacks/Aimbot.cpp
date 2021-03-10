@@ -167,7 +167,7 @@ static bool canScan(Entity* entity, const Vector& destination, const WeaponInfo*
     return false;
 }
 
-std::vector<Vector> multipoint(Entity* entity, matrix3x4 matrix[256], int iHitbox, int weaponIndex, bool firstScan)
+std::vector<Vector> multipoint(Entity* entity, matrix3x4 matrix[256], StudioHdr* hdr, int iHitbox, int weaponIndex)
 {
     auto angleVectors = [](const Vector& angles, Vector* forward)
     {
@@ -199,10 +199,6 @@ std::vector<Vector> multipoint(Entity* entity, matrix3x4 matrix[256], int iHitbo
         vectorTransform(&in1.x, in2, &out.x);
     };
 
-    const Model* mod = entity->getModel();
-    if (!mod)
-        return {};
-    StudioHdr* hdr = interfaces->modelInfo->getStudioModel(mod);
     if (!hdr)
         return {};
     StudioHitboxSet* set = hdr->getHitboxSet(0);
@@ -218,7 +214,7 @@ std::vector<Vector> multipoint(Entity* entity, matrix3x4 matrix[256], int iHitbo
 
     std::vector<Vector> vecArray;
 
-    if (config->aimbot[weaponIndex].multiPoint == 0 || firstScan)
+    if (config->aimbot[weaponIndex].multiPoint == 0)
     {
         vecArray.emplace_back(vCenter);
         return vecArray;
@@ -378,11 +374,14 @@ void Aimbot::run(UserCmd* cmd) noexcept
                 if (!(hitbox[i]))
                     continue;
 
-                bool firstScan = true;
+                const Model* mod = entity->getModel();
+                if (!mod)
+                    continue;
+
+                StudioHdr* hdr = interfaces->modelInfo->getStudioModel(mod);
                 matrix3x4 boneMatrices[256]; 
                 entity->setupBones(boneMatrices, 256, 0x7FF00, memory->globalVars->currenttime);
-                for (auto bonePosition : multipoint(entity, boneMatrices, i, weaponIndex, firstScan)) {
-                    firstScan = false;
+                for (auto bonePosition : multipoint(entity, boneMatrices, hdr, i, weaponIndex)) {
                     const auto angle = calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch);
 
                     const auto fov = std::hypot(angle.x, angle.y);
