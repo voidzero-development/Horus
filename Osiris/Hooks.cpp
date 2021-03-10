@@ -291,7 +291,7 @@ static void __STDCALL frameStageNotify(LINUX_ARGS(void* thisptr,) FrameStage sta
         Animations::real();
     }
     if (interfaces->engine->isInGame()) {
-        Visuals::thirdperson(angle);
+        Visuals::thirdperson(stage, angle);
         Visuals::skybox(stage);
         Visuals::removeBlur(stage);
         Misc::oppositeHandKnife(stage);
