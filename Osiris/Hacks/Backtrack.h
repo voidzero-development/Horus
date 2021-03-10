@@ -7,8 +7,6 @@
 
 #include "../SDK/matrix3x4.h"
 #include "../SDK/Vector.h"
-#include "../SDK/StudioRender.h"
-#include "../SDK/ModelInfo.h"
 
 enum class FrameStage;
 struct UserCmd;
@@ -21,8 +19,6 @@ namespace Backtrack
     void run(UserCmd*) noexcept;
 
     struct Record {
-        StudioHdr* hdr;
-        Vector head;
         Vector origin;
         float simulationTime;
         matrix3x4 matrix[256];

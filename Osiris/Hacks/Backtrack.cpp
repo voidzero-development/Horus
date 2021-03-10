@@ -57,9 +57,6 @@ void Backtrack::update(FrameStage stage) noexcept
                 continue;
 
             Record record{ };
-            if (const Model* mod = entity->getModel(); mod)
-                record.hdr = interfaces->modelInfo->getStudioModel(mod);
-            record.head = entity->getBonePosition(8);
             record.origin = entity->getAbsOrigin();
             record.simulationTime = entity->simulationTime();
 
