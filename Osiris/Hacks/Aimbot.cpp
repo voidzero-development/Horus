@@ -1,4 +1,5 @@
 #include "Aimbot.h"
+#include "Backtrack.h"
 #include "../Config.h"
 #include "../Interfaces.h"
 #include "../Memory.h"
@@ -369,9 +370,9 @@ void Aimbot::run(UserCmd* cmd) noexcept
                 || !entity->isOtherEnemy(localPlayer.get()) && !config->aimbot[weaponIndex].friendlyFire || entity->gunGameImmunity())
                 continue;
 
-            for (int i = 0; i < 19; i++)
+            for (int j = 0; j < 19; j++)
             {
-                if (!(hitbox[i]))
+                if (!(hitbox[j]))
                     continue;
 
                 const Model* mod = entity->getModel();
@@ -381,7 +382,7 @@ void Aimbot::run(UserCmd* cmd) noexcept
                 StudioHdr* hdr = interfaces->modelInfo->getStudioModel(mod);
                 matrix3x4 boneMatrices[256]; 
                 entity->setupBones(boneMatrices, 256, 0x7FF00, memory->globalVars->currenttime);
-                for (auto bonePosition : multipoint(entity, boneMatrices, hdr, i, weaponIndex)) {
+                for (auto bonePosition : multipoint(entity, boneMatrices, hdr, j, weaponIndex)) {
                     const auto angle = calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch);
 
                     const auto fov = std::hypot(angle.x, angle.y);
@@ -402,6 +403,46 @@ void Aimbot::run(UserCmd* cmd) noexcept
 
                     if (localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP)) && ((entity->getAbsOrigin() - localPlayer->getAbsOrigin()).length()) <= activeWeapon->getWeaponData()->range)
                         shouldRunAutoStop.at(weaponIndex) = config->aimbot[weaponIndex].autoStop;
+
+                    if (!hitChance(localPlayer.get(), entity, activeWeapon, angle, cmd, config->aimbot[weaponIndex].hitChance))
+                        continue;
+
+                    if (fov < bestFov) {
+                        bestFov = fov;
+                        bestTarget = bonePosition;
+                    }
+                }
+
+                auto records = Backtrack::getRecords(i);
+                if (!records || records->empty() || !Backtrack::valid(records->front().simulationTime) || records->size() <= 3)
+                    continue;
+
+                int bestRecord{ };
+
+                for (size_t p = 0; p < records[i].size(); p++) {
+                    auto& record = records[i][p];
+                    if (!Backtrack::valid(record.simulationTime))
+                        continue;
+
+                    auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, record.head, cmd->viewangles + aimPunch);
+                    auto fov = std::hypotf(angle.x, angle.y);
+                    if (fov < bestFov) {
+                        bestFov = fov;
+                        bestRecord = p;
+                    }
+                }
+
+                auto currentRecord = records[i][bestRecord];
+                for (auto bonePosition : multipoint(entity, currentRecord.matrix, currentRecord.hdr, j, weaponIndex))
+                {
+                    const auto angle{ Aimbot::calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch) };
+                    const auto fov{ angle.length2D() };
+
+                    if (!config->aimbot[weaponIndex].ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
+                        continue;
+
+                    if (!entity->isVisible(bonePosition) && (config->aimbot[weaponIndex].visibleOnly || !canScan(entity, bonePosition, activeWeapon->getWeaponData(), config->aimbot[weaponIndex].killshot ? entity->health() : config->aimbot[weaponIndex].minDamage, config->aimbot[weaponIndex].friendlyFire)))
+                        continue;
 
                     if (!hitChance(localPlayer.get(), entity, activeWeapon, angle, cmd, config->aimbot[weaponIndex].hitChance))
                         continue;
