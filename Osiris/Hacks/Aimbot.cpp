@@ -76,13 +76,13 @@ static bool traceToExit(const Trace& enterTrace, const Vector& start, const Vect
     __asm {
         push exitTrace
         mov eax, direction
-        push [eax]Vector.z
-        push [eax]Vector.y
-        push [eax]Vector.x
+        push[eax]Vector.z
+        push[eax]Vector.y
+        push[eax]Vector.x
         mov eax, start
-        push [eax]Vector.z
-        push [eax]Vector.y
-        push [eax]Vector.x
+        push[eax]Vector.z
+        push[eax]Vector.y
+        push[eax]Vector.x
         mov edx, enterTrace
         mov ecx, end
         call traceToExitFn
@@ -109,7 +109,8 @@ static float handleBulletPenetration(SurfaceData* enterSurfaceData, const Trace&
     if (enterSurfaceData->material == 71 || enterSurfaceData->material == 89) {
         damageModifier = 0.05f;
         penetrationModifier = 3.0f;
-    } else if (enterTrace.contents >> 3 & 1 || enterTrace.surface.flags >> 7 & 1) {
+    }
+    else if (enterTrace.contents >> 3 & 1 || enterTrace.surface.flags >> 7 & 1) {
         penetrationModifier = 1.0f;
     }
 
@@ -380,14 +381,11 @@ void Aimbot::run(UserCmd* cmd) noexcept
                     continue;
 
                 StudioHdr* hdr = interfaces->modelInfo->getStudioModel(mod);
-                matrix3x4 boneMatrices[256]; 
+                matrix3x4 boneMatrices[256];
                 entity->setupBones(boneMatrices, 256, 0x7FF00, memory->globalVars->currenttime);
                 for (auto bonePosition : multipoint(entity, boneMatrices, hdr, j, weaponIndex)) {
                     const auto angle = calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch);
-
                     const auto fov = std::hypot(angle.x, angle.y);
-                    if (fov > bestFov)
-                        continue;
 
                     if (!config->aimbot[weaponIndex].ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
                         continue;
@@ -413,43 +411,66 @@ void Aimbot::run(UserCmd* cmd) noexcept
                     }
                 }
 
-                auto records = Backtrack::getRecords(i);
-                if (!records || records->empty() || !Backtrack::valid(records->front().simulationTime) || records->size() <= 3)
-                    continue;
+            }
 
-                int bestRecord{ };
-
-                for (size_t p = 0; p < records[i].size(); p++) {
-                    auto& record = records[i][p];
-                    if (!Backtrack::valid(record.simulationTime))
-                        continue;
-
-                    auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, record.head, cmd->viewangles + aimPunch);
-                    auto fov = std::hypotf(angle.x, angle.y);
-                    if (fov < bestFov) {
-                        bestFov = fov;
-                        bestRecord = p;
-                    }
-                }
-
-                auto currentRecord = records[i][bestRecord];
-                for (auto bonePosition : multipoint(entity, currentRecord.matrix, currentRecord.hdr, j, weaponIndex))
+            const auto records = Backtrack::getRecords(i);
+            if (records && !records->empty() && records->size() > 3 && Backtrack::valid(records->front().simulationTime))
+            {
+                for (int j = 0; j < 19; j++)
                 {
-                    const auto angle{ Aimbot::calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch) };
-                    const auto fov{ angle.length2D() };
-
-                    if (!config->aimbot[weaponIndex].ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
+                    if (!(hitbox[j]))
                         continue;
 
-                    if (!entity->isVisible(bonePosition) && (config->aimbot[weaponIndex].visibleOnly || !canScan(entity, bonePosition, activeWeapon->getWeaponData(), config->aimbot[weaponIndex].killshot ? entity->health() : config->aimbot[weaponIndex].minDamage, config->aimbot[weaponIndex].friendlyFire)))
+                    int bestRecord{ };
+
+                    for (size_t p = 0; p < records->size(); p++) {
+                        const auto& record = records->at(p);
+                        if (!Backtrack::valid(record.simulationTime))
+                            continue;
+
+                        const auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, record.head, cmd->viewangles + aimPunch);
+                        const auto fov = std::hypotf(angle.x, angle.y);
+
+                        if (fov < bestFov) {
+                            bestFov = fov;
+                            bestRecord = p;
+                        }
+                    }
+
+                    if (!bestRecord)
                         continue;
 
-                    if (!hitChance(localPlayer.get(), entity, activeWeapon, angle, cmd, config->aimbot[weaponIndex].hitChance))
-                        continue;
+                    auto currentRecord = records->at(bestRecord);
+                    for (auto bonePosition : multipoint(entity, currentRecord.matrix, currentRecord.hdr, j, weaponIndex))
+                    {
+                        const auto angle = calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch);
+                        const auto fov = std::hypot(angle.x, angle.y);
 
-                    if (fov < bestFov) {
-                        bestFov = fov;
-                        bestTarget = bonePosition;
+                        if (fov > bestFov)
+                            continue;
+                        
+                        if (!config->aimbot[weaponIndex].ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
+                            continue;
+
+                        if (!entity->isVisible(bonePosition) && (config->aimbot[weaponIndex].visibleOnly || !canScan(entity, bonePosition, activeWeapon->getWeaponData(), config->aimbot[weaponIndex].killshot ? entity->health() : config->aimbot[weaponIndex].minDamage, config->aimbot[weaponIndex].friendlyFire)))
+                            continue;
+
+                        if (config->aimbot[weaponIndex].scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped() && localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP))) {
+                            if (config->aimbot[weaponIndex].autoScope)
+                                cmd->buttons |= UserCmd::IN_ATTACK2;
+                            return;
+                        }
+
+                        if (localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP)) && ((entity->getAbsOrigin() - localPlayer->getAbsOrigin()).length()) <= activeWeapon->getWeaponData()->range)
+                            shouldRunAutoStop.at(weaponIndex) = config->aimbot[weaponIndex].autoStop;
+
+                        if (!hitChance(localPlayer.get(), entity, activeWeapon, angle, cmd, config->aimbot[weaponIndex].hitChance))
+                            continue;
+                            
+                        if (fov < bestFov) {
+                            bestFov = fov;
+                            bestTarget = bonePosition;
+                        }
                     }
                 }
             }
@@ -466,11 +487,11 @@ void Aimbot::run(UserCmd* cmd) noexcept
             bool clamped{ false };
 
             if (std::abs(angle.x) > config->misc.maxAngleDelta || std::abs(angle.y) > config->misc.maxAngleDelta) {
-                    angle.x = std::clamp(angle.x, -config->misc.maxAngleDelta, config->misc.maxAngleDelta);
-                    angle.y = std::clamp(angle.y, -config->misc.maxAngleDelta, config->misc.maxAngleDelta);
-                    clamped = true;
+                angle.x = std::clamp(angle.x, -config->misc.maxAngleDelta, config->misc.maxAngleDelta);
+                angle.y = std::clamp(angle.y, -config->misc.maxAngleDelta, config->misc.maxAngleDelta);
+                clamped = true;
             }
-            
+
             angle /= config->aimbot[weaponIndex].smooth;
             cmd->viewangles += angle;
             if (!config->aimbot[weaponIndex].silent)
