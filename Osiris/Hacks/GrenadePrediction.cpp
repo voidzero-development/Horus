@@ -376,10 +376,6 @@ void GrenadePrediction::draw() noexcept
 	if (!config->misc.grenadePrediction)
 		return;
 
-	auto activeWeapon = localPlayer->getActiveWeapon();
-	if (!activeWeapon || !activeWeapon->isGrenade())
-		return;
-
 	if (!interfaces->engine->isInGame() || !localPlayer || !localPlayer->isAlive())
 		return;
 
