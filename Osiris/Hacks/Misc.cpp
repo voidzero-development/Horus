@@ -811,9 +811,6 @@ void Misc::purchaseList(GameEvent* event) noexcept
 
 void Misc::oppositeHandKnife(FrameStage stage) noexcept
 {
-    if (!config->misc.oppositeHandKnife)
-        return;
-
     if (!localPlayer)
         return;
 
@@ -826,11 +823,14 @@ void Misc::oppositeHandKnife(FrameStage stage) noexcept
     if (stage == FrameStage::RENDER_START) {
         original = cl_righthand->getInt();
 
-        if (const auto activeWeapon = localPlayer->getActiveWeapon()) {
-            if (const auto classId = activeWeapon->getClientClass()->classId; classId == ClassId::Knife || classId == ClassId::KnifeGG)
-                cl_righthand->setValue(!original);
+        if (config->misc.oppositeHandKnife) {
+            if (const auto activeWeapon = localPlayer->getActiveWeapon()) {
+                if (const auto classId = activeWeapon->getClientClass()->classId; classId == ClassId::Knife || classId == ClassId::KnifeGG)
+                    cl_righthand->setValue(!original);
+            }
         }
-    } else {
+    }
+    else {
         cl_righthand->setValue(original);
     }
 }
