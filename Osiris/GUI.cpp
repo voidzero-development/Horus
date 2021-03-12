@@ -1365,6 +1365,24 @@ void GUI::renderMiscWindow(bool contentOnly) noexcept
     }
     ImGui::PopID();
 
+    ImGui::Checkbox("Viewmodel changer", &config->misc.viewmodelChanger.enabled);
+    if (config->misc.viewmodelChanger.enabled) {
+        ImGui::PushItemWidth(290.0f);
+        ImGui::PushID("Viewmodel offset X");
+        ImGui::SliderFloat("", &config->misc.viewmodelChanger.x, -10.f, 10.f, "Viewmodel offset X: %.2f");
+        ImGui::PopID();
+        ImGui::PushID("Viewmodel offset Y");
+        ImGui::SliderFloat("", &config->misc.viewmodelChanger.y, -10.f, 10.f, "Viewmodel offset Y: %.2f");
+        ImGui::PopID();
+        ImGui::PushID("Viewmodel offset Z");
+        ImGui::SliderFloat("", &config->misc.viewmodelChanger.z, -10.f, 10.f, "Viewmodel offset Z: %.2f");
+        ImGui::PopID();
+        ImGui::PushID("Viewmodel roll");
+        ImGui::SliderInt("", &config->misc.viewmodelChanger.roll, -90, 90, "Viewmodel roll: %d");
+        ImGui::PopID();
+        ImGui::PopItemWidth();
+    }
+
     ImGui::Checkbox("Purchase List", &config->misc.purchaseList.enabled);
     ImGui::SameLine();
 

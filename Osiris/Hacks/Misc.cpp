@@ -901,6 +901,50 @@ void Misc::resetReportbot() noexcept
     reportedPlayers.clear();
 }
 
+void Misc::viewmodelChanger(FrameStage stage) noexcept
+{
+    struct Viewmodel {
+        float x;
+        float y;
+        float z;
+        int minspec;
+
+        constexpr auto operator==(const Viewmodel& v) const noexcept
+        {
+            return x == v.x && y == v.y && z == v.z;
+        }
+    };
+
+    if (!localPlayer)
+        return;
+
+    if (stage != FrameStage::RENDER_START && stage != FrameStage::RENDER_END)
+        return;
+
+    if (interfaces->cvar->findVar("sv_competitive_minspec")->getInt() == config->misc.viewmodelChanger.enabled) {
+        interfaces->cvar->findVar("sv_competitive_minspec")->onChangeCallbacks.size = 0;
+        interfaces->cvar->findVar("sv_competitive_minspec")->setValue(!config->misc.viewmodelChanger.enabled);
+    }
+
+    static const Viewmodel viewmodel{ interfaces->cvar->findVar("viewmodel_offset_x")->getFloat(), interfaces->cvar->findVar("viewmodel_offset_y")->getFloat(), interfaces->cvar->findVar("viewmodel_offset_z")->getFloat() };
+    static Viewmodel original;
+
+    if (stage == FrameStage::RENDER_START) {
+        original = { interfaces->cvar->findVar("viewmodel_offset_x")->getFloat(), interfaces->cvar->findVar("viewmodel_offset_y")->getFloat(), interfaces->cvar->findVar("viewmodel_offset_z")->getFloat() };
+
+        if (config->misc.viewmodelChanger.enabled) {
+            interfaces->cvar->findVar("viewmodel_offset_x")->setValue(config->misc.viewmodelChanger.x);
+            interfaces->cvar->findVar("viewmodel_offset_y")->setValue(config->misc.viewmodelChanger.y);
+            interfaces->cvar->findVar("viewmodel_offset_z")->setValue(config->misc.viewmodelChanger.z);
+        }
+    }
+    else {
+        interfaces->cvar->findVar("viewmodel_offset_x")->setValue(original.x);
+        interfaces->cvar->findVar("viewmodel_offset_y")->setValue(original.y);
+        interfaces->cvar->findVar("viewmodel_offset_z")->setValue(original.z);
+    }
+}
+
 void Misc::preserveKillfeed(bool roundStart) noexcept
 {
     if (!config->misc.preserveKillfeed.enabled)

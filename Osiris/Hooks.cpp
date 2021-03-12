@@ -292,6 +292,7 @@ static void __STDCALL frameStageNotify(LINUX_ARGS(void* thisptr,) FrameStage sta
         Visuals::skybox(stage);
         Visuals::removeBlur(stage);
         Misc::oppositeHandKnife(stage);
+        Misc::viewmodelChanger(stage);
         Visuals::removeGrass(stage);
         Visuals::modifySmoke(stage);
         Visuals::playerModel(stage);
@@ -372,15 +373,28 @@ static void __STDCALL setDrawColor(LINUX_ARGS(void* thisptr,) int r, int g, int 
 }
 
 struct ViewSetup {
-    PAD(172);
-    void* csm;
+    std::byte pad[176];
     float fov;
-    PAD(32);
+    float fovViewmodel;
+    Vector origin;
+    Vector angles;
+    std::byte pad1[4];
     float farZ;
 };
 
 static void __STDCALL overrideView(LINUX_ARGS(void* thisptr,) ViewSetup* setup) noexcept
 {
+    Entity* target = localPlayer->isAlive() ? localPlayer.get() : localPlayer->getObserverTarget();
+
+    if (config->misc.viewmodelChanger.enabled && config->misc.viewmodelChanger.roll) {
+
+        if (target && target->isAlive() && !target->isScoped()) {
+            const auto viewModel = interfaces->entityList->getEntityFromHandle(target->viewModel());
+            if (viewModel)
+                memory->setAbsAngle(viewModel, setup->angles + Vector{ 0.f, 0.f, (float)config->misc.viewmodelChanger.roll });
+        }
+    }
+
     if (localPlayer && !localPlayer->isScoped())
         setup->fov += config->visuals.fov;
     setup->farZ += config->visuals.farZ * 10;

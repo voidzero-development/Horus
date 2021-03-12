@@ -262,6 +262,7 @@ public:
         } reportbot;
 
         OffscreenEnemies offscreenEnemies;
+        ViewmodelChanger viewmodelChanger;
     } misc;
 
     void scheduleFontLoad(const std::string& name) noexcept;

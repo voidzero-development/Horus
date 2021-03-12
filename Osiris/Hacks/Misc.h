@@ -43,6 +43,7 @@ namespace Misc
     void oppositeHandKnife(FrameStage stage) noexcept;
     void runReportbot() noexcept;
     void resetReportbot() noexcept;
+    void viewmodelChanger(FrameStage stage) noexcept;
     void preserveKillfeed(bool roundStart = false) noexcept;
     void drawOffscreenEnemies(ImDrawList* drawList) noexcept;
     void autoAccept(const char* soundEntry) noexcept;

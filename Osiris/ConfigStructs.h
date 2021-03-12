@@ -163,6 +163,14 @@ struct BulletTracers {
     Color4 color{ 0.0f, 0.75f, 1.0f, 1.0f };
 };
 
+struct ViewmodelChanger {
+    bool enabled = false;
+    float x{ 0 };
+    float y{ 0 };
+    float z{ 0 };
+    int roll{ 0 };
+};
+
 using json = nlohmann::basic_json<std::map, std::vector, std::string, bool, std::int64_t, std::uint64_t, float>;
 using value_t = json::value_t;
 

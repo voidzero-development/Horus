@@ -64,6 +64,7 @@ public:
     int(__THISCALL* clearHudWeapon)(int*, int);
     std::add_pointer_t<ItemSystem* __CDECL()> itemSystem;
     void(__THISCALL* setAbsOrigin)(Entity*, const Vector&);
+    void(__THISCALL* setAbsAngle)(Entity*, const Vector&);
     int* isLoadOutAvailable;
     uintptr_t listLeaves;
     int* dispatchSound;
