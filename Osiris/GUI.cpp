@@ -1344,7 +1344,7 @@ void GUI::renderMiscWindow(bool contentOnly) noexcept
     ImGui::SameLine();
     hotkey(config->misc.quickHealthshotKey);
     */
-    ImGui::Checkbox("Grenade Prediction", &config->misc.nadePredict);
+    ImGui::Checkbox("Grenade prediction", &config->misc.grenadePrediction);
     ImGui::Checkbox("Unlock inventory", &config->misc.unlockInventory);
     ImGui::Checkbox("Auto GG", &config->misc.autoGG);
     ImGui::Checkbox("Fix tablet signal", &config->misc.fixTabletSignal);

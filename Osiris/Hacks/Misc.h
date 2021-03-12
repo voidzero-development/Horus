@@ -25,7 +25,6 @@ namespace Misc
     bool changeName(bool, const char*, float) noexcept;
     void bunnyHop(UserCmd*) noexcept;
     void fakeBan(bool = false) noexcept;
-    void nadePredict() noexcept;
     void fixTabletSignal() noexcept;
     void fakePrime() noexcept;
     void killMessage(GameEvent& event) noexcept;

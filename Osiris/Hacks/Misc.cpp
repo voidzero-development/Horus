@@ -529,14 +529,6 @@ void Misc::fakeBan(bool set) noexcept
         shouldSet = false;
 }
 
-void Misc::nadePredict() noexcept
-{
-    static auto nadeVar{ interfaces->cvar->findVar("cl_grenadepreview") };
-
-    nadeVar->onChangeCallbacks.size = 0;
-    nadeVar->setValue(config->misc.nadePredict);
-}
-
 void Misc::fixTabletSignal() noexcept
 {
     if (config->misc.fixTabletSignal && localPlayer) {

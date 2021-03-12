@@ -161,6 +161,9 @@
     <ClCompile Include="Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Hacks\GrenadePrediction.cpp">
+      <Filter>Hacks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI.h">
@@ -486,6 +489,9 @@
     </ClInclude>
     <ClInclude Include="Resources\avatar_tt.h">
       <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Hacks\GrenadePrediction.h">
+      <Filter>Hacks</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

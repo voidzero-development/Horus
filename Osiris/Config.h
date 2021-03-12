@@ -206,7 +206,7 @@ public:
         bool nameStealer{ false };
         bool disablePanoramablur{ false };
         bool killMessage{ false };
-        bool nadePredict{ false };
+        bool grenadePrediction{ false };
         bool unlockInventory{ false };
         bool autoGG{ false };
         bool fixTabletSignal{ false };

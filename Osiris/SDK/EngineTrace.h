@@ -77,7 +77,13 @@ namespace HitGroup {
 struct Trace {
     Vector startpos;
     Vector endpos;
-    std::byte pad[20];
+    struct Plane {
+        Vector normal{ };
+        float dist{ };
+        std::byte type{ };
+        std::byte signBits{ };
+        std::byte pad[2]{ };
+    } plane;
     float fraction;
     int contents;
     unsigned short dispFlags;

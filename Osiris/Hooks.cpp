@@ -38,6 +38,7 @@
 #include "Hacks/EnginePrediction.h"
 #include "Hacks/StreamProofESP.h"
 #include "Hacks/Glow.h"
+#include "Hacks/GrenadePrediction.h"
 #include "Hacks/Misc.h"
 #include "Hacks/SkinChanger.h"
 #include "Hacks/Triggerbot.h"
@@ -100,6 +101,7 @@ static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, cons
     ImGui::NewFrame();
 
     StreamProofESP::render();
+    GrenadePrediction::draw();
     Misc::purchaseList();
     Misc::noscopeCrosshair(ImGui::GetBackgroundDrawList());
     Misc::recoilCrosshair(ImGui::GetBackgroundDrawList());
@@ -167,7 +169,6 @@ static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTim
     const auto currentViewAngles{ cmd->viewangles };
 
     memory->globalVars->serverTime(cmd);
-    Misc::nadePredict();
     Misc::antiAfkKick(cmd);
     Misc::fastStop(cmd);
     Misc::prepareRevolver(cmd);
@@ -186,6 +187,7 @@ static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTim
     Misc::fixTabletSignal();
     Misc::slowwalk(cmd);
     Aimbot::autoStop(cmd);
+    GrenadePrediction::run(cmd);
 
     EnginePrediction::run(cmd);
 
