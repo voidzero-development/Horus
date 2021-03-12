@@ -411,68 +411,62 @@ void Aimbot::run(UserCmd* cmd) noexcept
                     }
                 }
 
-            }
+                const auto records = Backtrack::getRecords(i);
+                if (!records && records->empty() && records->size() <= 3 && !Backtrack::valid(records->front().simulationTime))
+                    continue;
 
-            const auto records = Backtrack::getRecords(i);
-            if (records && !records->empty() && records->size() > 3 && Backtrack::valid(records->front().simulationTime))
-            {
-                for (int j = 0; j < 19; j++)
-                {
-                    if (!(hitbox[j]))
+                int bestRecord{ };
+
+                for (size_t p = 0; p < records->size(); p++) {
+                    const auto& record = records->at(p);
+                    if (!Backtrack::valid(record.simulationTime))
                         continue;
 
-                    int bestRecord{ };
+                    const auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, record.head, cmd->viewangles + aimPunch);
+                    const auto fov = std::hypotf(angle.x, angle.y);
 
-                    for (size_t p = 0; p < records->size(); p++) {
-                        const auto& record = records->at(p);
-                        if (!Backtrack::valid(record.simulationTime))
-                            continue;
-
-                        const auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, record.head, cmd->viewangles + aimPunch);
-                        const auto fov = std::hypotf(angle.x, angle.y);
-
-                        if (fov < bestFov) {
-                            bestFov = fov;
-                            bestRecord = p;
-                        }
-                    }
-
-                    if (!bestRecord)
-                        continue;
-
-                    auto currentRecord = records->at(bestRecord);
-                    for (auto bonePosition : multipoint(entity, currentRecord.matrix, currentRecord.hdr, j, weaponIndex))
-                    {
-                        const auto angle = calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch);
-                        const auto fov = std::hypot(angle.x, angle.y);
-
-                        if (fov > bestFov)
-                            continue;
-                        
-                        if (!config->aimbot[weaponIndex].ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
-                            continue;
-
-                        if (!entity->isVisible(bonePosition) && (config->aimbot[weaponIndex].visibleOnly || !canScan(entity, bonePosition, activeWeapon->getWeaponData(), config->aimbot[weaponIndex].killshot ? entity->health() : config->aimbot[weaponIndex].minDamage, config->aimbot[weaponIndex].friendlyFire)))
-                            continue;
-
-                        if (config->aimbot[weaponIndex].scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped() && localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP))) {
-                            if (config->aimbot[weaponIndex].autoScope)
-                                cmd->buttons |= UserCmd::IN_ATTACK2;
-                            return;
-                        }
-
-                        if (localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP)) && ((entity->getAbsOrigin() - localPlayer->getAbsOrigin()).length()) <= activeWeapon->getWeaponData()->range)
-                            shouldRunAutoStop.at(weaponIndex) = config->aimbot[weaponIndex].autoStop;
-
-                        if (!hitChance(localPlayer.get(), entity, activeWeapon, angle, cmd, config->aimbot[weaponIndex].hitChance))
-                            continue;
-                            
-                        if (fov < bestFov) {
-                            bestFov = fov;
-                            bestTarget = bonePosition;
-                        }
+                    if (fov < bestFov) {
+                        bestFov = fov;
+                        bestRecord = p;
                     }
                 }
+
+                if (!bestRecord)
+                    continue;
+
+                auto currentRecord = records->at(bestRecord);
+                for (auto bonePosition : multipoint(entity, currentRecord.matrix, currentRecord.hdr, j, weaponIndex))
+                {
+                    const auto angle = calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch);
+                    const auto fov = std::hypot(angle.x, angle.y);
+
+                    if (fov > bestFov)
+                        continue;
+
+                    if (!config->aimbot[weaponIndex].ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
+                        continue;
+
+                    if (!entity->isVisible(bonePosition) && (config->aimbot[weaponIndex].visibleOnly || !canScan(entity, bonePosition, activeWeapon->getWeaponData(), config->aimbot[weaponIndex].killshot ? entity->health() : config->aimbot[weaponIndex].minDamage, config->aimbot[weaponIndex].friendlyFire)))
+                        continue;
+
+                    if (config->aimbot[weaponIndex].scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped() && localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP))) {
+                        if (config->aimbot[weaponIndex].autoScope)
+                            cmd->buttons |= UserCmd::IN_ATTACK2;
+                        return;
+                    }
+
+                    if (localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP)) && ((entity->getAbsOrigin() - localPlayer->getAbsOrigin()).length()) <= activeWeapon->getWeaponData()->range)
+                        shouldRunAutoStop.at(weaponIndex) = config->aimbot[weaponIndex].autoStop;
+
+                    if (!hitChance(localPlayer.get(), entity, activeWeapon, angle, cmd, config->aimbot[weaponIndex].hitChance))
+                        continue;
+
+                    if (fov < bestFov) {
+                        bestFov = fov;
+                        bestTarget = bonePosition;
+                    }
+                }
+
             }
         }
 
