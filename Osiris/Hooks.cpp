@@ -384,14 +384,16 @@ struct ViewSetup {
 
 static void __STDCALL overrideView(LINUX_ARGS(void* thisptr,) ViewSetup* setup) noexcept
 {
-    Entity* target = localPlayer->isAlive() ? localPlayer.get() : localPlayer->getObserverTarget();
+    if (localPlayer) {
+        Entity* target = localPlayer->isAlive() ? localPlayer.get() : localPlayer->getObserverTarget();
 
-    if (config->misc.viewmodelChanger.enabled && config->misc.viewmodelChanger.roll) {
+        if (config->misc.viewmodelChanger.enabled && config->misc.viewmodelChanger.roll) {
 
-        if (target && target->isAlive() && !target->isScoped()) {
-            const auto viewModel = interfaces->entityList->getEntityFromHandle(target->viewModel());
-            if (viewModel)
-                memory->setAbsAngle(viewModel, setup->angles + Vector{ 0.f, 0.f, (float)config->misc.viewmodelChanger.roll });
+            if (target && target->isAlive() && !target->isScoped()) {
+                const auto viewModel = interfaces->entityList->getEntityFromHandle(target->viewModel());
+                if (viewModel)
+                    memory->setAbsAngle(viewModel, setup->angles + Vector{ 0.f, 0.f, (float)config->misc.viewmodelChanger.roll });
+            }
         }
     }
 
