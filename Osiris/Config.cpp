@@ -432,6 +432,15 @@ static void from_json(const json& j, PreserveKillfeed& o)
     read(j, "Only Headshots", o.onlyHeadshots);
 }
 
+static void from_json(const json& j, ViewmodelChanger& vc)
+{
+    read(j, "Enabled", vc.enabled);
+    read(j, "Viewmodel offset X", vc.x);
+    read(j, "Viewmodel offset Y", vc.y);
+    read(j, "Viewmodel offset Z", vc.z);
+    read(j, "Viewmodel roll", vc.roll);
+}
+
 static void from_json(const json& j, Config::Misc& m)
 {
     read(j, "Menu key", m.menuKey);
@@ -492,6 +501,7 @@ static void from_json(const json& j, Config::Misc& m)
     read<value_t::object>(j, "Purchase List", m.purchaseList);
     read<value_t::object>(j, "Reportbot", m.reportbot);
     read(j, "Opposite Hand Knife", m.oppositeHandKnife);
+    read<value_t::object>(j, "Viewmodel changer", m.viewmodelChanger);
     read<value_t::object>(j, "Preserve Killfeed", m.preserveKillfeed);
 }
 
@@ -804,6 +814,15 @@ static void to_json(json& j, const PreserveKillfeed& o, const PreserveKillfeed& 
     WRITE("Only Headshots", onlyHeadshots);
 }
 
+static void to_json(json& j, const ViewmodelChanger& o, const ViewmodelChanger& dummy = {})
+{
+    WRITE("Enabled", enabled);
+    WRITE("Viewmodel offset X", x);
+    WRITE("Viewmodel offset Y", y);
+    WRITE("Viewmodel offset Z", z);
+    WRITE("Viewmodel roll", roll);
+}
+
 static void to_json(json& j, const Config::Misc& o)
 {
     const Config::Misc dummy;
@@ -869,6 +888,7 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Purchase List", purchaseList);
     WRITE("Reportbot", reportbot);
     WRITE("Opposite Hand Knife", oppositeHandKnife);
+    WRITE("Viewmodel changer", viewmodelChanger);
     WRITE("Preserve Killfeed", preserveKillfeed);
 }
 
