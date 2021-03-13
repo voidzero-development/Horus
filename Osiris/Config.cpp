@@ -233,13 +233,17 @@ static void from_json(const json& j, Config::Aimbot& a)
     read(j, "Auto scope", a.autoScope);
     read(j, "Fov", a.fov);
     read(j, "Smooth", a.smooth);
-    read(j, "Bone", a.bone);
     read(j, "Multi point", a.multiPoint);
     read(j, "Hit chance", a.hitChance);
     read(j, "Min damage", a.minDamage);
     read(j, "Killshot", a.killshot);
     read(j, "Between shots", a.betweenShots);
     read(j, "Auto stop", a.autoStop);
+    read(j, "Head hit group", a.hitGroups[0]);
+    read(j, "Chest hit group", a.hitGroups[1]);
+    read(j, "Stomach hit group", a.hitGroups[2]);
+    read(j, "Arms hit group", a.hitGroups[3]);
+    read(j, "Legs hit group", a.hitGroups[4]);
 }
 
 static void from_json(const json& j, Config::Triggerbot& t)
@@ -698,13 +702,17 @@ static void to_json(json& j, const Config::Aimbot& o, const Config::Aimbot& dumm
     WRITE("Auto scope", autoScope);
     WRITE("Fov", fov);
     WRITE("Smooth", smooth);
-    WRITE("Bone", bone);
     WRITE("Multi point", multiPoint);
     WRITE("Hit chance", hitChance);
     WRITE("Min damage", minDamage);
     WRITE("Killshot", killshot);
     WRITE("Between shots", betweenShots);
     WRITE("Auto stop", autoStop);
+    WRITE("Head hit group", hitGroups[0]);
+    WRITE("Chest hit group", hitGroups[1]);
+    WRITE("Stomach hit group", hitGroups[2]);
+    WRITE("Arms hit group", hitGroups[3]);
+    WRITE("Legs hit group", hitGroups[4]);
 }
 
 static void to_json(json& j, const Config::Triggerbot& o, const Config::Triggerbot& dummy = {})

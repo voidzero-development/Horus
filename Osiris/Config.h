@@ -43,13 +43,13 @@ public:
         bool autoScope{ false };
         float fov{ 0.0f };
         float smooth{ 1.0f };
-        int bone{ 0 };
         int hitChance{ 0 };
         int multiPoint{ 0 };
         int minDamage{ 1 };
         bool killshot{ false };
         bool betweenShots{ true };
         bool autoStop{ false };
+        bool hitGroups[5]{ false };
     };
     std::array<Aimbot, 7> aimbot;
     bool aimbotOnKey{ false };

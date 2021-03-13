@@ -17,7 +17,7 @@ struct StudioBbox {
     int	unused[4];
 };
 
-enum class Hitbox {
+enum Hitbox {
     Head,
     Neck,
     Pelvis,

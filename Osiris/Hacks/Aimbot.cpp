@@ -230,7 +230,7 @@ std::vector<Vector> multipoint(Entity* entity, matrix3x4 matrix[256], StudioHdr*
     float multiPoint = (min(config->aimbot[weaponClass].multiPoint, 95)) * 0.01f;
 
     switch (iHitbox) {
-    case 0:
+    case Hitbox::Head:
         for (auto i = 0; i < 4; ++i)
             vecArray.emplace_back(vCenter);
 
@@ -238,7 +238,7 @@ std::vector<Vector> multipoint(Entity* entity, matrix3x4 matrix[256], StudioHdr*
         vecArray[2] += right * (hitbox->capsuleRadius * multiPoint);
         vecArray[3] += left * (hitbox->capsuleRadius * multiPoint);
         break;
-    default://rest
+    default:
         for (auto i = 0; i < 3; ++i)
             vecArray.emplace_back(vCenter);
 
@@ -338,7 +338,40 @@ void Aimbot::run(UserCmd* cmd) noexcept
         return;
 
     if (config->aimbot[weaponClass].enabled && (cmd->buttons & UserCmd::IN_ATTACK || config->aimbot[weaponClass].autoShot || config->aimbot[weaponClass].aimlock)) {
-        std::array<bool, 19> hitbox{ true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true };
+        std::array<bool, 19> hitbox{ false };
+        for (int i = 0; i < ARRAYSIZE(config->aimbot[weaponClass].hitGroups); i++)
+        {
+            switch (i)
+            {
+            case 0: //Head
+                hitbox[Hitbox::Head] = config->aimbot[weaponClass].hitGroups[i];
+                break;
+            case 1: //Chest
+                hitbox[Hitbox::Thorax] = config->aimbot[weaponClass].hitGroups[i];
+                hitbox[Hitbox::LowerChest] = config->aimbot[weaponClass].hitGroups[i];
+                hitbox[Hitbox::UpperChest] = config->aimbot[weaponClass].hitGroups[i];
+                break;
+            case 2: //Stomach
+                hitbox[Hitbox::Pelvis] = config->aimbot[weaponClass].hitGroups[i];
+                hitbox[Hitbox::Belly] = config->aimbot[weaponClass].hitGroups[i];
+                break;
+            case 3: //Arms
+                hitbox[Hitbox::RightUpperArm] = config->aimbot[weaponClass].hitGroups[i];
+                hitbox[Hitbox::RightForearm] = config->aimbot[weaponClass].hitGroups[i];
+                hitbox[Hitbox::LeftUpperArm] = config->aimbot[weaponClass].hitGroups[i];
+                hitbox[Hitbox::LeftForearm] = config->aimbot[weaponClass].hitGroups[i];
+                break;
+            case 4: //Legs
+                hitbox[Hitbox::RightCalf] = config->aimbot[weaponClass].hitGroups[i];
+                hitbox[Hitbox::RightThigh] = config->aimbot[weaponClass].hitGroups[i];
+                hitbox[Hitbox::LeftCalf] = config->aimbot[weaponClass].hitGroups[i];
+                hitbox[Hitbox::LeftThigh] = config->aimbot[weaponClass].hitGroups[i];
+                break;
+            default:
+                break;
+            }
+        }
+
         auto bestFov = config->aimbot[weaponClass].fov;
         Vector bestTarget{ };
         const auto localPlayerEyePosition = localPlayer->getEyePosition();

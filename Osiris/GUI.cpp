@@ -204,7 +204,23 @@ void GUI::renderAimbotWindow(bool contentOnly) noexcept
     ImGui::Checkbox("Auto shot", &config->aimbot[currentCategory].autoShot);
     ImGui::Checkbox("Auto scope", &config->aimbot[currentCategory].autoScope);
     ImGui::Checkbox("Auto stop", &config->aimbot[currentCategory].autoStop);
-    ImGui::Combo("Bone", &config->aimbot[currentCategory].bone, "Nearest\0Best damage\0Head\0Neck\0Sternum\0Chest\0Stomach\0Pelvis\0");
+    static const char* hitGroups[]{ "Head", "Chest", "Stomach", "Arms", "Legs" };
+    static std::string previewvalue = "";
+    if (ImGui::BeginCombo("Hit groups", previewvalue.c_str())) {
+        previewvalue = "";
+        for (size_t i = 0; i < ARRAYSIZE(hitGroups); i++)
+            ImGui::Selectable(hitGroups[i], &config->aimbot[currentCategory].hitGroups[i], ImGuiSelectableFlags_::ImGuiSelectableFlags_DontClosePopups);
+        ImGui::EndCombo();
+    }
+    bool once = false;
+    for (size_t i = 0; i < ARRAYSIZE(hitGroups); i++) {
+        if (!once) {
+            previewvalue = "";
+            once = true;
+        }
+        if (config->aimbot[currentCategory].hitGroups[i])
+            previewvalue += previewvalue.size() ? std::string(", ") + hitGroups[i] : hitGroups[i];
+    }
     ImGui::NextColumn();
     ImGui::PushItemWidth(240.0f);
     ImGui::SliderFloat("Fov", &config->aimbot[currentCategory].fov, 0.0f, 255.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
