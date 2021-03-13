@@ -215,8 +215,8 @@ public:
         char clanTag[16];
         KeyBind edgejumpkey = KeyBind::NONE;
         KeyBind slowwalkKey = KeyBind::NONE;
-        ColorToggleThickness noscopeCrosshair;
-        ColorToggleThickness recoilCrosshair;
+        bool forceCrosshair = false;
+        bool recoilCrosshair = false;
 
         struct SpectatorList {
             bool enabled = false;

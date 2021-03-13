@@ -1120,8 +1120,8 @@ void GUI::renderMiscWindow(bool contentOnly) noexcept
     ImGui::PushID("Slowwalk Key");
     hotkey2("", config->misc.slowwalkKey);
     ImGui::PopID();
-    ImGuiCustom::colorPicker("Noscope crosshair", config->misc.noscopeCrosshair);
-    ImGuiCustom::colorPicker("Recoil crosshair", config->misc.recoilCrosshair);
+    ImGui::Checkbox("Force crosshair", &config->misc.forceCrosshair);
+    ImGui::Checkbox("Recoil crosshair", &config->misc.recoilCrosshair);
     ImGui::Checkbox("Auto pistol", &config->misc.autoPistol);
     ImGui::Checkbox("Auto accept", &config->misc.autoAccept);
     ImGui::Checkbox("Radar hack", &config->misc.radarHack);
