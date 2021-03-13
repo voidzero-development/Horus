@@ -14,12 +14,26 @@
 #include "../SDK/StudioRender.h"
 #include "../SDK/ModelInfo.h"
 
+static void setRandomSeed(int seed) noexcept
+{
+    using randomSeedFn = void(*)(int);
+    static auto randomSeed{ reinterpret_cast<randomSeedFn>(GetProcAddress(GetModuleHandleA("vstdlib.dll"), "RandomSeed")) };
+    randomSeed(seed);
+}
+
+static float getRandom(float min, float max) noexcept
+{
+    using randomFloatFn = float(*)(float, float);
+    static auto randomFloat{ reinterpret_cast<randomFloatFn>(GetProcAddress(GetModuleHandleA("vstdlib.dll"), "RandomFloat")) };
+    return randomFloat(min, max);
+}
+
 static bool hitChance(Entity* localPlayer, Entity* entity, Entity* weaponData, const Vector& destination, const UserCmd* cmd, const int hitChance) noexcept
 {
     if (!hitChance)
         return true;
 
-    constexpr int maxSeed = 255;
+    constexpr int maxSeed = 256;
 
     const Angle angles(destination + cmd->viewangles);
 
@@ -36,10 +50,11 @@ static bool hitChance(Entity* localPlayer, Entity* entity, Entity* weaponData, c
 
     for (int i = 0; i < maxSeed; i++)
     {
-        const float spreadX = randomFloat(0.f, 2.f * static_cast<float>(M_PI));
-        const float spreadY = randomFloat(0.f, 2.f * static_cast<float>(M_PI));
-        auto inaccuracy = weapInaccuracy * randomFloat(0.f, 1.f);
-        auto spread = weapSpread * randomFloat(0.f, 1.f);
+        setRandomSeed(i + 1);
+        float inaccuracy = getRandom(0.f, 1.f);
+        float spread = getRandom(0.f, 1.f);
+        const float spreadX = getRandom(0.f, 2.f * static_cast<float>(M_PI));
+        const float spreadY = getRandom(0.f, 2.f * static_cast<float>(M_PI));
 
         Vector spreadView{ (cosf(spreadX) * inaccuracy) + (cosf(spreadY) * spread),
                            (sinf(spreadX) * inaccuracy) + (sinf(spreadY) * spread) };
