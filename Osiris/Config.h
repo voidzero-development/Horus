@@ -199,7 +199,6 @@ public:
         bool revealMoney{ false };
         bool revealSuspect{ false };
         bool fixAnimationLOD{ false };
-        bool fixBoneMatrix{ false };
         bool disableModelOcclusion{ false };
         bool nameStealer{ false };
         bool disablePanoramablur{ false };
