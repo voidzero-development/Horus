@@ -51,7 +51,7 @@ public:
         bool betweenShots{ true };
         bool autoStop{ false };
     };
-    std::array<Aimbot, 40> aimbot;
+    std::array<Aimbot, 7> aimbot;
     bool aimbotOnKey{ false };
     KeyBind aimbotKey = KeyBind::NONE;
     int aimbotKeyMode{ 0 };
@@ -68,7 +68,7 @@ public:
         int minDamage = 1;
         float burstTime = 0.0f;
     };
-    std::array<Triggerbot, 40> triggerbot;
+    std::array<Triggerbot, 7> triggerbot;
     KeyBind triggerbotHoldKey = KeyBind::NONE;
 
     struct Chams {

@@ -22,17 +22,11 @@ void Triggerbot::run(UserCmd* cmd) noexcept
     if (localPlayer->shotsFired() > 0 && !activeWeapon->isFullAuto())
         return;
 
-    auto weaponIndex = getWeaponIndex(activeWeapon->itemDefinitionIndex2());
-    if (!weaponIndex)
-        return;
+    auto weaponClass = getWeaponClass(activeWeapon->itemDefinitionIndex2());
+    if (!config->aimbot[weaponClass].enabled)
+        weaponClass = 0;
 
-    if (!config->triggerbot[weaponIndex].enabled)
-        weaponIndex = getWeaponClass(activeWeapon->itemDefinitionIndex2());
-
-    if (!config->triggerbot[weaponIndex].enabled)
-        weaponIndex = 0;
-
-    const auto& cfg = config->triggerbot[weaponIndex];
+    const auto& cfg = config->triggerbot[weaponClass];
 
     if (!cfg.enabled)
         return;
@@ -42,7 +36,7 @@ void Triggerbot::run(UserCmd* cmd) noexcept
 
     const auto now = memory->globalVars->realtime;
 
-    if (now - lastContact < config->triggerbot[weaponIndex].burstTime) {
+    if (now - lastContact < config->triggerbot[weaponClass].burstTime) {
         cmd->buttons |= UserCmd::IN_ATTACK;
         return;
     }
