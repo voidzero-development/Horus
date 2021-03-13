@@ -498,7 +498,6 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Unlock inventory", m.unlockInventory);
     read(j, "Auto GG", m.autoGG);
     read(j, "Fix tablet signal", m.fixTabletSignal);
-    read(j, "Max angle delta", m.maxAngleDelta);
     read(j, "Fake prime", m.fakePrime);
     read(j, "Fix tablet signal", m.fixTabletSignal);
     read<value_t::string>(j, "Custom Hit Sound", m.customHitSound);
@@ -891,7 +890,6 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Unlock inventory", unlockInventory);
     WRITE("Auto GG", autoGG);
     WRITE("Fix tablet signal", fixTabletSignal);
-    WRITE("Max angle delta", maxAngleDelta);
     WRITE("Fake prime", fakePrime);
     WRITE("Fix tablet signal", fixTabletSignal);
     WRITE("Custom Hit Sound", customHitSound);

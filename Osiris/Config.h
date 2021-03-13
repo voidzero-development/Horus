@@ -241,7 +241,6 @@ public:
         KeyBind prepareRevolverKey = KeyBind::NONE;
         int hitSound{ 0 };
         int quickHealthshotKey{ 0 };
-        float maxAngleDelta{ 255.0f };
         int killSound{ 0 };
         std::string customKillSound;
         std::string customHitSound;

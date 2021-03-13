@@ -201,8 +201,9 @@ static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTim
 
     auto viewAnglesDelta{ cmd->viewangles - previousViewAngles };
     viewAnglesDelta.normalize();
-    viewAnglesDelta.x = std::clamp(viewAnglesDelta.x, -config->misc.maxAngleDelta, config->misc.maxAngleDelta);
-    viewAnglesDelta.y = std::clamp(viewAnglesDelta.y, -config->misc.maxAngleDelta, config->misc.maxAngleDelta);
+    float maxAngleDelta{ /*(*memory->gameRules)->isValveDS() ? 39.f :*/ 255.f }; //TODO: Aim step only in modes that kick the user
+    viewAnglesDelta.x = std::clamp(viewAnglesDelta.x, -maxAngleDelta, maxAngleDelta);
+    viewAnglesDelta.y = std::clamp(viewAnglesDelta.y, -maxAngleDelta, maxAngleDelta);
 
     cmd->viewangles = previousViewAngles + viewAnglesDelta;
 
