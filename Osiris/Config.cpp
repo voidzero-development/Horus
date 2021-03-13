@@ -490,7 +490,6 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Fast plant", m.fastPlant);
     read(j, "Fast Stop", m.fastStop);
     read<value_t::object>(j, "Bomb timer", m.bombTimer);
-    read(j, "Quick reload", m.quickReload);
     read(j, "Prepare revolver", m.prepareRevolver);
     read(j, "Prepare revolver key", m.prepareRevolverKey);
     read(j, "Hit sound", m.hitSound);
@@ -884,7 +883,6 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Fast plant", fastPlant);
     WRITE("Fast Stop", fastStop);
     WRITE("Bomb timer", bombTimer);
-    WRITE("Quick reload", quickReload);
     WRITE("Prepare revolver", prepareRevolver);
     WRITE("Prepare revolver key", prepareRevolverKey);
     WRITE("Hit sound", hitSound);
