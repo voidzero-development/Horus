@@ -200,7 +200,6 @@ public:
         bool revealSuspect{ false };
         bool fixAnimationLOD{ false };
         bool fixBoneMatrix{ false };
-        bool fixMovement{ false };
         bool disableModelOcclusion{ false };
         bool nameStealer{ false };
         bool disablePanoramablur{ false };

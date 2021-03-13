@@ -478,7 +478,6 @@ static void from_json(const json& j, Config::Misc& m)
     read<value_t::object>(j, "Offscreen Enemies", m.offscreenEnemies);
     read(j, "Fix animation LOD", m.fixAnimationLOD);
     read(j, "Fix bone matrix", m.fixBoneMatrix);
-    read(j, "Fix movement", m.fixMovement);
     read(j, "Disable model occlusion", m.disableModelOcclusion);
     read(j, "Aspect Ratio", m.aspectratio);
     read(j, "Kill message", m.killMessage);
@@ -868,7 +867,6 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Offscreen Enemies", offscreenEnemies);
     WRITE("Fix animation LOD", fixAnimationLOD);
     WRITE("Fix bone matrix", fixBoneMatrix);
-    WRITE("Fix movement", fixMovement);
     WRITE("Disable model occlusion", disableModelOcclusion);
     WRITE("Aspect Ratio", aspectratio);
     WRITE("Kill message", killMessage);

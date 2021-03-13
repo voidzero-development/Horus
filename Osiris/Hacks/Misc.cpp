@@ -526,17 +526,15 @@ void Misc::killMessage(GameEvent& event) noexcept
 
 void Misc::fixMovement(UserCmd* cmd, float yaw) noexcept
 {
-    if (config->misc.fixMovement) {
-        float oldYaw = yaw + (yaw < 0.0f ? 360.0f : 0.0f);
-        float newYaw = cmd->viewangles.y + (cmd->viewangles.y < 0.0f ? 360.0f : 0.0f);
-        float yawDelta = newYaw < oldYaw ? fabsf(newYaw - oldYaw) : 360.0f - fabsf(newYaw - oldYaw);
-        yawDelta = 360.0f - yawDelta;
-
-        const float forwardmove = cmd->forwardmove;
-        const float sidemove = cmd->sidemove;
-        cmd->forwardmove = std::cos(degreesToRadians(yawDelta)) * forwardmove + std::cos(degreesToRadians(yawDelta + 90.0f)) * sidemove;
-        cmd->sidemove = std::sin(degreesToRadians(yawDelta)) * forwardmove + std::sin(degreesToRadians(yawDelta + 90.0f)) * sidemove;
-    }
+    float oldYaw = yaw + (yaw < 0.0f ? 360.0f : 0.0f);
+    float newYaw = cmd->viewangles.y + (cmd->viewangles.y < 0.0f ? 360.0f : 0.0f);
+    float yawDelta = newYaw < oldYaw ? fabsf(newYaw - oldYaw) : 360.0f - fabsf(newYaw - oldYaw);
+    yawDelta = 360.0f - yawDelta;
+    
+    const float forwardmove = cmd->forwardmove;
+    const float sidemove = cmd->sidemove;
+    cmd->forwardmove = std::cos(degreesToRadians(yawDelta)) * forwardmove + std::cos(degreesToRadians(yawDelta + 90.0f)) * sidemove;
+    cmd->sidemove = std::sin(degreesToRadians(yawDelta)) * forwardmove + std::sin(degreesToRadians(yawDelta + 90.0f)) * sidemove;
 }
 
 void Misc::antiAfkKick(UserCmd* cmd) noexcept
