@@ -624,7 +624,7 @@ void Misc::autoReload(UserCmd* cmd) noexcept
 {
     if (config->misc.autoReload && localPlayer) {
         const auto activeWeapon = localPlayer->getActiveWeapon();
-        if (activeWeapon && getWeaponClass(activeWeapon->itemDefinitionIndex2()) && !activeWeapon->clip())
+        if (activeWeapon && getWeaponIndex(activeWeapon->itemDefinitionIndex2()) && !activeWeapon->clip())
             cmd->buttons &= ~(UserCmd::IN_ATTACK | UserCmd::IN_ATTACK2);
     }
 }

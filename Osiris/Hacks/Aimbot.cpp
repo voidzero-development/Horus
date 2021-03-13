@@ -270,6 +270,10 @@ void Aimbot::autoStop(UserCmd* cmd) noexcept
     if (!activeWeapon || !activeWeapon->clip())
         return;
 
+    auto weaponIndex = getWeaponIndex(activeWeapon->itemDefinitionIndex2());
+    if (!weaponIndex)
+        return;
+
     auto weaponClass = getWeaponClass(activeWeapon->itemDefinitionIndex2());
     if (!config->aimbot[weaponClass].enabled)
         weaponClass = 0;
@@ -322,6 +326,10 @@ void Aimbot::run(UserCmd* cmd) noexcept
         return;
 
     if (localPlayer->shotsFired() > 0 && !activeWeapon->isFullAuto())
+        return;
+
+    auto weaponIndex = getWeaponIndex(activeWeapon->itemDefinitionIndex2());
+    if (!weaponIndex)
         return;
 
     auto weaponClass = getWeaponClass(activeWeapon->itemDefinitionIndex2());
