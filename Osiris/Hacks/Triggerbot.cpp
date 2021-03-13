@@ -27,7 +27,7 @@ void Triggerbot::run(UserCmd* cmd) noexcept
     if (!config->aimbot[weaponClass].enabled)
         weaponClass = 0;
 
-    const auto& cfg = config->triggerbot[weaponClass];
+    auto& cfg = config->triggerbot[weaponClass];
 
     if (!cfg.enabled)
         return;
