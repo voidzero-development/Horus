@@ -179,7 +179,6 @@ static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTim
     Misc::removeCrouchCooldown(cmd);
     Misc::autoPistol(cmd);
     Misc::updateClanTag();
-    Misc::fakeBan();
     Misc::stealNames();
     Misc::revealRanks(cmd);
     Misc::fixTabletSignal();

@@ -482,17 +482,6 @@ void Misc::bunnyHop(UserCmd* cmd) noexcept
     wasLastTimeOnGround = localPlayer->flags() & 1;
 }
 
-void Misc::fakeBan(bool set) noexcept
-{
-    static bool shouldSet = false;
-
-    if (set)
-        shouldSet = set;
-
-    if (shouldSet && interfaces->engine->isInGame() && changeName(false, std::string{ "\x1\xB" }.append(std::string{ static_cast<char>(config->misc.banColor + 1) }).append(config->misc.banText).append("\x1").c_str(), 5.0f))
-        shouldSet = false;
-}
-
 void Misc::fixTabletSignal() noexcept
 {
     if (config->misc.fixTabletSignal && localPlayer) {
