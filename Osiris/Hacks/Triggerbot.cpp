@@ -6,6 +6,7 @@
 #include "../SDK/UserCmd.h"
 #include "../SDK/WeaponData.h"
 #include "../SDK/WeaponId.h"
+#include "../SDK/ModelInfo.h"
 #include "Triggerbot.h"
 
 static bool keyPressed;
@@ -78,8 +79,45 @@ void Triggerbot::run(UserCmd* cmd) noexcept
     if (trace.entity->gunGameImmunity())
         return;
 
-    if (cfg.hitgroup && trace.hitgroup != cfg.hitgroup)
-        return;
+    std::array<bool, 19> hitbox{ false };
+    for (int i = 0; i < ARRAYSIZE(config->triggerbot[weaponClass].hitGroups); i++)
+    {
+        switch (i)
+        {
+        case 0: //Head
+            hitbox[Hitbox::Head] = config->triggerbot[weaponClass].hitGroups[i];
+            break;
+        case 1: //Chest
+            hitbox[Hitbox::Thorax] = config->triggerbot[weaponClass].hitGroups[i];
+            hitbox[Hitbox::LowerChest] = config->triggerbot[weaponClass].hitGroups[i];
+            hitbox[Hitbox::UpperChest] = config->triggerbot[weaponClass].hitGroups[i];
+            break;
+        case 2: //Stomach
+            hitbox[Hitbox::Pelvis] = config->triggerbot[weaponClass].hitGroups[i];
+            hitbox[Hitbox::Belly] = config->triggerbot[weaponClass].hitGroups[i];
+            break;
+        case 3: //Arms
+            hitbox[Hitbox::RightUpperArm] = config->triggerbot[weaponClass].hitGroups[i];
+            hitbox[Hitbox::RightForearm] = config->triggerbot[weaponClass].hitGroups[i];
+            hitbox[Hitbox::LeftUpperArm] = config->triggerbot[weaponClass].hitGroups[i];
+            hitbox[Hitbox::LeftForearm] = config->triggerbot[weaponClass].hitGroups[i];
+            break;
+        case 4: //Legs
+            hitbox[Hitbox::RightCalf] = config->triggerbot[weaponClass].hitGroups[i];
+            hitbox[Hitbox::RightThigh] = config->triggerbot[weaponClass].hitGroups[i];
+            hitbox[Hitbox::LeftCalf] = config->triggerbot[weaponClass].hitGroups[i];
+            hitbox[Hitbox::LeftThigh] = config->triggerbot[weaponClass].hitGroups[i];
+            break;
+        default:
+            break;
+        }
+    }
+
+    for (int j = 0; j < 19; j++)
+    {
+        if (trace.hitbox == j && !hitbox[j])
+            return;
+    }
 
     float damage = (activeWeapon->itemDefinitionIndex2() != WeaponId::Taser ? HitGroup::getDamageMultiplier(trace.hitgroup) : 1.0f) * weaponData->damage * std::pow(weaponData->rangeModifier, trace.fraction * weaponData->range / 500.0f);
 

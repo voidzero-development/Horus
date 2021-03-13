@@ -63,10 +63,10 @@ public:
         bool ignoreFlash = false;
         bool ignoreSmoke = false;
         bool killshot = false;
-        int hitgroup = 0;
         int shotDelay = 0;
         int minDamage = 1;
         float burstTime = 0.0f;
+        bool hitGroups[5]{ false };
     };
     std::array<Triggerbot, 7> triggerbot;
     KeyBind triggerbotHoldKey = KeyBind::NONE;

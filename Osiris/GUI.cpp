@@ -258,8 +258,23 @@ void GUI::renderTriggerbotWindow(bool contentOnly) noexcept
     ImGui::Checkbox("Scoped only", &config->triggerbot[currentCategory].scopedOnly);
     ImGui::Checkbox("Ignore flash", &config->triggerbot[currentCategory].ignoreFlash);
     ImGui::Checkbox("Ignore smoke", &config->triggerbot[currentCategory].ignoreSmoke);
-    ImGui::SetNextItemWidth(85.0f);
-    ImGui::Combo("Hitgroup", &config->triggerbot[currentCategory].hitgroup, "All\0Head\0Chest\0Stomach\0Left arm\0Right arm\0Left leg\0Right leg\0");
+    static const char* hitGroups[]{ "Head", "Chest", "Stomach", "Arms", "Legs" };
+    static std::string previewvalue = "";
+    if (ImGui::BeginCombo("Hit groups", previewvalue.c_str())) {
+        previewvalue = "";
+        for (size_t i = 0; i < ARRAYSIZE(hitGroups); i++)
+            ImGui::Selectable(hitGroups[i], &config->triggerbot[currentCategory].hitGroups[i], ImGuiSelectableFlags_::ImGuiSelectableFlags_DontClosePopups);
+        ImGui::EndCombo();
+    }
+    bool once = false;
+    for (size_t i = 0; i < ARRAYSIZE(hitGroups); i++) {
+        if (!once) {
+            previewvalue = "";
+            once = true;
+        }
+        if (config->triggerbot[currentCategory].hitGroups[i])
+            previewvalue += previewvalue.size() ? std::string(", ") + hitGroups[i] : hitGroups[i];
+    }
     ImGui::PushItemWidth(220.0f);
     ImGui::SliderInt("Shot delay", &config->triggerbot[currentCategory].shotDelay, 0, 250, "%d ms");
     ImGui::InputInt("Min damage", &config->triggerbot[currentCategory].minDamage);

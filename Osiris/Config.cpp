@@ -253,11 +253,15 @@ static void from_json(const json& j, Config::Triggerbot& t)
     read(j, "Scoped only", t.scopedOnly);
     read(j, "Ignore flash", t.ignoreFlash);
     read(j, "Ignore smoke", t.ignoreSmoke);
-    read(j, "Hitgroup", t.hitgroup);
     read(j, "Shot delay", t.shotDelay);
     read(j, "Min damage", t.minDamage);
     read(j, "Killshot", t.killshot);
     read(j, "Burst Time", t.burstTime);
+    read(j, "Head hit group", t.hitGroups[0]);
+    read(j, "Chest hit group", t.hitGroups[1]);
+    read(j, "Stomach hit group", t.hitGroups[2]);
+    read(j, "Arms hit group", t.hitGroups[3]);
+    read(j, "Legs hit group", t.hitGroups[4]);
 }
 
 static void from_json(const json& j, Config::Chams::Material& m)
@@ -722,11 +726,15 @@ static void to_json(json& j, const Config::Triggerbot& o, const Config::Triggerb
     WRITE("Scoped only", scopedOnly);
     WRITE("Ignore flash", ignoreFlash);
     WRITE("Ignore smoke", ignoreSmoke);
-    WRITE("Hitgroup", hitgroup);
     WRITE("Shot delay", shotDelay);
     WRITE("Min damage", minDamage);
     WRITE("Killshot", killshot);
     WRITE("Burst Time", burstTime);
+    WRITE("Head hit group", hitGroups[0]);
+    WRITE("Chest hit group", hitGroups[1]);
+    WRITE("Stomach hit group", hitGroups[2]);
+    WRITE("Arms hit group", hitGroups[3]);
+    WRITE("Legs hit group", hitGroups[4]);
 }
 
 static void to_json(json& j, const Config::Chams::Material& o)
