@@ -620,15 +620,6 @@ void Misc::autoPistol(UserCmd* cmd) noexcept
     }
 }
 
-void Misc::autoReload(UserCmd* cmd) noexcept
-{
-    if (config->misc.autoReload && localPlayer) {
-        const auto activeWeapon = localPlayer->getActiveWeapon();
-        if (activeWeapon && getWeaponIndex(activeWeapon->itemDefinitionIndex2()) && !activeWeapon->clip())
-            cmd->buttons &= ~(UserCmd::IN_ATTACK | UserCmd::IN_ATTACK2);
-    }
-}
-
 void Misc::revealRanks(UserCmd* cmd) noexcept
 {
     if (config->misc.revealRanks && cmd->buttons & UserCmd::IN_SCORE)

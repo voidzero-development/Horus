@@ -193,7 +193,6 @@ public:
         bool edgejump{ false };
         bool slowwalk{ false };
         bool autoPistol{ false };
-        bool autoReload{ false };
         bool autoAccept{ false };
         bool radarHack{ false };
         bool revealRanks{ false };

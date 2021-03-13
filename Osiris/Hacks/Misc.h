@@ -32,7 +32,6 @@ namespace Misc
     void antiAfkKick(UserCmd* cmd) noexcept;
     void fixAnimationLOD(FrameStage stage) noexcept;
     void autoPistol(UserCmd* cmd) noexcept;
-    void autoReload(UserCmd* cmd) noexcept;
     void revealRanks(UserCmd* cmd) noexcept;
     void autoStrafe(UserCmd* cmd) noexcept;
     void removeCrouchCooldown(UserCmd* cmd) noexcept;
