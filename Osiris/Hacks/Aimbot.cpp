@@ -504,7 +504,7 @@ void Aimbot::run(UserCmd* cmd) noexcept
             auto angle = calculateRelativeAngle(localPlayerEyePosition, bestTarget, cmd->viewangles + aimPunch);
             bool clamped{ false };
 
-            float maxAngleDelta{ (*memory->gameRules)->isValveDS() ? 39.f : 255.f }; //TODO: Aim step only in modes that kick the user
+            float maxAngleDelta{ /*(*memory->gameRules)->isValveDS() ? 39.f :*/ 255.f }; //TODO: Aim step only in modes that kick the user
             if (std::abs(angle.x) > maxAngleDelta || std::abs(angle.y) > maxAngleDelta) {
                 angle.x = std::clamp(angle.x, -maxAngleDelta, maxAngleDelta);
                 angle.y = std::clamp(angle.y, -maxAngleDelta, maxAngleDelta);
