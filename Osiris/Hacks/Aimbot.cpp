@@ -441,6 +441,7 @@ void Aimbot::run(UserCmd* cmd) noexcept
                     continue;
 
                 int bestRecord{ };
+                auto recordFov = 255.f;
 
                 for (size_t p = 0; p < records->size(); p++) {
                     const auto& record = records->at(p);
@@ -450,8 +451,8 @@ void Aimbot::run(UserCmd* cmd) noexcept
                     const auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, record.head, cmd->viewangles + aimPunch);
                     const auto fov = std::hypotf(angle.x, angle.y);
 
-                    if (fov < bestFov) {
-                        bestFov = fov;
+                    if (fov < recordFov) {
+                        recordFov = fov;
                         bestRecord = p;
                     }
                 }
