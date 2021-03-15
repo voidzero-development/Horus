@@ -79,57 +79,30 @@ bool autoDir(Entity* entity, Vector eye) noexcept
     return true;
 }
 
-bool shouldRun(UserCmd* cmd) noexcept
+bool didShoot(UserCmd* cmd) noexcept
 {
-    if (!localPlayer || !localPlayer->isAlive())
+    if (!(cmd->buttons & (UserCmd::IN_ATTACK)))
         return false;
 
-    if (((*memory->gameRules)->freezePeriod()))
+    if (!localPlayer || localPlayer->nextAttack() > memory->globalVars->serverTime() || localPlayer->isDefusing() || localPlayer->waitForNoAttack())
         return false;
 
-    if ((cmd->buttons & (UserCmd::IN_USE)))
-        return false;
-
-    if (localPlayer->moveType() == MoveType::LADDER || localPlayer->moveType() == MoveType::NOCLIP)
-        return false;
-
-    auto activeWeapon = localPlayer->getActiveWeapon();
+    const auto activeWeapon = localPlayer->getActiveWeapon();
     if (!activeWeapon || !activeWeapon->clip())
-        return true;
-
-    if (activeWeapon->isThrowing())
         return false;
-
-    if (localPlayer->shotsFired() > 0 && !activeWeapon->isFullAuto() || localPlayer->waitForNoAttack())
-        return true;
-
-    if (localPlayer->nextAttack() > memory->globalVars->serverTime())
-        return true;
 
     if (activeWeapon->nextPrimaryAttack() > memory->globalVars->serverTime())
-        return true;
-
-    if (activeWeapon->nextSecondaryAttack() > memory->globalVars->serverTime())
-        return true;
-
-    if (localPlayer->nextAttack() <= memory->globalVars->serverTime() && (cmd->buttons & (UserCmd::IN_ATTACK)))
         return false;
 
-    if (activeWeapon->nextPrimaryAttack() <= memory->globalVars->serverTime() && (cmd->buttons & (UserCmd::IN_ATTACK)))
+    if (localPlayer->shotsFired() > 0 && !activeWeapon->isFullAuto())
         return false;
-
-    if (activeWeapon->itemDefinitionIndex2() == WeaponId::Revolver && activeWeapon->readyTime() > memory->globalVars->serverTime())
-        return true;
-
-    if ((activeWeapon->itemDefinitionIndex2() == WeaponId::Famas || activeWeapon->itemDefinitionIndex2() == WeaponId::Glock) && activeWeapon->burstMode() && activeWeapon->burstShotRemaining() > 0)
-        return true;
 
     return true;
 }
 
 void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& currentViewAngles, bool& sendPacket) noexcept
 {
-    if (!shouldRun(cmd))
+    if (didShoot(cmd))
         return;
 
     Vector angle{ };
@@ -217,7 +190,7 @@ void AntiAim::fakeLag(UserCmd* cmd, bool& sendPacket) noexcept
     if (antiAimConfig.fakeLag)
         chokedPackets = std::clamp(antiAimConfig.flLimit, 1, 14);
 
-    if (!shouldRun(cmd))
+    if (didShoot(cmd))
         return;
 
     sendPacket = interfaces->engine->getNetworkChannel()->chokedPackets >= chokedPackets;
