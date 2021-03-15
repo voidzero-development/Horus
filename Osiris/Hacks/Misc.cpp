@@ -542,6 +542,21 @@ void Misc::fixAnimationLOD(FrameStage stage) noexcept
     }
 }
 
+bool Misc::shouldAimStep() noexcept
+{
+    static auto gameType{ interfaces->cvar->findVar("game_type") };
+    if ((*memory->gameRules)->isValveDS()) {
+        switch (gameType->getInt()) {
+        default: return true;
+        case 1: return false; //Competitive
+        case 2: return false; //Wingman
+        }
+    }
+    else {
+        return false;
+    }
+}
+
 void Misc::autoPistol(UserCmd* cmd) noexcept
 {
     if (config->misc.autoPistol && localPlayer) {
