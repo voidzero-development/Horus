@@ -20,6 +20,11 @@ static bool hitChance(Entity* localPlayer, Entity* entity, Entity* weaponData, c
     if (!hitChance)
         return true;
 
+    const auto range = weaponData->getWeaponData()->range;
+
+    if (((entity->getAbsOrigin() - localPlayer->getAbsOrigin()).length()) > range)
+        return false;
+
     constexpr int maxSeed = 255;
 
     const Angle angles(destination + cmd->viewangles);
@@ -27,14 +32,15 @@ static bool hitChance(Entity* localPlayer, Entity* entity, Entity* weaponData, c
     int hits = 0;
     const int hitsNeed = static_cast<int>(static_cast<float>(maxSeed) * (static_cast<float>(hitChance) / 100.f));
 
-    const auto range = weaponData->getWeaponData()->range;
-
     const auto weapSpread = weaponData->getSpread();
     const auto weapInaccuracy = weaponData->getInaccuracy();
     const auto localEyePosition = localPlayer->getEyePosition();
 
     for (int i = 0; i < maxSeed; i++)
     {
+        const auto weaponClass = weaponData->itemDefinitionIndex2();
+        const auto recoilIndex = weaponData->recoilIndex();
+
         const float spreadX = randomFloat(0.f, 2.f * static_cast<float>(M_PI));
         const float spreadY = randomFloat(0.f, 2.f * static_cast<float>(M_PI));
         auto inaccuracy = weapInaccuracy * randomFloat(0.f, 1.f);
@@ -401,17 +407,13 @@ void Aimbot::run(UserCmd* cmd) noexcept
                 || !entity->isOtherEnemy(localPlayer.get()) && !config->aimbot[weaponClass].friendlyFire || entity->gunGameImmunity())
                 continue;
 
-            const auto range = activeWeapon->getWeaponData()->range;
-            if (((entity->getAbsOrigin() - localPlayer->getAbsOrigin()).length()) > range)
-                continue;
-
-            const Model* mod = entity->getModel();
-            if (!mod)
-                continue;
-
             for (int j = 0; j < 19; j++)
             {
                 if (!(hitbox[j]))
+                    continue;
+
+                const Model* mod = entity->getModel();
+                if (!mod)
                     continue;
 
                 StudioHdr* hdr = interfaces->modelInfo->getStudioModel(mod);
