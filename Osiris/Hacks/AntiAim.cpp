@@ -102,6 +102,19 @@ bool didShoot(UserCmd* cmd) noexcept
 
 void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& currentViewAngles, bool& sendPacket) noexcept
 {
+    if (!localPlayer->isAlive())
+        return;
+
+    if (localPlayer->moveType() == MoveType::LADDER || localPlayer->moveType() == MoveType::NOCLIP)
+        return;
+
+    if ((cmd->buttons & (UserCmd::IN_USE)))
+        return;
+
+    auto activeWeapon = localPlayer->getActiveWeapon();
+    if (activeWeapon->isThrowing())
+        return;
+
     if (didShoot(cmd))
         return;
 
