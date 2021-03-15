@@ -81,7 +81,7 @@ bool autoDir(Entity* entity, Vector eye) noexcept
 
 bool didShoot(UserCmd* cmd) noexcept
 {
-    if (!(cmd->buttons & (UserCmd::IN_ATTACK)) && !(cmd->buttons & (UserCmd::IN_ATTACK2)))
+    if (!(cmd->buttons & (UserCmd::IN_ATTACK)))
         return false;
 
     if (!localPlayer || localPlayer->nextAttack() > memory->globalVars->serverTime() || localPlayer->isDefusing() || localPlayer->waitForNoAttack())
@@ -91,10 +91,11 @@ bool didShoot(UserCmd* cmd) noexcept
     if (!activeWeapon || !activeWeapon->clip())
         return false;
 
-    if ((activeWeapon->nextPrimaryAttack() > memory->globalVars->serverTime()) || (activeWeapon->nextSecondaryAttack() > memory->globalVars->serverTime()))
+    if (activeWeapon->nextPrimaryAttack() > memory->globalVars->serverTime())
         return false;
 
-    //TODO: Revolver checks
+    if (activeWeapon->nextSecondaryAttack() > memory->globalVars->serverTime())
+        return false;
 
     if (localPlayer->shotsFired() > 0 && !activeWeapon->isFullAuto())
         return false;
