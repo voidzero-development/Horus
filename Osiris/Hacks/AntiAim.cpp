@@ -94,6 +94,9 @@ bool didShoot(UserCmd* cmd) noexcept
     if (activeWeapon->nextPrimaryAttack() > memory->globalVars->serverTime())
         return false;
 
+    if (activeWeapon->nextSecondaryAttack() > memory->globalVars->serverTime())
+        return false;
+
     if (localPlayer->shotsFired() > 0 && !activeWeapon->isFullAuto())
         return false;
 
