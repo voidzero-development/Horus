@@ -79,12 +79,9 @@ bool autoDir(Entity* entity, Vector eye) noexcept
     return true;
 }
 
-bool didShoot(UserCmd* cmd) noexcept
+bool inAttack(UserCmd* cmd) noexcept
 {
     if (!(cmd->buttons & (UserCmd::IN_ATTACK)))
-        return false;
-
-    if (!localPlayer || localPlayer->nextAttack() > memory->globalVars->serverTime() || localPlayer->isDefusing() || localPlayer->waitForNoAttack())
         return false;
 
     const auto activeWeapon = localPlayer->getActiveWeapon();
@@ -100,8 +97,42 @@ bool didShoot(UserCmd* cmd) noexcept
     return true;
 }
 
+bool inAttack2(UserCmd* cmd) noexcept
+{
+    if (!(cmd->buttons & (UserCmd::IN_ATTACK2)))
+        return false;
+
+    const auto activeWeapon = localPlayer->getActiveWeapon();
+    if (!activeWeapon || !activeWeapon->clip())
+        return false;
+
+    if (activeWeapon->nextSecondaryAttack() > memory->globalVars->serverTime())
+        return false;
+
+    if (localPlayer->shotsFired() > 0 && !activeWeapon->isFullAuto())
+        return false;
+
+    return true;
+}
+
+bool didShoot(UserCmd* cmd) noexcept
+{
+    if (!localPlayer || localPlayer->nextAttack() > memory->globalVars->serverTime() || localPlayer->isDefusing() || localPlayer->waitForNoAttack())
+        return false;
+
+    if (inAttack(cmd))
+        return true;
+
+    if (inAttack2(cmd))
+        return true;
+
+    return false;
+}
+
 void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& currentViewAngles, bool& sendPacket) noexcept
 {
+    bool lby = isLbyUpdating();
+
     if (!localPlayer->isAlive())
         return;
 
@@ -172,7 +203,6 @@ void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& 
             break;
         }
 
-        bool lby = isLbyUpdating();
         bool invert = autoDir(localPlayer.get(), cmd->viewangles);
         if (fabsf(yawOffset + angle.y) > 90.f) {
             cmd->buttons ^= UserCmd::IN_FORWARD | UserCmd::IN_BACK | UserCmd::IN_MOVELEFT | UserCmd::IN_MOVERIGHT;
