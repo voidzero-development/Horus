@@ -112,6 +112,9 @@ void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& 
         return;
 
     auto activeWeapon = localPlayer->getActiveWeapon();
+    if (!activeWeapon)
+        return;
+
     if (activeWeapon->isThrowing())
         return;
 
@@ -195,13 +198,13 @@ void AntiAim::fakeLag(UserCmd* cmd, bool& sendPacket) noexcept
 {
     auto chokedPackets = 0;
 
-    if (!localPlayer->isAlive())
-        return;
-
     chokedPackets = antiAimConfig.enabled ? 1 : 0;
 
     if (antiAimConfig.fakeLag)
         chokedPackets = std::clamp(antiAimConfig.flLimit, 1, 14);
+
+    if (!localPlayer->isAlive())
+        return;
 
     if (didShoot(cmd))
         return;
