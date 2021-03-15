@@ -35,6 +35,8 @@ static bool hitChance(Entity* localPlayer, Entity* entity, Entity* weaponData, c
     const auto weapSpread = weaponData->getSpread();
     const auto weapInaccuracy = weaponData->getInaccuracy();
     const auto localEyePosition = localPlayer->getEyePosition();
+    const auto weaponClass = weaponData->itemDefinitionIndex2();
+    const auto recoilIndex = weaponData->recoilIndex();
 
     for (int i = 0; i < maxSeed; i++)
     {
