@@ -239,6 +239,14 @@ std::vector<Vector> multipoint(Entity* entity, matrix3x4 matrix[256], StudioHdr*
         vecArray[2] += right * (hitbox->capsuleRadius * multiPoint);
         vecArray[3] += left * (hitbox->capsuleRadius * multiPoint);
         break;
+    case Hitbox::RightUpperArm:
+    case Hitbox::RightForearm:
+    case Hitbox::LeftUpperArm:
+    case Hitbox::RightCalf:
+    case Hitbox::RightThigh:
+    case Hitbox::LeftCalf:
+    case Hitbox::LeftThigh:
+        break;
     default:
         for (auto i = 0; i < 3; ++i)
             vecArray.emplace_back(vCenter);
