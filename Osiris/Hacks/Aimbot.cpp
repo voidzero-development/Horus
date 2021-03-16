@@ -20,11 +20,6 @@ static bool hitChance(Entity* localPlayer, Entity* entity, Entity* weaponData, c
     if (!hitChance)
         return true;
 
-    const auto range = weaponData->getWeaponData()->range;
-
-    if (((entity->getAbsOrigin() - localPlayer->getAbsOrigin()).length()) > range)
-        return false;
-
     constexpr int maxSeed = 255;
 
     const Angle angles(destination + cmd->viewangles);
@@ -35,14 +30,10 @@ static bool hitChance(Entity* localPlayer, Entity* entity, Entity* weaponData, c
     const auto weapSpread = weaponData->getSpread();
     const auto weapInaccuracy = weaponData->getInaccuracy();
     const auto localEyePosition = localPlayer->getEyePosition();
-    const auto weaponClass = weaponData->itemDefinitionIndex2();
-    const auto recoilIndex = weaponData->recoilIndex();
+    const auto range = weaponData->getWeaponData()->range;
 
     for (int i = 0; i < maxSeed; i++)
     {
-        const auto weaponClass = weaponData->itemDefinitionIndex2();
-        const auto recoilIndex = weaponData->recoilIndex();
-
         const float spreadX = randomFloat(0.f, 2.f * static_cast<float>(M_PI));
         const float spreadY = randomFloat(0.f, 2.f * static_cast<float>(M_PI));
         auto inaccuracy = weapInaccuracy * randomFloat(0.f, 1.f);
@@ -409,21 +400,29 @@ void Aimbot::run(UserCmd* cmd) noexcept
                 || !entity->isOtherEnemy(localPlayer.get()) && !config->aimbot[weaponClass].friendlyFire || entity->gunGameImmunity())
                 continue;
 
+            const Model* mod = entity->getModel();
+            if (!mod)
+                continue;
+
+            StudioHdr* hdr = interfaces->modelInfo->getStudioModel(mod);
+            matrix3x4 boneMatrices[256];
+            entity->setupBones(boneMatrices, 256, 0x7FF00, memory->globalVars->currenttime);
+
             for (int j = 0; j < 19; j++)
             {
                 if (!(hitbox[j]))
                     continue;
 
-                const Model* mod = entity->getModel();
-                if (!mod)
-                    continue;
-
-                StudioHdr* hdr = interfaces->modelInfo->getStudioModel(mod);
-                matrix3x4 boneMatrices[256];
-                entity->setupBones(boneMatrices, 256, 0x7FF00, memory->globalVars->currenttime);
                 for (auto bonePosition : multipoint(entity, boneMatrices, hdr, j, weaponClass)) {
                     const auto angle = calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch);
                     const auto fov = std::hypot(angle.x, angle.y);
+
+                    if (fov > bestFov)
+                        continue;
+
+                    const auto range = activeWeapon->getWeaponData()->range;
+                    if (((bonePosition - localPlayer->getAbsOrigin()).length()) > range)
+                        continue;
 
                     if (!config->aimbot[weaponClass].ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
                         continue;
@@ -480,6 +479,10 @@ void Aimbot::run(UserCmd* cmd) noexcept
                     const auto fov = std::hypot(angle.x, angle.y);
 
                     if (fov > bestFov)
+                        continue;
+
+                    const auto range = activeWeapon->getWeaponData()->range;
+                    if (((bonePosition - localPlayer->getAbsOrigin()).length()) > range)
                         continue;
 
                     if (!config->aimbot[weaponClass].ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
