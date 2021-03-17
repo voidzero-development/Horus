@@ -328,6 +328,7 @@ static void from_json(const json& j, Config::Visuals& v)
     read(j, "Thirdperson", v.thirdperson);
     read(j, "Thirdperson key", v.thirdpersonKey);
     read(j, "Thirdperson distance", v.thirdpersonDistance);
+    read(j, "Scope blend", v.scopeBlend);
     read(j, "Viewmodel FOV", v.viewmodelFov);
     read(j, "FOV", v.fov);
     read(j, "Far Z", v.farZ);
@@ -928,6 +929,7 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("Thirdperson", thirdperson);
     WRITE("Thirdperson key", thirdpersonKey);
     WRITE("Thirdperson distance", thirdpersonDistance);
+    WRITE("Scope blend", scopeBlend);
     WRITE("Viewmodel FOV", viewmodelFov);
     WRITE("FOV", fov);
     WRITE("Far Z", farZ);

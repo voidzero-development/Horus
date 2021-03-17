@@ -156,6 +156,8 @@ public:
             float green = 0.0f;
             float yellow = 0.0f;
         } colorCorrection;
+
+        int scopeBlend{ 0 };
     } visuals;
 
     std::array<item_setting, 36> skinChanger;
