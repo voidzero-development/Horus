@@ -226,13 +226,17 @@ void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& 
         cmd->viewangles.y += yawOffset;
 
         if (lby) {
-            sendPacket = false;
-            if (antiAimConfig.lbyBreak)
+            if (antiAimConfig.lbyBreak) {
+                sendPacket = false;
                 invert ? cmd->viewangles.y -= 119.95f : cmd->viewangles.y += 119.95f;
+            }
             return;
         }
 
         if (!sendPacket) {
+            if (((*memory->gameRules)->freezePeriod()))
+                return;
+
             invert ? cmd->viewangles.y -= localPlayer->getMaxDesyncAngle() * 2 : cmd->viewangles.y += localPlayer->getMaxDesyncAngle() * 2;
         }
     }
