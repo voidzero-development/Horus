@@ -545,11 +545,20 @@ void Misc::fixAnimationLOD(FrameStage stage) noexcept
 bool Misc::shouldAimStep() noexcept
 {
     static auto gameType{ interfaces->cvar->findVar("game_type") };
+    static auto gameMode{ interfaces->cvar->findVar("game_mode") };
     if ((*memory->gameRules)->isValveDS()) {
         switch (gameType->getInt()) {
         default: return true;
-        case 1: return false; //Competitive
-        case 2: return false; //Wingman
+        case 0:
+            switch (gameMode->getInt()) {
+            default: return true;
+            case 1: //Competitive
+            case 2: //Wingman
+            case 3: //Weapon expert
+                return false; 
+            }
+        case 4:
+            return false;
         }
     }
     else {
