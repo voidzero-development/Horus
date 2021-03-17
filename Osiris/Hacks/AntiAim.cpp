@@ -18,6 +18,7 @@ struct AntiAimConfig {
     int pitchAngle = 0;
     int yawOffset = 0;
     float yawJitter = 0;
+    bool atTarget = false;
 
     bool fakeLag = false;
     int flLimit = 1;
@@ -193,14 +194,16 @@ void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& 
 
         float yawOffset{ 0.f };
         static bool flipJitter{ false };
+
+        if (bestTarget.notNull() && antiAimConfig.yawOffset && antiAimConfig.atTarget) {
+            auto angle = Aimbot::calculateRelativeAngle(localPlayer->getBonePosition(8), bestTarget, cmd->viewangles);
+            cmd->viewangles.y += angle.y;
+        }
+
         switch (antiAimConfig.yawOffset) {
         case 0: //Off
             break;
         case 1: //Back
-            if (bestTarget.notNull()) {
-                auto angle = Aimbot::calculateRelativeAngle(localPlayer->getBonePosition(8), bestTarget, cmd->viewangles);
-                cmd->viewangles.y += angle.y;
-            }
             yawOffset += 180.f;
             break;
         case 2: //Forward jitter
@@ -284,7 +287,11 @@ void AntiAim::drawGUI(bool contentOnly) noexcept
     ImGui::Checkbox("Extend LBY", &antiAimConfig.lbyBreak);
     ImGui::Combo("Pitch angle", &antiAimConfig.pitchAngle, "Off\0Down\0Zero\0Up\0");
     ImGui::Combo("Yaw offset", &antiAimConfig.yawOffset, "Off\0Back\0Forward jitter\0Back jitter\0");
-    ImGui::SliderFloat("Yaw jitter", &antiAimConfig.yawJitter, -90.f, 90.f, "%.2f");
+    if (antiAimConfig.yawOffset > 2)
+        ImGui::SliderFloat("Yaw jitter", &antiAimConfig.yawJitter, -90.f, 90.f, "%.2f", ImGuiSliderFlags_Logarithmic);
+    if (antiAimConfig.yawOffset)
+        ImGui::Checkbox("At target", &antiAimConfig.atTarget);
+    ImGui::Separator();
     ImGui::Checkbox("Fake lag", &antiAimConfig.fakeLag);
     ImGui::SliderInt("Limit", &antiAimConfig.flLimit, 1, 14, "%d");
     if (!contentOnly)
@@ -298,6 +305,7 @@ static void to_json(json& j, const AntiAimConfig& o, const AntiAimConfig& dummy 
     WRITE("Pitch angle", pitchAngle);
     WRITE("Yaw offset", yawOffset);
     WRITE("Yaw jitter", yawJitter);
+    WRITE("At target", atTarget);
     WRITE("Fake lag", fakeLag);
     WRITE("Limit", flLimit);
 }
@@ -316,6 +324,7 @@ static void from_json(const json& j, AntiAimConfig& a)
     read(j, "Pitch angle", a.pitchAngle);
     read(j, "Yaw offset", a.yawOffset);
     read(j, "Yaw jitter", a.yawJitter);
+    read(j, "At target", a.atTarget);
     read(j, "Fake lag", a.fakeLag);
     read(j, "Limit", a.flLimit);
 }
