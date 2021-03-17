@@ -521,6 +521,14 @@ void Misc::fixMovement(UserCmd* cmd, float yaw) noexcept
     cmd->sidemove = std::sin(degreesToRadians(yawDelta)) * forwardmove + std::sin(degreesToRadians(yawDelta + 90.0f)) * sidemove;
 }
 
+void Misc::slideFix(UserCmd* cmd, float yaw) noexcept
+{
+    float yawDelta = fabsf(yaw - cmd->viewangles.y);
+
+    if (yawDelta >= 90.f)
+        cmd->buttons ^= UserCmd::IN_FORWARD | UserCmd::IN_BACK | UserCmd::IN_MOVELEFT | UserCmd::IN_MOVERIGHT;
+}
+
 void Misc::antiAfkKick(UserCmd* cmd) noexcept
 {
     if (config->misc.antiAfkKick && cmd->commandNumber % 2)

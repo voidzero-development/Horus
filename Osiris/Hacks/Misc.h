@@ -27,6 +27,7 @@ namespace Misc
     void fakePrime() noexcept;
     void killMessage(GameEvent& event) noexcept;
     void fixMovement(UserCmd* cmd, float yaw) noexcept;
+    void slideFix(UserCmd* cmd, float yaw) noexcept;
     void antiAfkKick(UserCmd* cmd) noexcept;
     void fixAnimationLOD(FrameStage stage) noexcept;
     bool shouldAimStep() noexcept;
