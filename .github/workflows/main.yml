@@ -25,10 +25,3 @@ jobs:
     - name: Build
       shell: cmd
       run: '"%MSBUILD_PATH%\MSBuild.exe" Osiris/Osiris.vcxproj /p:Platform=Win32 /p:Configuration=Release'
-      
-    # Upload artifacts
-    - name: Upload artifact
-      uses: actions/upload-artifact@v1.0.0
-      with: 
-        name: Horus-${{ github.sha }}
-        path:  .\Jweega\Release\cheat.dll
