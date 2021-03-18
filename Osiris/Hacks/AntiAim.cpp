@@ -90,6 +90,9 @@ bool inAttack(UserCmd* cmd) noexcept
     if (!activeWeapon || !activeWeapon->clip())
         return false;
 
+    if (activeWeapon->isGrenade())
+        return false;
+
     if (activeWeapon->nextPrimaryAttack() > memory->globalVars->serverTime())
         return false;
 
