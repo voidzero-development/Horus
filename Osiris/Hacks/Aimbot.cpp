@@ -34,6 +34,7 @@ bool Aimbot::hitChance(Entity* localPlayer, Entity* entity, Entity* weaponData, 
 
     for (int i = 0; i < maxSeed; i++)
     {
+        srand(i + 1);
         const float spreadX = randomFloat(0.f, 2.f * static_cast<float>(M_PI));
         const float spreadY = randomFloat(0.f, 2.f * static_cast<float>(M_PI));
         auto inaccuracy = weapInaccuracy * randomFloat(0.f, 1.f);
