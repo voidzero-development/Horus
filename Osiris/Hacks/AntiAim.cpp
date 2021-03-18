@@ -108,6 +108,9 @@ bool inAttack2(UserCmd* cmd) noexcept
     if (!activeWeapon || !activeWeapon->clip())
         return false;
 
+    if (!activeWeapon->isKnife() && activeWeapon->itemDefinitionIndex2() != WeaponId::Revolver)
+        return false;
+
     if (activeWeapon->nextSecondaryAttack() > memory->globalVars->serverTime())
         return false;
 

@@ -112,6 +112,7 @@ public:
     auto isPistol() noexcept { return getWeaponType() == WeaponType::Pistol; }
     auto isSniperRifle() noexcept { return getWeaponType() == WeaponType::SniperRifle; }
     auto isGrenade() noexcept { return getWeaponType() == WeaponType::Grenade; }
+    auto isKnife() noexcept { return getWeaponType() == WeaponType::Knife; }
 
     auto isFullAuto() noexcept
     {
