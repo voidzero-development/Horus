@@ -392,6 +392,7 @@ void Aimbot::run(UserCmd* cmd) noexcept
 
         auto bestFov = cfg.fov;
         Vector bestTarget{ };
+        Vector bestAngle{ };
         const auto localPlayerEyePosition = localPlayer->getEyePosition();
 
         const auto aimPunch = activeWeapon->requiresRecoilControl() ? localPlayer->getAimPunch() : Vector{ };
@@ -441,12 +442,10 @@ void Aimbot::run(UserCmd* cmd) noexcept
                     if (localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP)) && ((entity->getAbsOrigin() - localPlayer->getAbsOrigin()).length()) <= activeWeapon->getWeaponData()->range)
                         shouldRunAutoStop.at(weaponClass) = cfg.autoStop;
 
-                    if (!hitChance(localPlayer.get(), entity, activeWeapon, angle, cmd, cfg.hitChance))
-                        continue;
-
                     if (fov < bestFov) {
                         bestFov = fov;
                         bestTarget = bonePosition;
+                        bestAngle = angle;
                     }
                 }
 
@@ -502,14 +501,21 @@ void Aimbot::run(UserCmd* cmd) noexcept
                     if (localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP)) && ((entity->getAbsOrigin() - localPlayer->getAbsOrigin()).length()) <= activeWeapon->getWeaponData()->range)
                         shouldRunAutoStop.at(weaponClass) = cfg.autoStop;
 
-                    if (!hitChance(localPlayer.get(), entity, activeWeapon, angle, cmd, cfg.hitChance))
-                        continue;
-
                     if (fov < bestFov) {
                         bestFov = fov;
                         bestTarget = bonePosition;
+                        bestAngle = angle;
                     }
                 }
+            }
+
+            if (bestTarget.notNull())
+            {
+                if (!hitChance(localPlayer.get(), entity, activeWeapon, bestAngle, cmd, cfg.hitChance)) {
+                    bestTarget = Vector{ };
+                    continue;
+                }
+                break;
             }
         }
 
