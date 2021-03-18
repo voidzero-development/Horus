@@ -7,6 +7,7 @@
 #include "../SDK/WeaponData.h"
 #include "../SDK/WeaponId.h"
 #include "../SDK/ModelInfo.h"
+#include "Aimbot.h"
 #include "Triggerbot.h"
 
 static bool keyPressed;
@@ -41,7 +42,7 @@ void Triggerbot::run(UserCmd* cmd) noexcept
 
     const auto now = memory->globalVars->realtime;
 
-    if (now - lastContact < config->triggerbot[weaponClass].burstTime) {
+    if (now - lastContact < cfg.burstTime) {
         cmd->buttons |= UserCmd::IN_ATTACK;
         return;
     }
@@ -84,46 +85,52 @@ void Triggerbot::run(UserCmd* cmd) noexcept
         return;
 
     std::array<bool, 19> hitbox{ false };
-    for (int i = 0; i < ARRAYSIZE(config->triggerbot[weaponClass].hitGroups); i++)
+    for (int i = 0; i < ARRAYSIZE(cfg.hitGroups); i++)
     {
         switch (i)
         {
         case 0: //Head
-            hitbox[Hitbox::Head] = config->triggerbot[weaponClass].hitGroups[i];
+            hitbox[Hitbox::Head] = cfg.hitGroups[i];
             break;
         case 1: //Chest
-            hitbox[Hitbox::Thorax] = config->triggerbot[weaponClass].hitGroups[i];
-            hitbox[Hitbox::LowerChest] = config->triggerbot[weaponClass].hitGroups[i];
-            hitbox[Hitbox::UpperChest] = config->triggerbot[weaponClass].hitGroups[i];
+            hitbox[Hitbox::Thorax] = cfg.hitGroups[i];
+            hitbox[Hitbox::LowerChest] = cfg.hitGroups[i];
+            hitbox[Hitbox::UpperChest] = cfg.hitGroups[i];
             break;
         case 2: //Stomach
-            hitbox[Hitbox::Pelvis] = config->triggerbot[weaponClass].hitGroups[i];
-            hitbox[Hitbox::Belly] = config->triggerbot[weaponClass].hitGroups[i];
+            hitbox[Hitbox::Pelvis] = cfg.hitGroups[i];
+            hitbox[Hitbox::Belly] = cfg.hitGroups[i];
             break;
         case 3: //Arms
-            hitbox[Hitbox::RightUpperArm] = config->triggerbot[weaponClass].hitGroups[i];
-            hitbox[Hitbox::RightForearm] = config->triggerbot[weaponClass].hitGroups[i];
-            hitbox[Hitbox::LeftUpperArm] = config->triggerbot[weaponClass].hitGroups[i];
-            hitbox[Hitbox::LeftForearm] = config->triggerbot[weaponClass].hitGroups[i];
+            hitbox[Hitbox::RightUpperArm] = cfg.hitGroups[i];
+            hitbox[Hitbox::RightForearm] = cfg.hitGroups[i];
+            hitbox[Hitbox::LeftUpperArm] = cfg.hitGroups[i];
+            hitbox[Hitbox::LeftForearm] = cfg.hitGroups[i];
             break;
         case 4: //Legs
-            hitbox[Hitbox::RightCalf] = config->triggerbot[weaponClass].hitGroups[i];
-            hitbox[Hitbox::RightThigh] = config->triggerbot[weaponClass].hitGroups[i];
-            hitbox[Hitbox::LeftCalf] = config->triggerbot[weaponClass].hitGroups[i];
-            hitbox[Hitbox::LeftThigh] = config->triggerbot[weaponClass].hitGroups[i];
+            hitbox[Hitbox::RightCalf] = cfg.hitGroups[i];
+            hitbox[Hitbox::RightThigh] = cfg.hitGroups[i];
+            hitbox[Hitbox::LeftCalf] = cfg.hitGroups[i];
+            hitbox[Hitbox::LeftThigh] = cfg.hitGroups[i];
             break;
         default:
             break;
         }
     }
-
     for (int j = 0; j < 19; j++)
     {
         if (trace.hitbox == j && !hitbox[j])
             return;
     }
 
+    const auto aimPunch = activeWeapon->requiresRecoilControl() ? localPlayer->getAimPunch() : Vector{ };
+    const auto angle = Aimbot::calculateRelativeAngle(localPlayer->getEyePosition(), trace.endpos, cmd->viewangles + aimPunch);
+
     float damage = (activeWeapon->itemDefinitionIndex2() != WeaponId::Taser ? HitGroup::getDamageMultiplier(trace.hitgroup) : 1.0f) * weaponData->damage * std::pow(weaponData->rangeModifier, trace.fraction * weaponData->range / 500.0f);
+    bool hitChance = Aimbot::hitChance(localPlayer.get(), trace.entity, activeWeapon, angle, cmd, cfg.hitChance);
+
+    if (!hitChance)
+        return;
 
     if (float armorRatio{ weaponData->armorRatio / 2.0f }; activeWeapon->itemDefinitionIndex2() != WeaponId::Taser && HitGroup::isArmored(trace.hitgroup, trace.entity->hasHelmet()))
         damage -= (trace.entity->armor() < damage * armorRatio / 2.0f ? trace.entity->armor() * 4.0f : damage) * (1.0f - armorRatio);

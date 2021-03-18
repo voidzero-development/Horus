@@ -64,6 +64,7 @@ public:
         bool ignoreSmoke = false;
         bool killshot = false;
         int shotDelay = 0;
+        int hitChance = 0;
         int minDamage = 1;
         float burstTime = 0.0f;
         bool hitGroups[5]{ false };

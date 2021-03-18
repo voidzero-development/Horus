@@ -15,7 +15,7 @@
 #include "../SDK/StudioRender.h"
 #include "../SDK/ModelInfo.h"
 
-static bool hitChance(Entity* localPlayer, Entity* entity, Entity* weaponData, const Vector& destination, const UserCmd* cmd, const int hitChance) noexcept
+bool Aimbot::hitChance(Entity* localPlayer, Entity* entity, Entity* weaponData, const Vector& destination, const UserCmd* cmd, const int hitChance) noexcept
 {
     if (!hitChance)
         return true;
