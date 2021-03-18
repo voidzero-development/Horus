@@ -289,7 +289,7 @@ void AntiAim::drawGUI(bool contentOnly) noexcept
     ImGui::Checkbox("Extend LBY", &antiAimConfig.lbyBreak);
     ImGui::Combo("Pitch angle", &antiAimConfig.pitchAngle, "Off\0Down\0Zero\0Up\0");
     ImGui::Combo("Yaw offset", &antiAimConfig.yawOffset, "Off\0Back\0Forward jitter\0Back jitter\0");
-    if (antiAimConfig.yawOffset > 2)
+    if (antiAimConfig.yawOffset >= 2)
         ImGui::SliderFloat("Yaw jitter", &antiAimConfig.yawJitter, -90.f, 90.f, "%.2f");
     if (antiAimConfig.yawOffset)
         ImGui::Checkbox("At target", &antiAimConfig.atTarget);
