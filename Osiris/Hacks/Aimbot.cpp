@@ -344,51 +344,53 @@ void Aimbot::run(UserCmd* cmd) noexcept
     if (!config->aimbot[weaponClass].enabled)
         weaponClass = 0;
 
-    if (!config->aimbot[weaponClass].betweenShots && activeWeapon->nextPrimaryAttack() > memory->globalVars->serverTime())
+    const auto& cfg = config->aimbot[weaponClass];
+
+    if (!cfg.betweenShots && activeWeapon->nextPrimaryAttack() > memory->globalVars->serverTime())
         return;
 
-    if (!config->aimbot[weaponClass].ignoreFlash && localPlayer->isFlashed())
+    if (!cfg.ignoreFlash && localPlayer->isFlashed())
         return;
 
     if (config->aimbotOnKey && !keyPressed)
         return;
 
-    if (config->aimbot[weaponClass].enabled && (cmd->buttons & UserCmd::IN_ATTACK || config->aimbot[weaponClass].autoShot || config->aimbot[weaponClass].aimlock)) {
+    if (cfg.enabled && (cmd->buttons & UserCmd::IN_ATTACK || cfg.autoShot || cfg.aimlock)) {
         std::array<bool, 19> hitbox{ false };
-        for (int i = 0; i < ARRAYSIZE(config->aimbot[weaponClass].hitGroups); i++)
+        for (int i = 0; i < ARRAYSIZE(cfg.hitGroups); i++)
         {
             switch (i)
             {
             case 0: //Head
-                hitbox[Hitbox::Head] = config->aimbot[weaponClass].hitGroups[i];
+                hitbox[Hitbox::Head] = cfg.hitGroups[i];
                 break;
             case 1: //Chest
-                hitbox[Hitbox::Thorax] = config->aimbot[weaponClass].hitGroups[i];
-                hitbox[Hitbox::LowerChest] = config->aimbot[weaponClass].hitGroups[i];
-                hitbox[Hitbox::UpperChest] = config->aimbot[weaponClass].hitGroups[i];
+                hitbox[Hitbox::Thorax] = cfg.hitGroups[i];
+                hitbox[Hitbox::LowerChest] = cfg.hitGroups[i];
+                hitbox[Hitbox::UpperChest] = cfg.hitGroups[i];
                 break;
             case 2: //Stomach
-                hitbox[Hitbox::Pelvis] = config->aimbot[weaponClass].hitGroups[i];
-                hitbox[Hitbox::Belly] = config->aimbot[weaponClass].hitGroups[i];
+                hitbox[Hitbox::Pelvis] = cfg.hitGroups[i];
+                hitbox[Hitbox::Belly] = cfg.hitGroups[i];
                 break;
             case 3: //Arms
-                hitbox[Hitbox::RightUpperArm] = config->aimbot[weaponClass].hitGroups[i];
-                hitbox[Hitbox::RightForearm] = config->aimbot[weaponClass].hitGroups[i];
-                hitbox[Hitbox::LeftUpperArm] = config->aimbot[weaponClass].hitGroups[i];
-                hitbox[Hitbox::LeftForearm] = config->aimbot[weaponClass].hitGroups[i];
+                hitbox[Hitbox::RightUpperArm] = cfg.hitGroups[i];
+                hitbox[Hitbox::RightForearm] = cfg.hitGroups[i];
+                hitbox[Hitbox::LeftUpperArm] = cfg.hitGroups[i];
+                hitbox[Hitbox::LeftForearm] = cfg.hitGroups[i];
                 break;
             case 4: //Legs
-                hitbox[Hitbox::RightCalf] = config->aimbot[weaponClass].hitGroups[i];
-                hitbox[Hitbox::RightThigh] = config->aimbot[weaponClass].hitGroups[i];
-                hitbox[Hitbox::LeftCalf] = config->aimbot[weaponClass].hitGroups[i];
-                hitbox[Hitbox::LeftThigh] = config->aimbot[weaponClass].hitGroups[i];
+                hitbox[Hitbox::RightCalf] = cfg.hitGroups[i];
+                hitbox[Hitbox::RightThigh] = cfg.hitGroups[i];
+                hitbox[Hitbox::LeftCalf] = cfg.hitGroups[i];
+                hitbox[Hitbox::LeftThigh] = cfg.hitGroups[i];
                 break;
             default:
                 break;
             }
         }
 
-        auto bestFov = config->aimbot[weaponClass].fov;
+        auto bestFov = cfg.fov;
         Vector bestTarget{ };
         const auto localPlayerEyePosition = localPlayer->getEyePosition();
 
@@ -397,7 +399,7 @@ void Aimbot::run(UserCmd* cmd) noexcept
         for (int i = 1; i <= interfaces->engine->getMaxClients(); i++) {
             auto entity = interfaces->entityList->getEntity(i);
             if (!entity || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive()
-                || !entity->isOtherEnemy(localPlayer.get()) && !config->aimbot[weaponClass].friendlyFire || entity->gunGameImmunity())
+                || !entity->isOtherEnemy(localPlayer.get()) && !cfg.friendlyFire || entity->gunGameImmunity())
                 continue;
 
             const Model* mod = entity->getModel();
@@ -424,22 +426,22 @@ void Aimbot::run(UserCmd* cmd) noexcept
                     if (((bonePosition - localPlayer->getAbsOrigin()).length()) > range)
                         continue;
 
-                    if (!config->aimbot[weaponClass].ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
+                    if (!cfg.ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
                         continue;
 
-                    if (!entity->isVisible(bonePosition) && (config->aimbot[weaponClass].visibleOnly || !canScan(entity, bonePosition, activeWeapon->getWeaponData(), config->aimbot[weaponClass].killshot ? entity->health() : config->aimbot[weaponClass].minDamage, config->aimbot[weaponClass].friendlyFire)))
+                    if (!entity->isVisible(bonePosition) && (cfg.visibleOnly || !canScan(entity, bonePosition, activeWeapon->getWeaponData(), cfg.killshot ? entity->health() : cfg.minDamage, cfg.friendlyFire)))
                         continue;
 
-                    if (config->aimbot[weaponClass].scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped() && localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP))) {
-                        if (config->aimbot[weaponClass].autoScope)
+                    if (cfg.scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped() && localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP))) {
+                        if (cfg.autoScope)
                             cmd->buttons |= UserCmd::IN_ATTACK2;
                         return;
                     }
 
                     if (localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP)) && ((entity->getAbsOrigin() - localPlayer->getAbsOrigin()).length()) <= activeWeapon->getWeaponData()->range)
-                        shouldRunAutoStop.at(weaponClass) = config->aimbot[weaponClass].autoStop;
+                        shouldRunAutoStop.at(weaponClass) = cfg.autoStop;
 
-                    if (!hitChance(localPlayer.get(), entity, activeWeapon, angle, cmd, config->aimbot[weaponClass].hitChance))
+                    if (!hitChance(localPlayer.get(), entity, activeWeapon, angle, cmd, cfg.hitChance))
                         continue;
 
                     if (fov < bestFov) {
@@ -485,22 +487,22 @@ void Aimbot::run(UserCmd* cmd) noexcept
                     if (((bonePosition - localPlayer->getAbsOrigin()).length()) > range)
                         continue;
 
-                    if (!config->aimbot[weaponClass].ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
+                    if (!cfg.ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
                         continue;
 
-                    if (!entity->isVisible(bonePosition) && (config->aimbot[weaponClass].visibleOnly || !canScan(entity, bonePosition, activeWeapon->getWeaponData(), config->aimbot[weaponClass].killshot ? entity->health() : config->aimbot[weaponClass].minDamage, config->aimbot[weaponClass].friendlyFire)))
+                    if (!entity->isVisible(bonePosition) && (cfg.visibleOnly || !canScan(entity, bonePosition, activeWeapon->getWeaponData(), cfg.killshot ? entity->health() : cfg.minDamage, cfg.friendlyFire)))
                         continue;
 
-                    if (config->aimbot[weaponClass].scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped() && localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP))) {
-                        if (config->aimbot[weaponClass].autoScope)
+                    if (cfg.scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped() && localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP))) {
+                        if (cfg.autoScope)
                             cmd->buttons |= UserCmd::IN_ATTACK2;
                         return;
                     }
 
                     if (localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP)) && ((entity->getAbsOrigin() - localPlayer->getAbsOrigin()).length()) <= activeWeapon->getWeaponData()->range)
-                        shouldRunAutoStop.at(weaponClass) = config->aimbot[weaponClass].autoStop;
+                        shouldRunAutoStop.at(weaponClass) = cfg.autoStop;
 
-                    if (!hitChance(localPlayer.get(), entity, activeWeapon, angle, cmd, config->aimbot[weaponClass].hitChance))
+                    if (!hitChance(localPlayer.get(), entity, activeWeapon, angle, cmd, cfg.hitChance))
                         continue;
 
                     if (fov < bestFov) {
@@ -515,7 +517,7 @@ void Aimbot::run(UserCmd* cmd) noexcept
             static Vector lastAngles{ cmd->viewangles };
             static int lastCommand{ };
 
-            if (lastCommand == cmd->commandNumber - 1 && lastAngles.notNull() && config->aimbot[weaponClass].silent)
+            if (lastCommand == cmd->commandNumber - 1 && lastAngles.notNull() && cfg.silent)
                 cmd->viewangles = lastAngles;
 
             auto angle = calculateRelativeAngle(localPlayerEyePosition, bestTarget, cmd->viewangles + aimPunch);
@@ -528,18 +530,18 @@ void Aimbot::run(UserCmd* cmd) noexcept
                 clamped = true;
             }
 
-            angle /= config->aimbot[weaponClass].smooth;
+            angle /= cfg.smooth;
             cmd->viewangles += angle;
-            if (!config->aimbot[weaponClass].silent)
+            if (!cfg.silent)
                 interfaces->engine->setViewAngles(cmd->viewangles);
 
-            if (config->aimbot[weaponClass].autoShot && activeWeapon->nextPrimaryAttack() <= memory->globalVars->serverTime() && !clamped)
+            if (cfg.autoShot && activeWeapon->nextPrimaryAttack() <= memory->globalVars->serverTime() && !clamped)
                 cmd->buttons |= UserCmd::IN_ATTACK;
 
             if (clamped)
                 cmd->buttons &= ~UserCmd::IN_ATTACK;
 
-            if (clamped || config->aimbot[weaponClass].smooth > 1.0f) lastAngles = cmd->viewangles;
+            if (clamped || cfg.smooth > 1.0f) lastAngles = cmd->viewangles;
             else lastAngles = Vector{ };
 
             lastCommand = cmd->commandNumber;
