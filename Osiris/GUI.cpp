@@ -277,6 +277,7 @@ void GUI::renderTriggerbotWindow(bool contentOnly) noexcept
     }
     ImGui::PushItemWidth(220.0f);
     ImGui::SliderInt("Shot delay", &config->triggerbot[currentCategory].shotDelay, 0, 250, "%d ms");
+    ImGui::SliderInt("Hit chance", &config->triggerbot[currentCategory].hitChance, 0, 100, "%d%%");
     ImGui::InputInt("Min damage", &config->triggerbot[currentCategory].minDamage);
     config->triggerbot[currentCategory].minDamage = std::clamp(config->triggerbot[currentCategory].minDamage, 0, 250);
     ImGui::Checkbox("Killshot", &config->triggerbot[currentCategory].killshot);
