@@ -95,6 +95,9 @@ bool inAttack(UserCmd* cmd) noexcept
     if (activeWeapon->isGrenade())
         return false;
 
+    if (localPlayer->nextAttack() > memory->globalVars->serverTime())
+        return false;
+
     if (activeWeapon->nextPrimaryAttack() > memory->globalVars->serverTime())
         return false;
 
@@ -114,6 +117,9 @@ bool inAttack2(UserCmd* cmd) noexcept
         return false;
 
     if (!activeWeapon->isKnife() && activeWeapon->itemDefinitionIndex2() != WeaponId::Revolver)
+        return false;
+
+    if (localPlayer->nextAttack() > memory->globalVars->serverTime())
         return false;
 
     if (activeWeapon->nextSecondaryAttack() > memory->globalVars->serverTime())
