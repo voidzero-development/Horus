@@ -326,7 +326,7 @@ static void to_json(json& j, const AntiAimConfig& o, const AntiAimConfig& dummy 
     WRITE("At target", atTarget);
     WRITE("Fake lag", fakeLag);
     WRITE("Fake lag mode", flMode);
-    WRITE("Limit", flLimit);
+    WRITE("Fake lag limit", flLimit);
 }
 
 json AntiAim::toJson() noexcept
@@ -346,7 +346,7 @@ static void from_json(const json& j, AntiAimConfig& a)
     read(j, "At target", a.atTarget);
     read(j, "Fake lag", a.fakeLag);
     read(j, "Fake lag mode", a.flMode);
-    read(j, "Limit", a.flLimit);
+    read(j, "Fake lag limit", a.flLimit);
 }
 
 void AntiAim::fromJson(const json& j) noexcept
