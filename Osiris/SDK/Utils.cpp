@@ -16,3 +16,8 @@ float randomFloat(float min, float max) noexcept
 {
     return (min + 1) + (((float)rand()) / (float)RAND_MAX) * (max - (min + 1));
 }
+
+int randomInt(int min, int max) noexcept
+{
+    return (min + 1) + ((rand()) / RAND_MAX) * (max - (min + 1));
+}

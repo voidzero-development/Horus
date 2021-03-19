@@ -1022,12 +1022,11 @@ void Misc::autoGG() noexcept
     std::vector<const char*> messages{
     "good game",
     "gg",
-    "GG",
     "ggwp",
     };
 
     std::string cmd = "say \"";
-    cmd += messages[randomFloat(0, messages.size() - 1)];
+    cmd += messages[randomInt(0, messages.size() - 1)];
     cmd += '"';
 
     interfaces->engine->clientCmdUnrestricted(cmd.c_str());
