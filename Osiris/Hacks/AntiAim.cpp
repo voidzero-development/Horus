@@ -130,6 +130,9 @@ bool didShoot(UserCmd* cmd) noexcept
     if (!localPlayer || localPlayer->nextAttack() > memory->globalVars->serverTime() || localPlayer->isDefusing() || localPlayer->waitForNoAttack())
         return false;
 
+    if ((*memory->gameRules)->freezePeriod())
+        return false;
+
     if (inAttack(cmd))
         return true;
 
