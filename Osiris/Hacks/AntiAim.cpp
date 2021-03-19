@@ -21,6 +21,7 @@ struct AntiAimConfig {
     bool atTarget = false;
 
     bool fakeLag = false;
+    int flMode = 0;
     int flLimit = 1;
     
 } antiAimConfig;
@@ -252,8 +253,16 @@ void AntiAim::fakeLag(UserCmd* cmd, bool& sendPacket) noexcept
 
     chokedPackets = antiAimConfig.enabled ? 1 : 0;
 
-    if (antiAimConfig.fakeLag)
-        chokedPackets = std::clamp(antiAimConfig.flLimit, 1, 14);
+    if (antiAimConfig.fakeLag) {
+        switch (antiAimConfig.flMode) {
+        case 0: //Static
+            chokedPackets = std::clamp(antiAimConfig.flLimit, 1, 14);
+            break;
+        case 1: //Adaptive
+            chokedPackets = std::clamp(static_cast<int>(std::ceilf(64 / (localPlayer->velocity().length() * memory->globalVars->intervalPerTick))), 1, antiAimConfig.flLimit);
+            break;
+        }
+    }
 
     if (!localPlayer->isAlive())
         return;
@@ -301,6 +310,7 @@ void AntiAim::drawGUI(bool contentOnly) noexcept
         ImGui::Checkbox("At target", &antiAimConfig.atTarget);
     ImGui::Separator();
     ImGui::Checkbox("Fake lag", &antiAimConfig.fakeLag);
+    ImGui::Combo("Mode", &antiAimConfig.flMode, "Static\0Adaptive\0");
     ImGui::SliderInt("Limit", &antiAimConfig.flLimit, 1, 14, "%d");
     if (!contentOnly)
         ImGui::End();
@@ -315,6 +325,7 @@ static void to_json(json& j, const AntiAimConfig& o, const AntiAimConfig& dummy 
     WRITE("Yaw jitter", yawJitter);
     WRITE("At target", atTarget);
     WRITE("Fake lag", fakeLag);
+    WRITE("Fake lag mode", flMode);
     WRITE("Limit", flLimit);
 }
 
@@ -334,6 +345,7 @@ static void from_json(const json& j, AntiAimConfig& a)
     read(j, "Yaw jitter", a.yawJitter);
     read(j, "At target", a.atTarget);
     read(j, "Fake lag", a.fakeLag);
+    read(j, "Fake lag mode", a.flMode);
     read(j, "Limit", a.flLimit);
 }
 
