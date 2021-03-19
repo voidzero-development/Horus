@@ -18,6 +18,7 @@ struct AntiAimConfig {
     int pitchAngle = 0;
     int yawOffset = 0;
     float yawJitter = 0;
+    int jitterMode = 0;
     bool atTarget = false;
 
     bool fakeLag = false;
@@ -214,10 +215,25 @@ void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& 
             yawOffset += 180.f;
             break;
         case 2: //Forward jitter
-            yawOffset = flipJitter ? antiAimConfig.yawJitter : -antiAimConfig.yawJitter;
+            switch (antiAimConfig.jitterMode) {
+            case 0: //Flip
+                yawOffset = flipJitter ? antiAimConfig.yawJitter : -antiAimConfig.yawJitter;
+                break;
+            case 1: //Random
+                yawOffset = randomFloat(antiAimConfig.yawJitter, -antiAimConfig.yawJitter);
+                break;
+            }
             break;
         case 3: //Back jitter
-            yawOffset = flipJitter ? 180.f + antiAimConfig.yawJitter : 180.f - antiAimConfig.yawJitter;
+            switch (antiAimConfig.jitterMode) {
+            case 0: //Flip
+                yawOffset = flipJitter ? antiAimConfig.yawJitter : -antiAimConfig.yawJitter;
+                break;
+            case 1: //Random
+                yawOffset = randomFloat(antiAimConfig.yawJitter, -antiAimConfig.yawJitter);
+                break;
+            }
+            yawOffset += 180.f;
             break;
         }
 
@@ -304,8 +320,10 @@ void AntiAim::drawGUI(bool contentOnly) noexcept
     ImGui::Checkbox("Extend LBY", &antiAimConfig.lbyBreak);
     ImGui::Combo("Pitch angle", &antiAimConfig.pitchAngle, "Off\0Down\0Zero\0Up\0");
     ImGui::Combo("Yaw offset", &antiAimConfig.yawOffset, "Off\0Back\0Forward jitter\0Back jitter\0");
-    if (antiAimConfig.yawOffset >= 2)
+    if (antiAimConfig.yawOffset >= 2) {
         ImGui::SliderFloat("Yaw jitter", &antiAimConfig.yawJitter, -90.f, 90.f, "%.2f");
+        ImGui::Combo("Jitter mode", &antiAimConfig.jitterMode, "Flip\0Random\0");
+    }
     if (antiAimConfig.yawOffset)
         ImGui::Checkbox("At target", &antiAimConfig.atTarget);
     ImGui::Separator();
@@ -323,6 +341,7 @@ static void to_json(json& j, const AntiAimConfig& o, const AntiAimConfig& dummy 
     WRITE("Pitch angle", pitchAngle);
     WRITE("Yaw offset", yawOffset);
     WRITE("Yaw jitter", yawJitter);
+    WRITE("Jitter mode", jitterMode);
     WRITE("At target", atTarget);
     WRITE("Fake lag", fakeLag);
     WRITE("Fake lag mode", flMode);
@@ -343,6 +362,7 @@ static void from_json(const json& j, AntiAimConfig& a)
     read(j, "Pitch angle", a.pitchAngle);
     read(j, "Yaw offset", a.yawOffset);
     read(j, "Yaw jitter", a.yawJitter);
+    read(j, "Jitter mode", a.jitterMode);
     read(j, "At target", a.atTarget);
     read(j, "Fake lag", a.fakeLag);
     read(j, "Fake lag mode", a.flMode);
