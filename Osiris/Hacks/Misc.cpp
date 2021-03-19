@@ -1010,7 +1010,7 @@ void Misc::autoAccept(const char* soundEntry) noexcept
     auto window = FindWindowW(L"Valve001", NULL);
     FLASHWINFO flash{ sizeof(FLASHWINFO), window, FLASHW_TRAY | FLASHW_TIMERNOFG, 0, 0 };
     FlashWindowEx(&flash);
-    ShowWindow(window, SW_RESTORE);
+    //ShowWindow(window, SW_RESTORE);
 #endif
 }
 
