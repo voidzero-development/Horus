@@ -39,7 +39,6 @@
 #include "Hacks/StreamProofESP.h"
 #include "Hacks/Glow.h"
 #include "Hacks/GrenadePrediction.h"
-#include "Hacks/Legitbot.h"
 #include "Hacks/Misc.h"
 #include "Hacks/SkinChanger.h"
 #include "Hacks/Triggerbot.h"
@@ -111,7 +110,7 @@ static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, cons
     Visuals::drawMolotovHull(ImGui::GetBackgroundDrawList());
     Misc::watermark();
 
-    Legitbot::updateInput();
+    Aimbot::updateInput();
     Visuals::updateInput();
     StreamProofESP::updateInput();
     Misc::updateInput();
@@ -182,12 +181,12 @@ static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTim
     Misc::revealRanks(cmd);
     Misc::fixTabletSignal();
     Misc::slowwalk(cmd);
-    //Aimbot::autoStop(cmd);
+    Aimbot::autoStop(cmd);
     GrenadePrediction::run(cmd);
 
     EnginePrediction::run(cmd);
 
-    Legitbot::run(cmd);
+    Aimbot::run(cmd);
     Triggerbot::run(cmd);
     Backtrack::run(cmd);
     Misc::edgejump(cmd);
