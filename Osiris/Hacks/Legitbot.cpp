@@ -201,6 +201,9 @@ void Legitbot::run(UserCmd* cmd) noexcept
                     //if (localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP)) && ((entity->getAbsOrigin() - localPlayer->getAbsOrigin()).length()) <= activeWeapon->getWeaponData()->range)
                     //    shouldRunAutoStop.at(weaponClass) = cfg.autoStop;
 
+                    if (!Aimbot::hitChance(localPlayer.get(), entity, activeWeapon, angle, cmd, cfg.hitChance))
+                        continue;
+
                     if (fov < bestFov) {
                         bestFov = fov;
                         bestTarget = bonePosition;
@@ -260,21 +263,15 @@ void Legitbot::run(UserCmd* cmd) noexcept
                     //if (localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP)) && ((entity->getAbsOrigin() - localPlayer->getAbsOrigin()).length()) <= activeWeapon->getWeaponData()->range)
                     //    shouldRunAutoStop.at(weaponClass) = cfg.autoStop;
 
+                    if (!Aimbot::hitChance(localPlayer.get(), entity, activeWeapon, angle, cmd, cfg.hitChance))
+                        continue;
+
                     if (fov < bestFov) {
                         bestFov = fov;
                         bestTarget = bonePosition;
                         bestAngle = angle;
                     }
                 }
-            }
-
-            if (bestTarget.notNull())
-            {
-                if (!Aimbot::hitChance(localPlayer.get(), entity, activeWeapon, bestAngle, cmd, cfg.hitChance)) {
-                    bestTarget = Vector{ };
-                    continue;
-                }
-                break;
             }
         }
 
