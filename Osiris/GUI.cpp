@@ -71,7 +71,7 @@ void GUI::render() noexcept
 {
     if (!config->style.menuStyle) {
         renderMenuBar();
-        renderAimbotWindow();
+        renderLegitbotWindow();
         AntiAim::drawGUI(false);
         renderTriggerbotWindow();
         Backtrack::drawGUI(false);
@@ -147,7 +147,7 @@ static void menuBarItem(const char* name, bool& enabled) noexcept
 void GUI::renderMenuBar() noexcept
 {
     if (ImGui::BeginMainMenuBar()) {
-        menuBarItem("Aimbot", window.aimbot);
+        menuBarItem("Legitbot", window.legitbot);
         AntiAim::menuBarItem();
         menuBarItem("Triggerbot", window.triggerbot);
         Backtrack::menuBarItem();
@@ -164,23 +164,23 @@ void GUI::renderMenuBar() noexcept
     }
 }
 
-void GUI::renderAimbotWindow(bool contentOnly) noexcept
+void GUI::renderLegitbotWindow(bool contentOnly) noexcept
 {
     if (!contentOnly) {
-        if (!window.aimbot)
+        if (!window.legitbot)
             return;
         ImGui::SetNextWindowSize({ 600.0f, 0.0f });
-        ImGui::Begin("Aimbot", &window.aimbot, windowFlags);
+        ImGui::Begin("Legitbot", &window.legitbot, windowFlags);
     }
-    ImGui::Checkbox("On key", &config->aimbotOnKey);
+    ImGui::Checkbox("On key", &config->legitbotOnKey);
     ImGui::SameLine();
-    ImGui::PushID("Aimbot Key");
-    hotkey2("", config->aimbotKey);
+    ImGui::PushID("Legitbot Key");
+    hotkey2("", config->legitbotKey);
     ImGui::PopID();
     ImGui::SameLine();
     ImGui::PushID(2);
     ImGui::PushItemWidth(70.0f);
-    ImGui::Combo("", &config->aimbotKeyMode, "Hold\0Toggle\0");
+    ImGui::Combo("", &config->legitbotKeyMode, "Hold\0Toggle\0");
     ImGui::PopItemWidth();
     ImGui::PopID();
     ImGui::Separator();
@@ -191,25 +191,25 @@ void GUI::renderAimbotWindow(bool contentOnly) noexcept
     ImGui::PopItemWidth();
     ImGui::PopID();
     ImGui::SameLine();
-    ImGui::Checkbox("Enabled", &config->aimbot[currentCategory].enabled);
+    ImGui::Checkbox("Enabled", &config->legitbot[currentCategory].enabled);
     ImGui::Columns(2, nullptr, false);
     ImGui::SetColumnOffset(1, 220.0f);
-    ImGui::Checkbox("Aimlock", &config->aimbot[currentCategory].aimlock);
-    ImGui::Checkbox("Silent", &config->aimbot[currentCategory].silent);
-    ImGui::Checkbox("Friendly fire", &config->aimbot[currentCategory].friendlyFire);
-    ImGui::Checkbox("Visible only", &config->aimbot[currentCategory].visibleOnly);
-    ImGui::Checkbox("Scoped only", &config->aimbot[currentCategory].scopedOnly);
-    ImGui::Checkbox("Ignore flash", &config->aimbot[currentCategory].ignoreFlash);
-    ImGui::Checkbox("Ignore smoke", &config->aimbot[currentCategory].ignoreSmoke);
-    ImGui::Checkbox("Auto shot", &config->aimbot[currentCategory].autoShot);
-    ImGui::Checkbox("Auto scope", &config->aimbot[currentCategory].autoScope);
-    ImGui::Checkbox("Auto stop", &config->aimbot[currentCategory].autoStop);
+    ImGui::Checkbox("Aimlock", &config->legitbot[currentCategory].aimlock);
+    ImGui::Checkbox("Silent", &config->legitbot[currentCategory].silent);
+    ImGui::Checkbox("Friendly fire", &config->legitbot[currentCategory].friendlyFire);
+    ImGui::Checkbox("Visible only", &config->legitbot[currentCategory].visibleOnly);
+    ImGui::Checkbox("Scoped only", &config->legitbot[currentCategory].scopedOnly);
+    ImGui::Checkbox("Ignore flash", &config->legitbot[currentCategory].ignoreFlash);
+    ImGui::Checkbox("Ignore smoke", &config->legitbot[currentCategory].ignoreSmoke);
+    ImGui::Checkbox("Auto shot", &config->legitbot[currentCategory].autoShot);
+    ImGui::Checkbox("Auto scope", &config->legitbot[currentCategory].autoScope);
+    ImGui::Checkbox("Auto stop", &config->legitbot[currentCategory].autoStop);
     static const char* hitGroups[]{ "Head", "Chest", "Stomach", "Arms", "Legs" };
     static std::string previewvalue = "";
     if (ImGui::BeginCombo("Hit groups", previewvalue.c_str())) {
         previewvalue = "";
         for (size_t i = 0; i < ARRAYSIZE(hitGroups); i++)
-            ImGui::Selectable(hitGroups[i], &config->aimbot[currentCategory].hitGroups[i], ImGuiSelectableFlags_::ImGuiSelectableFlags_DontClosePopups);
+            ImGui::Selectable(hitGroups[i], &config->legitbot[currentCategory].hitGroups[i], ImGuiSelectableFlags_::ImGuiSelectableFlags_DontClosePopups);
         ImGui::EndCombo();
     }
     bool once = false;
@@ -218,19 +218,19 @@ void GUI::renderAimbotWindow(bool contentOnly) noexcept
             previewvalue = "";
             once = true;
         }
-        if (config->aimbot[currentCategory].hitGroups[i])
+        if (config->legitbot[currentCategory].hitGroups[i])
             previewvalue += previewvalue.size() ? std::string(", ") + hitGroups[i] : hitGroups[i];
     }
     ImGui::NextColumn();
     ImGui::PushItemWidth(240.0f);
-    ImGui::SliderFloat("Fov", &config->aimbot[currentCategory].fov, 0.0f, 255.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
-    ImGui::SliderFloat("Smooth", &config->aimbot[currentCategory].smooth, 1.0f, 100.0f, "%.2f");
-    ImGui::SliderInt("Multi point", &config->aimbot[currentCategory].multiPoint, 0, 100, "%d");
-    ImGui::SliderInt("Hit chance", &config->aimbot[currentCategory].hitChance, 0, 100, "%d%%");
-    ImGui::InputInt("Min damage", &config->aimbot[currentCategory].minDamage);
-    config->aimbot[currentCategory].minDamage = std::clamp(config->aimbot[currentCategory].minDamage, 0, 250);
-    ImGui::Checkbox("Killshot", &config->aimbot[currentCategory].killshot);
-    ImGui::Checkbox("Between shots", &config->aimbot[currentCategory].betweenShots);
+    ImGui::SliderFloat("Fov", &config->legitbot[currentCategory].fov, 0.0f, 255.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
+    ImGui::SliderFloat("Smooth", &config->legitbot[currentCategory].smooth, 1.0f, 100.0f, "%.2f");
+    ImGui::SliderInt("Multi point", &config->legitbot[currentCategory].multiPoint, 0, 100, "%d");
+    ImGui::SliderInt("Hit chance", &config->legitbot[currentCategory].hitChance, 0, 100, "%d%%");
+    ImGui::InputInt("Min damage", &config->legitbot[currentCategory].minDamage);
+    config->legitbot[currentCategory].minDamage = std::clamp(config->legitbot[currentCategory].minDamage, 0, 250);
+    ImGui::Checkbox("Killshot", &config->legitbot[currentCategory].killshot);
+    ImGui::Checkbox("Between shots", &config->legitbot[currentCategory].betweenShots);
     ImGui::Columns(1);
     if (!contentOnly)
         ImGui::End();
@@ -1362,7 +1362,7 @@ void GUI::renderConfigWindow(bool contentOnly) noexcept
                 if (ImGui::Selectable(names[i])) {
                     switch (i) {
                     case 0: config->reset(); updateColors(); Misc::updateClanTag(true); SkinChanger::scheduleHudUpdate(); break;
-                    case 1: config->aimbot = { }; break;
+                    case 1: config->legitbot = { }; break;
                     case 2: config->triggerbot = { }; break;
                     case 3: Backtrack::resetConfig(); break;
                     case 4: AntiAim::resetConfig(); break;
@@ -1407,8 +1407,8 @@ void GUI::renderGuiStyle2() noexcept
     ImGui::Begin("Osiris", nullptr, windowFlags | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize);
 
     if (ImGui::BeginTabBar("TabBar", ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_FittingPolicyScroll | ImGuiTabBarFlags_NoTooltip)) {
-        if (ImGui::BeginTabItem("Aimbot")) {
-            renderAimbotWindow(true);
+        if (ImGui::BeginTabItem("Legitbot")) {
+            renderLegitbotWindow(true);
             ImGui::EndTabItem();
         }
         AntiAim::tabItem();

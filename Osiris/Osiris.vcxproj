@@ -21,6 +21,7 @@
     <ClCompile Include="Hacks\EnginePrediction.cpp" />
     <ClCompile Include="Hacks\Glow.cpp" />
     <ClCompile Include="Hacks\GrenadePrediction.cpp" />
+    <ClCompile Include="Hacks\Legitbot.cpp" />
     <ClCompile Include="Hacks\SkinChanger.cpp" />
     <ClCompile Include="Hacks\StreamProofESP.cpp" />
     <ClCompile Include="Hacks\Triggerbot.cpp" />
@@ -69,6 +70,7 @@
     <ClInclude Include="Hacks\EnginePrediction.h" />
     <ClInclude Include="Hacks\Glow.h" />
     <ClInclude Include="Hacks\GrenadePrediction.h" />
+    <ClInclude Include="Hacks\Legitbot.h" />
     <ClInclude Include="Hacks\Misc.h" />
     <ClInclude Include="Hacks\SkinChanger.h" />
     <ClInclude Include="Hacks\StreamProofESP.h" />

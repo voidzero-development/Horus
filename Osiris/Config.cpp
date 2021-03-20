@@ -219,31 +219,31 @@ static void from_json(const json& j, ImVec2& v)
     read(j, "Y", v.y);
 }
 
-static void from_json(const json& j, Config::Aimbot& a)
+static void from_json(const json& j, Config::Legitbot& l)
 {
-    read(j, "Enabled", a.enabled);
-    read(j, "Aimlock", a.aimlock);
-    read(j, "Silent", a.silent);
-    read(j, "Friendly fire", a.friendlyFire);
-    read(j, "Visible only", a.visibleOnly);
-    read(j, "Scoped only", a.scopedOnly);
-    read(j, "Ignore flash", a.ignoreFlash);
-    read(j, "Ignore smoke", a.ignoreSmoke);
-    read(j, "Auto shot", a.autoShot);
-    read(j, "Auto scope", a.autoScope);
-    read(j, "Fov", a.fov);
-    read(j, "Smooth", a.smooth);
-    read(j, "Multi point", a.multiPoint);
-    read(j, "Hit chance", a.hitChance);
-    read(j, "Min damage", a.minDamage);
-    read(j, "Killshot", a.killshot);
-    read(j, "Between shots", a.betweenShots);
-    read(j, "Auto stop", a.autoStop);
-    read(j, "Head hit group", a.hitGroups[0]);
-    read(j, "Chest hit group", a.hitGroups[1]);
-    read(j, "Stomach hit group", a.hitGroups[2]);
-    read(j, "Arms hit group", a.hitGroups[3]);
-    read(j, "Legs hit group", a.hitGroups[4]);
+    read(j, "Enabled", l.enabled);
+    read(j, "Aimlock", l.aimlock);
+    read(j, "Silent", l.silent);
+    read(j, "Friendly fire", l.friendlyFire);
+    read(j, "Visible only", l.visibleOnly);
+    read(j, "Scoped only", l.scopedOnly);
+    read(j, "Ignore flash", l.ignoreFlash);
+    read(j, "Ignore smoke", l.ignoreSmoke);
+    read(j, "Auto shot", l.autoShot);
+    read(j, "Auto scope", l.autoScope);
+    read(j, "Fov", l.fov);
+    read(j, "Smooth", l.smooth);
+    read(j, "Multi point", l.multiPoint);
+    read(j, "Hit chance", l.hitChance);
+    read(j, "Min damage", l.minDamage);
+    read(j, "Killshot", l.killshot);
+    read(j, "Between shots", l.betweenShots);
+    read(j, "Auto stop", l.autoStop);
+    read(j, "Head hit group", l.hitGroups[0]);
+    read(j, "Chest hit group", l.hitGroups[1]);
+    read(j, "Stomach hit group", l.hitGroups[2]);
+    read(j, "Arms hit group", l.hitGroups[3]);
+    read(j, "Legs hit group", l.hitGroups[4]);
 }
 
 static void from_json(const json& j, Config::Triggerbot& t)
@@ -540,10 +540,10 @@ void Config::load(const char8_t* name, bool incremental) noexcept
     if (!incremental)
         reset();
 
-    read(j, "Aimbot", aimbot);
-    read(j, "Aimbot On key", aimbotOnKey);
-    read(j, "Aimbot Key", aimbotKey);
-    read(j, "Aimbot Key mode", aimbotKeyMode);
+    read(j, "Legitbot", legitbot);
+    read(j, "Legitbot On key", legitbotOnKey);
+    read(j, "Legitbot Key", legitbotKey);
+    read(j, "Legitbot Key mode", legitbotKeyMode);
 
     read(j, "Triggerbot", triggerbot);
     read(j, "Triggerbot Key", triggerbotHoldKey);
@@ -686,7 +686,7 @@ static void to_json(json& j, const ImVec2& o, const ImVec2& dummy = {})
     WRITE("Y", y);
 }
 
-static void to_json(json& j, const Config::Aimbot& o, const Config::Aimbot& dummy = {})
+static void to_json(json& j, const Config::Legitbot& o, const Config::Legitbot& dummy = {})
 {
     WRITE("Enabled", enabled);
     WRITE("Aimlock", aimlock);
@@ -1022,10 +1022,10 @@ void Config::save(size_t id) const noexcept
     if (std::ofstream out{ path / (const char8_t*)configs[id].c_str() }; out.good()) {
         json j;
 
-        j["Aimbot"] = aimbot;
-        j["Aimbot On key"] = aimbotOnKey;
-        to_json(j["Aimbot Key"], aimbotKey, KeyBind::NONE);
-        j["Aimbot Key mode"] = aimbotKeyMode;
+        j["Legitbot"] = legitbot;
+        j["Legitbot On key"] = legitbotOnKey;
+        to_json(j["Legitbot Key"], legitbotKey, KeyBind::NONE);
+        j["Legitbot Key mode"] = legitbotKeyMode;
 
         j["Triggerbot"] = triggerbot;
         to_json(j["Triggerbot Key"], triggerbotHoldKey, KeyBind::NONE);
@@ -1072,7 +1072,7 @@ void Config::rename(size_t item, const char* newName) noexcept
 
 void Config::reset() noexcept
 {
-    aimbot = { };
+    legitbot = { };
     AntiAim::resetConfig();
     triggerbot = { };
     Backtrack::resetConfig();
