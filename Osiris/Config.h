@@ -30,7 +30,7 @@ public:
         return configs;
     }
 
-    struct Aimbot {
+    struct Legitbot {
         bool enabled{ false };
         bool aimlock{ false };
         bool silent{ false };
@@ -51,10 +51,10 @@ public:
         bool autoStop{ false };
         bool hitGroups[5]{ false };
     };
-    std::array<Aimbot, 7> aimbot;
-    bool aimbotOnKey{ false };
-    KeyBind aimbotKey = KeyBind::NONE;
-    int aimbotKeyMode{ 0 };
+    std::array<Legitbot, 7> legitbot;
+    bool legitbotOnKey{ false };
+    KeyBind legitbotKey = KeyBind::NONE;
+    int legitbotKeyMode{ 0 };
 
     struct Triggerbot {
         bool enabled = false;

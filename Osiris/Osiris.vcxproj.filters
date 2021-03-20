@@ -164,6 +164,9 @@
     <ClCompile Include="Hacks\GrenadePrediction.cpp">
       <Filter>Hacks</Filter>
     </ClCompile>
+    <ClCompile Include="Hacks\Legitbot.cpp">
+      <Filter>Hacks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI.h">
@@ -491,6 +494,9 @@
       <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="Hacks\GrenadePrediction.h">
+      <Filter>Hacks</Filter>
+    </ClInclude>
+    <ClInclude Include="Hacks\Legitbot.h">
       <Filter>Hacks</Filter>
     </ClInclude>
   </ItemGroup>
