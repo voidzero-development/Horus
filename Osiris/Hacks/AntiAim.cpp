@@ -284,6 +284,13 @@ void AntiAim::fakeLag(UserCmd* cmd, bool& sendPacket) noexcept
 
     std::clamp(antiAimConfig.flLimit, 1, 14);
 
+    if (!localPlayer->isAlive())
+        return;
+
+    auto activeWeapon = localPlayer->getActiveWeapon();
+    if (!activeWeapon)
+        return;
+
     if (antiAimConfig.fakeLag) {
         switch (antiAimConfig.flMode) {
         case 0: //Static
@@ -293,37 +300,30 @@ void AntiAim::fakeLag(UserCmd* cmd, bool& sendPacket) noexcept
             chokedPackets = std::clamp(static_cast<int>(std::ceilf(64 / (localPlayer->velocity().length() * memory->globalVars->intervalPerTick))), 1, antiAimConfig.flLimit);
             break;
         }
+
+        for (int i = 1; i <= interfaces->engine->getMaxClients(); i++) {
+            auto entity = interfaces->entityList->getEntity(i);
+            if (!entity || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive()
+                || !entity->isOtherEnemy(localPlayer.get()))
+                continue;
+
+            if ((antiAimConfig.flTriggers.enabled[0] //On visible trigger
+                && entity->isVisible(localPlayer->getBonePosition(8))))
+                chokedPackets = antiAimConfig.flTriggerLimit;
+        }
+
+        if ((antiAimConfig.flDisablers.enabled[0] //On shot disabler
+            && didShoot(cmd)))
+            chokedPackets = antiAimConfig.enabled ? 1 : 0;
+
+        if ((antiAimConfig.flDisablers.enabled[1] //On use disabler
+            && (cmd->buttons & (UserCmd::IN_USE))))
+            chokedPackets = antiAimConfig.enabled ? 1 : 0;
+
+        if ((antiAimConfig.flDisablers.enabled[2] //On grenade throw disabler
+            && activeWeapon->isThrowing()))
+            chokedPackets = antiAimConfig.enabled ? 1 : 0;
     }
-
-    if (!localPlayer->isAlive())
-        return;
-
-    auto activeWeapon = localPlayer->getActiveWeapon();
-    if (!activeWeapon)
-        return;
-
-    for (int i = 1; i <= interfaces->engine->getMaxClients(); i++) {
-        auto entity = interfaces->entityList->getEntity(i);
-        if (!entity || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive()
-            || !entity->isOtherEnemy(localPlayer.get()))
-            continue;
-
-        if ((antiAimConfig.flTriggers.enabled[0] //On visible trigger
-            && entity->isVisible(localPlayer->getBonePosition(8))))
-            chokedPackets = antiAimConfig.flTriggerLimit;
-    }
-
-    if ((antiAimConfig.flDisablers.enabled[0] //On shot disabler
-        && didShoot(cmd)))
-        chokedPackets = antiAimConfig.enabled ? 1 : 0;
-
-    if ((antiAimConfig.flDisablers.enabled[1] //On use disabler
-        && (cmd->buttons & (UserCmd::IN_USE))))
-        chokedPackets = antiAimConfig.enabled ? 1 : 0;
-
-    if ((antiAimConfig.flDisablers.enabled[2] //On grenade throw disabler
-        && activeWeapon->isThrowing()))
-        chokedPackets = antiAimConfig.enabled ? 1 : 0;
 
     sendPacket = interfaces->engine->getNetworkChannel()->chokedPackets >= chokedPackets;
 }
