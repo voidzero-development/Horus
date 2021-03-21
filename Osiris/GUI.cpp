@@ -212,6 +212,7 @@ void GUI::renderLegitbotWindow(bool contentOnly) noexcept
     ImGui::PushItemWidth(240.0f);
     ImGui::SliderFloat("Fov", &config->legitbot[currentCategory].fov, 0.0f, 255.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
     ImGui::SliderFloat("Smooth", &config->legitbot[currentCategory].smooth, 1.0f, 100.0f, "%.2f");
+    ImGui::SliderInt("Kill delay", &config->legitbot[currentCategory].killDelay, 0, 1000, "%d ms");
     ImGui::SliderInt("Multi point", &config->legitbot[currentCategory].multiPoint, 0, 100, "%d");
     ImGui::SliderInt("Hit chance", &config->legitbot[currentCategory].hitChance, 0, 100, "%d%%");
     ImGui::InputInt("Min damage", &config->legitbot[currentCategory].minDamage);

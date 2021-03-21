@@ -3,6 +3,7 @@
 #include "EventListener.h"
 #include "fnv.h"
 #include "GameData.h"
+#include "Hacks/Legitbot.h"
 #include "Hacks/Misc.h"
 #include "Hacks/SkinChanger.h"
 #include "Hacks/Visuals.h"
@@ -51,6 +52,7 @@ void EventListener::fireGameEvent(GameEvent* event)
         SkinChanger::overrideHudIcon(*event);
         Misc::killMessage(*event);
         Misc::killSound(*event);
+        Legitbot::handleKill(*event);
         break;
     case fnv::hash("player_hurt"):
         Misc::playHitSound(*event);

@@ -233,6 +233,7 @@ static void from_json(const json& j, Config::Legitbot& l)
     read(j, "Auto scope", l.autoScope);
     read(j, "Fov", l.fov);
     read(j, "Smooth", l.smooth);
+    read(j, "Kill delay", l.killDelay);
     read(j, "Multi point", l.multiPoint);
     read(j, "Hit chance", l.hitChance);
     read(j, "Min damage", l.minDamage);
@@ -732,6 +733,7 @@ static void to_json(json& j, const Config::Legitbot& o, const Config::Legitbot& 
     WRITE("Auto scope", autoScope);
     WRITE("Fov", fov);
     WRITE("Smooth", smooth);
+    WRITE("Kill delay", killDelay);
     WRITE("Multi point", multiPoint);
     WRITE("Hit chance", hitChance);
     WRITE("Min damage", minDamage);

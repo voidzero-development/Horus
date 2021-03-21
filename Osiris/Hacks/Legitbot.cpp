@@ -10,6 +10,7 @@
 #include "../SDK/UserCmd.h"
 #include "../SDK/Vector.h"
 #include "../SDK/WeaponId.h"
+#include "../SDK/GameEvent.h"
 #include "../SDK/GlobalVars.h"
 #include "../SDK/PhysicsSurfaceProps.h"
 #include "../SDK/WeaponData.h"
@@ -24,6 +25,18 @@ void Legitbot::updateInput() noexcept
         keyPressed = config->legitbotKey.isDown();
     if (config->legitbotKeyMode == 1 && config->legitbotKey.isPressed())
         keyPressed = !keyPressed;
+}
+
+void Legitbot::handleKill(GameEvent& event) noexcept
+{
+    if (!localPlayer)
+        return;
+
+    if (const auto localUserId = localPlayer->getUserId(); event.getInt("attacker") != localUserId || event.getInt("userid") == localUserId)
+        return;
+
+    lastKillTime = memory->globalVars->realtime;
+    return;
 }
 
 static std::array<bool, 7> shouldRunAutoStop;
@@ -111,6 +124,11 @@ void Legitbot::run(UserCmd* cmd) noexcept
         return;
 
     if (!cfg.ignoreFlash && localPlayer->isFlashed())
+        return;
+
+    const auto now = memory->globalVars->realtime;
+
+    if (lastKillTime + cfg.killDelay / 1000.0f > now)
         return;
 
     if (config->legitbotOnKey && !keyPressed)

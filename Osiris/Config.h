@@ -43,6 +43,7 @@ public:
         bool autoScope{ false };
         float fov{ 0.0f };
         float smooth{ 1.0f };
+        int killDelay{ 0 };
         int hitChance{ 0 };
         int multiPoint{ 0 };
         int minDamage{ 1 };
