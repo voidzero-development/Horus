@@ -283,6 +283,7 @@ void AntiAim::fakeLag(UserCmd* cmd, bool& sendPacket) noexcept
     chokedPackets = antiAimConfig.enabled ? 1 : 0;
 
     std::clamp(antiAimConfig.flLimit, 1, (*memory->gameRules)->isValveDS() ? 6 : 14);
+    std::clamp(antiAimConfig.flTriggerLimit, 1, (*memory->gameRules)->isValveDS() ? 6 : 14);
 
     if (!localPlayer->isAlive())
         return;
