@@ -205,6 +205,7 @@ static void from_json(const json& j, OffscreenEnemies& o)
 {
     read(j, "Enabled", o.enabled);
     read<value_t::object>(j, "Color", o.color);
+    read(j, "Distance", o.distance);
 }
 
 static void from_json(const json& j, BulletTracers& o)
@@ -694,6 +695,7 @@ static void to_json(json& j, const OffscreenEnemies& o, const OffscreenEnemies& 
 {
     WRITE("Enabled", enabled);
     WRITE("Color", color);
+    WRITE("Distance", distance);
 }
 
 static void to_json(json& j, const BulletTracers& o, const BulletTracers& dummy = {})

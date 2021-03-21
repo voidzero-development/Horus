@@ -961,8 +961,10 @@ void Misc::drawOffscreenEnemies(ImDrawList* drawList) noexcept
 
         constexpr auto avatarRadius = 13.0f;
         constexpr auto triangleSize = 10.0f;
+       
+        const auto distance = (config->misc.offscreenEnemies.distance / 100.f) * (540 - (avatarRadius + 3) - triangleSize);
 
-        const auto pos = ImGui::GetIO().DisplaySize / 2 + ImVec2{ x, y } * 200;
+        const auto pos = ImGui::GetIO().DisplaySize / 2 + ImVec2{ x, y } * distance;
         const auto trianglePos = pos + ImVec2{ x, y } * (avatarRadius + 3);
 
         const auto white = Helpers::calculateColor(255, 255, 255, 255);

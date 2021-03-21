@@ -1175,6 +1175,17 @@ void GUI::renderMiscWindow(bool contentOnly) noexcept
 
     ImGui::Checkbox("Watermark", &config->misc.watermark.enabled);
     ImGuiCustom::colorPicker("Offscreen Enemies", config->misc.offscreenEnemies.color, &config->misc.offscreenEnemies.enabled);
+    ImGui::SameLine();
+
+    ImGui::PushID("Offscreen Enemies");
+    if (ImGui::Button("..."))
+        ImGui::OpenPopup("");
+
+    if (ImGui::BeginPopup("")) {
+        ImGui::SliderInt("Distance", &config->misc.offscreenEnemies.distance, 10, 100, "%d%%");
+        ImGui::EndPopup();
+    }
+    ImGui::PopID();
     ImGui::Checkbox("Disable model occlusion", &config->misc.disableModelOcclusion);
     ImGui::SliderFloat("Aspect Ratio", &config->misc.aspectratio, 0.0f, 5.0f, "%.2f");
     ImGui::NextColumn();
@@ -1218,11 +1229,6 @@ void GUI::renderMiscWindow(bool contentOnly) noexcept
         if (ImGui::IsItemHovered())
             ImGui::SetTooltip("audio file must be put in csgo/sound/ directory");
     }
-    /*
-    ImGui::Text("Quick healthshot");
-    ImGui::SameLine();
-    hotkey(config->misc.quickHealthshotKey);
-    */
     ImGui::Checkbox("Grenade prediction", &config->misc.grenadePrediction);
     ImGui::Checkbox("Unlock inventory", &config->misc.unlockInventory);
     ImGui::Checkbox("Auto GG", &config->misc.autoGG);
