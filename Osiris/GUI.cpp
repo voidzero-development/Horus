@@ -72,6 +72,7 @@ void GUI::render() noexcept
     if (!config->style.menuStyle) {
         renderMenuBar();
         renderLegitbotWindow();
+        renderRagebotWindow();
         AntiAim::drawGUI(false);
         renderTriggerbotWindow();
         Backtrack::drawGUI(false);
@@ -148,6 +149,7 @@ void GUI::renderMenuBar() noexcept
 {
     if (ImGui::BeginMainMenuBar()) {
         menuBarItem("Legitbot", window.legitbot);
+        menuBarItem("Ragebot", window.ragebot);
         AntiAim::menuBarItem();
         menuBarItem("Triggerbot", window.triggerbot);
         Backtrack::menuBarItem();
@@ -231,6 +233,78 @@ void GUI::renderLegitbotWindow(bool contentOnly) noexcept
     config->legitbot[currentCategory].minDamage = std::clamp(config->legitbot[currentCategory].minDamage, 0, 250);
     ImGui::Checkbox("Killshot", &config->legitbot[currentCategory].killshot);
     ImGui::Checkbox("Between shots", &config->legitbot[currentCategory].betweenShots);
+    ImGui::Columns(1);
+    if (!contentOnly)
+        ImGui::End();
+}
+
+void GUI::renderRagebotWindow(bool contentOnly) noexcept
+{
+    if (!contentOnly) {
+        if (!window.ragebot)
+            return;
+        ImGui::SetNextWindowSize({ 600.0f, 0.0f });
+        ImGui::Begin("Ragebot", &window.ragebot, windowFlags);
+    }
+    ImGui::Checkbox("On key", &config->ragebotOnKey);
+    ImGui::SameLine();
+    ImGui::PushID("Ragebot Key");
+    hotkey2("", config->ragebotKey);
+    ImGui::PopID();
+    ImGui::SameLine();
+    ImGui::PushID(2);
+    ImGui::PushItemWidth(70.0f);
+    ImGui::Combo("", &config->ragebotKeyMode, "Hold\0Toggle\0");
+    ImGui::PopItemWidth();
+    ImGui::PopID();
+    ImGui::Separator();
+    static int currentCategory{ 0 };
+    ImGui::PushID(3);
+    ImGui::PushItemWidth(110.0f);
+    ImGui::Combo("", &currentCategory, "General\0Pistol\0Rifle\0AWP\0Scout\0SMG\0Shotgun\0");
+    ImGui::PopItemWidth();
+    ImGui::PopID();
+    ImGui::SameLine();
+    ImGui::Checkbox("Enabled", &config->ragebot[currentCategory].enabled);
+    ImGui::Columns(2, nullptr, false);
+    ImGui::SetColumnOffset(1, 220.0f);
+    ImGui::Checkbox("Aimlock", &config->ragebot[currentCategory].aimlock);
+    ImGui::Checkbox("Silent", &config->ragebot[currentCategory].silent);
+    ImGui::Checkbox("Friendly fire", &config->ragebot[currentCategory].friendlyFire);
+    ImGui::Checkbox("Visible only", &config->ragebot[currentCategory].visibleOnly);
+    ImGui::Checkbox("Scoped only", &config->ragebot[currentCategory].scopedOnly);
+    ImGui::Checkbox("Ignore flash", &config->ragebot[currentCategory].ignoreFlash);
+    ImGui::Checkbox("Ignore smoke", &config->ragebot[currentCategory].ignoreSmoke);
+    ImGui::Checkbox("Auto shot", &config->ragebot[currentCategory].autoShot);
+    ImGui::Checkbox("Auto scope", &config->ragebot[currentCategory].autoScope);
+    ImGui::Checkbox("Auto stop", &config->ragebot[currentCategory].autoStop);
+    static const char* hitGroups[]{ "Head", "Chest", "Stomach", "Arms", "Legs" };
+    static std::string previewvalue = "";
+    if (ImGui::BeginCombo("Hit groups", previewvalue.c_str())) {
+        previewvalue = "";
+        for (size_t i = 0; i < ARRAYSIZE(hitGroups); i++)
+            ImGui::Selectable(hitGroups[i], &config->ragebot[currentCategory].hitGroups[i], ImGuiSelectableFlags_::ImGuiSelectableFlags_DontClosePopups);
+        ImGui::EndCombo();
+    }
+    bool once = false;
+    for (size_t i = 0; i < ARRAYSIZE(hitGroups); i++) {
+        if (!once) {
+            previewvalue = "";
+            once = true;
+        }
+        if (config->ragebot[currentCategory].hitGroups[i])
+            previewvalue += previewvalue.size() ? std::string(", ") + hitGroups[i] : hitGroups[i];
+    }
+    ImGui::NextColumn();
+    ImGui::PushItemWidth(240.0f);
+    ImGui::SliderFloat("Fov", &config->ragebot[currentCategory].fov, 0.0f, 255.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
+    ImGui::SliderFloat("Smooth", &config->ragebot[currentCategory].smooth, 1.0f, 100.0f, "%.2f");
+    ImGui::SliderInt("Multi point", &config->ragebot[currentCategory].multiPoint, 0, 100, "%d");
+    ImGui::SliderInt("Hit chance", &config->ragebot[currentCategory].hitChance, 0, 100, "%d%%");
+    ImGui::InputInt("Min damage", &config->ragebot[currentCategory].minDamage);
+    config->ragebot[currentCategory].minDamage = std::clamp(config->ragebot[currentCategory].minDamage, 0, 250);
+    ImGui::Checkbox("Killshot", &config->ragebot[currentCategory].killshot);
+    ImGui::Checkbox("Between shots", &config->ragebot[currentCategory].betweenShots);
     ImGui::Columns(1);
     if (!contentOnly)
         ImGui::End();
@@ -1355,7 +1429,7 @@ void GUI::renderConfigWindow(bool contentOnly) noexcept
             ImGui::OpenPopup("Config to reset");
 
         if (ImGui::BeginPopup("Config to reset")) {
-            static constexpr const char* names[]{ "Whole", "Aimbot", "Triggerbot", "Backtrack", "Anti aim", "Glow", "Chams", "ESP", "Visuals", "Skin changer", "Sound", "Style", "Misc" };
+            static constexpr const char* names[]{ "Whole", "Legitbot", "Ragebot", "Triggerbot", "Backtrack", "Anti aim", "Glow", "Chams", "ESP", "Visuals", "Skin changer", "Sound", "Style", "Misc" };
             for (int i = 0; i < IM_ARRAYSIZE(names); i++) {
                 if (i == 1) ImGui::Separator();
 
@@ -1363,17 +1437,18 @@ void GUI::renderConfigWindow(bool contentOnly) noexcept
                     switch (i) {
                     case 0: config->reset(); updateColors(); Misc::updateClanTag(true); SkinChanger::scheduleHudUpdate(); break;
                     case 1: config->legitbot = { }; break;
-                    case 2: config->triggerbot = { }; break;
-                    case 3: Backtrack::resetConfig(); break;
-                    case 4: AntiAim::resetConfig(); break;
-                    case 5: Glow::resetConfig(); break;
-                    case 6: config->chams = { }; break;
-                    case 7: config->streamProofESP = { }; break;
-                    case 8: config->visuals = { }; break;
-                    case 9: config->skinChanger = { }; SkinChanger::scheduleHudUpdate(); break;
-                    case 10: config->sound = { }; break;
-                    case 11: config->style = { }; updateColors(); break;
-                    case 12: config->misc = { };  Misc::updateClanTag(true); break;
+                    case 2: config->ragebot = { }; break;
+                    case 3: config->triggerbot = { }; break;
+                    case 4: Backtrack::resetConfig(); break;
+                    case 5: AntiAim::resetConfig(); break;
+                    case 6: Glow::resetConfig(); break;
+                    case 7: config->chams = { }; break;
+                    case 8: config->streamProofESP = { }; break;
+                    case 9: config->visuals = { }; break;
+                    case 10: config->skinChanger = { }; SkinChanger::scheduleHudUpdate(); break;
+                    case 11: config->sound = { }; break;
+                    case 12: config->style = { }; updateColors(); break;
+                    case 13: config->misc = { };  Misc::updateClanTag(true); break;
                     }
                 }
             }
@@ -1409,6 +1484,10 @@ void GUI::renderGuiStyle2() noexcept
     if (ImGui::BeginTabBar("TabBar", ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_FittingPolicyScroll | ImGuiTabBarFlags_NoTooltip)) {
         if (ImGui::BeginTabItem("Legitbot")) {
             renderLegitbotWindow(true);
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Ragebot")) {
+            renderRagebotWindow(true);
             ImGui::EndTabItem();
         }
         AntiAim::tabItem();

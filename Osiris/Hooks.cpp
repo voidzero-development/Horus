@@ -31,7 +31,6 @@
 #include "Interfaces.h"
 #include "Memory.h"
 
-#include "Hacks/Aimbot.h"
 #include "Hacks/AntiAim.h"
 #include "Hacks/Backtrack.h"
 #include "Hacks/Chams.h"
@@ -41,6 +40,7 @@
 #include "Hacks/GrenadePrediction.h"
 #include "Hacks/Legitbot.h"
 #include "Hacks/Misc.h"
+#include "Hacks/Ragebot.h"
 #include "Hacks/SkinChanger.h"
 #include "Hacks/Triggerbot.h"
 #include "Hacks/Visuals.h"
@@ -112,6 +112,7 @@ static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, cons
     Misc::watermark();
 
     Legitbot::updateInput();
+    Ragebot::updateInput();
     Visuals::updateInput();
     StreamProofESP::updateInput();
     Misc::updateInput();
@@ -182,12 +183,14 @@ static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTim
     Misc::revealRanks(cmd);
     Misc::fixTabletSignal();
     Misc::slowwalk(cmd);
-    //Aimbot::autoStop(cmd);
+    Legitbot::autoStop(cmd);
+    Ragebot::autoStop(cmd);
     GrenadePrediction::run(cmd);
 
     EnginePrediction::run(cmd);
 
     Legitbot::run(cmd);
+    Ragebot::run(cmd);
     Triggerbot::run(cmd);
     Backtrack::run(cmd);
     Misc::edgejump(cmd);
@@ -277,6 +280,12 @@ static void __STDCALL frameStageNotify(LINUX_ARGS(void* thisptr,) FrameStage sta
 
     if (interfaces->engine->isConnected() && !interfaces->engine->isInGame())
         Misc::changeName(true, nullptr, 0.0f);
+
+    for (size_t i = 0; i < config->ragebot.size(); i++)
+    {
+        if (config->ragebot[i].enabled && config->legitbot[i].enabled)
+            config->ragebot[i].enabled = false;
+    }
 
     if (stage == FrameStage::START)
         GameData::update();

@@ -56,6 +56,32 @@ public:
     KeyBind legitbotKey = KeyBind::NONE;
     int legitbotKeyMode{ 0 };
 
+    struct Ragebot {
+        bool enabled{ false };
+        bool aimlock{ false };
+        bool silent{ false };
+        bool friendlyFire{ false };
+        bool visibleOnly{ true };
+        bool scopedOnly{ true };
+        bool ignoreFlash{ false };
+        bool ignoreSmoke{ false };
+        bool autoShot{ false };
+        bool autoScope{ false };
+        float fov{ 0.0f };
+        float smooth{ 1.0f };
+        int hitChance{ 0 };
+        int multiPoint{ 0 };
+        int minDamage{ 1 };
+        bool killshot{ false };
+        bool betweenShots{ true };
+        bool autoStop{ false };
+        bool hitGroups[5]{ false };
+    };
+    std::array<Ragebot, 7> ragebot;
+    bool ragebotOnKey{ false };
+    KeyBind ragebotKey = KeyBind::NONE;
+    int ragebotKeyMode{ 0 };
+
     struct Triggerbot {
         bool enabled = false;
         bool friendlyFire = false;

@@ -246,6 +246,33 @@ static void from_json(const json& j, Config::Legitbot& l)
     read(j, "Legs hit group", l.hitGroups[4]);
 }
 
+static void from_json(const json& j, Config::Ragebot& r)
+{
+    read(j, "Enabled", r.enabled);
+    read(j, "Aimlock", r.aimlock);
+    read(j, "Silent", r.silent);
+    read(j, "Friendly fire", r.friendlyFire);
+    read(j, "Visible only", r.visibleOnly);
+    read(j, "Scoped only", r.scopedOnly);
+    read(j, "Ignore flash", r.ignoreFlash);
+    read(j, "Ignore smoke", r.ignoreSmoke);
+    read(j, "Auto shot", r.autoShot);
+    read(j, "Auto scope", r.autoScope);
+    read(j, "Fov", r.fov);
+    read(j, "Smooth", r.smooth);
+    read(j, "Multi point", r.multiPoint);
+    read(j, "Hit chance", r.hitChance);
+    read(j, "Min damage", r.minDamage);
+    read(j, "Killshot", r.killshot);
+    read(j, "Between shots", r.betweenShots);
+    read(j, "Auto stop", r.autoStop);
+    read(j, "Head hit group", r.hitGroups[0]);
+    read(j, "Chest hit group", r.hitGroups[1]);
+    read(j, "Stomach hit group", r.hitGroups[2]);
+    read(j, "Arms hit group", r.hitGroups[3]);
+    read(j, "Legs hit group", r.hitGroups[4]);
+}
+
 static void from_json(const json& j, Config::Triggerbot& t)
 {
     read(j, "Enabled", t.enabled);
@@ -545,6 +572,11 @@ void Config::load(const char8_t* name, bool incremental) noexcept
     read(j, "Legitbot Key", legitbotKey);
     read(j, "Legitbot Key mode", legitbotKeyMode);
 
+    read(j, "Ragebot", ragebot);
+    read(j, "Ragebot On key", ragebotOnKey);
+    read(j, "Ragebot Key", ragebotKey);
+    read(j, "Ragebot Key mode", ragebotKeyMode);
+
     read(j, "Triggerbot", triggerbot);
     read(j, "Triggerbot Key", triggerbotHoldKey);
 
@@ -687,6 +719,33 @@ static void to_json(json& j, const ImVec2& o, const ImVec2& dummy = {})
 }
 
 static void to_json(json& j, const Config::Legitbot& o, const Config::Legitbot& dummy = {})
+{
+    WRITE("Enabled", enabled);
+    WRITE("Aimlock", aimlock);
+    WRITE("Silent", silent);
+    WRITE("Friendly fire", friendlyFire);
+    WRITE("Visible only", visibleOnly);
+    WRITE("Scoped only", scopedOnly);
+    WRITE("Ignore flash", ignoreFlash);
+    WRITE("Ignore smoke", ignoreSmoke);
+    WRITE("Auto shot", autoShot);
+    WRITE("Auto scope", autoScope);
+    WRITE("Fov", fov);
+    WRITE("Smooth", smooth);
+    WRITE("Multi point", multiPoint);
+    WRITE("Hit chance", hitChance);
+    WRITE("Min damage", minDamage);
+    WRITE("Killshot", killshot);
+    WRITE("Between shots", betweenShots);
+    WRITE("Auto stop", autoStop);
+    WRITE("Head hit group", hitGroups[0]);
+    WRITE("Chest hit group", hitGroups[1]);
+    WRITE("Stomach hit group", hitGroups[2]);
+    WRITE("Arms hit group", hitGroups[3]);
+    WRITE("Legs hit group", hitGroups[4]);
+}
+
+static void to_json(json& j, const Config::Ragebot& o, const Config::Ragebot& dummy = {})
 {
     WRITE("Enabled", enabled);
     WRITE("Aimlock", aimlock);
@@ -1027,6 +1086,11 @@ void Config::save(size_t id) const noexcept
         to_json(j["Legitbot Key"], legitbotKey, KeyBind::NONE);
         j["Legitbot Key mode"] = legitbotKeyMode;
 
+        j["Ragebot"] = ragebot;
+        j["Ragebot On key"] = ragebotOnKey;
+        to_json(j["Ragebot Key"], ragebotKey, KeyBind::NONE);
+        j["Ragebot Key mode"] = ragebotKeyMode;
+
         j["Triggerbot"] = triggerbot;
         to_json(j["Triggerbot Key"], triggerbotHoldKey, KeyBind::NONE);
 
@@ -1073,6 +1137,7 @@ void Config::rename(size_t item, const char* newName) noexcept
 void Config::reset() noexcept
 {
     legitbot = { };
+    ragebot = { };
     AntiAim::resetConfig();
     triggerbot = { };
     Backtrack::resetConfig();

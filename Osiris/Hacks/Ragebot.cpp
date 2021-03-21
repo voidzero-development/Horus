@@ -1,6 +1,6 @@
 #include "Aimbot.h"
 #include "Backtrack.h"
-#include "Legitbot.h"
+#include "Ragebot.h"
 #include "Misc.h"
 #include "../Config.h"
 #include "../Interfaces.h"
@@ -18,17 +18,17 @@
 
 static bool keyPressed = false;
 
-void Legitbot::updateInput() noexcept
+void Ragebot::updateInput() noexcept
 {
-    if (config->legitbotKeyMode == 0)
-        keyPressed = config->legitbotKey.isDown();
-    if (config->legitbotKeyMode == 1 && config->legitbotKey.isPressed())
+    if (config->ragebotKeyMode == 0)
+        keyPressed = config->ragebotKey.isDown();
+    if (config->ragebotKeyMode == 1 && config->ragebotKey.isPressed())
         keyPressed = !keyPressed;
 }
 
 static std::array<bool, 7> shouldRunAutoStop;
 
-void Legitbot::autoStop(UserCmd* cmd) noexcept
+void Ragebot::autoStop(UserCmd* cmd) noexcept
 {
     if (!localPlayer || !localPlayer->isAlive())
         return;
@@ -42,10 +42,10 @@ void Legitbot::autoStop(UserCmd* cmd) noexcept
         return;
 
     auto weaponClass = getWeaponClass(activeWeapon->itemDefinitionIndex2());
-    if (!config->legitbot[weaponClass].enabled)
+    if (!config->ragebot[weaponClass].enabled)
         weaponClass = 0;
 
-    const auto& cfg = config->legitbot[weaponClass];
+    const auto& cfg = config->ragebot[weaponClass];
 
     if (!cfg.autoStop || !shouldRunAutoStop.at(weaponClass))
         return;
@@ -56,7 +56,7 @@ void Legitbot::autoStop(UserCmd* cmd) noexcept
     if (!cfg.ignoreFlash && localPlayer->isFlashed())
         return;
 
-    if (config->legitbotOnKey && !keyPressed)
+    if (config->ragebotOnKey && !keyPressed)
         return;
 
     if (cfg.enabled && (cmd->buttons & UserCmd::IN_ATTACK || cfg.autoShot))
@@ -85,7 +85,7 @@ void Legitbot::autoStop(UserCmd* cmd) noexcept
     shouldRunAutoStop.at(weaponClass) = false;
 }
 
-void Legitbot::run(UserCmd* cmd) noexcept
+void Ragebot::run(UserCmd* cmd) noexcept
 {
     if (!localPlayer || localPlayer->nextAttack() > memory->globalVars->serverTime() || localPlayer->isDefusing() || localPlayer->waitForNoAttack())
         return;
@@ -102,10 +102,10 @@ void Legitbot::run(UserCmd* cmd) noexcept
         return;
 
     auto weaponClass = getWeaponClass(activeWeapon->itemDefinitionIndex2());
-    if (!config->legitbot[weaponClass].enabled)
+    if (!config->ragebot[weaponClass].enabled)
         weaponClass = 0;
 
-    const auto& cfg = config->legitbot[weaponClass];
+    const auto& cfg = config->ragebot[weaponClass];
 
     if (!cfg.betweenShots && activeWeapon->nextPrimaryAttack() > memory->globalVars->serverTime())
         return;
@@ -113,7 +113,7 @@ void Legitbot::run(UserCmd* cmd) noexcept
     if (!cfg.ignoreFlash && localPlayer->isFlashed())
         return;
 
-    if (config->legitbotOnKey && !keyPressed)
+    if (config->ragebotOnKey && !keyPressed)
         return;
 
     if (cfg.enabled && (cmd->buttons & UserCmd::IN_ATTACK || cfg.autoShot || cfg.aimlock)) {

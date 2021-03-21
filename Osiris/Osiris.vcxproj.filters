@@ -167,6 +167,9 @@
     <ClCompile Include="Hacks\Legitbot.cpp">
       <Filter>Hacks</Filter>
     </ClCompile>
+    <ClCompile Include="Hacks\Ragebot.cpp">
+      <Filter>Hacks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI.h">
@@ -497,6 +500,9 @@
       <Filter>Hacks</Filter>
     </ClInclude>
     <ClInclude Include="Hacks\Legitbot.h">
+      <Filter>Hacks</Filter>
+    </ClInclude>
+    <ClInclude Include="Hacks\Ragebot.h">
       <Filter>Hacks</Filter>
     </ClInclude>
   </ItemGroup>
