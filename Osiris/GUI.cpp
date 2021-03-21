@@ -206,23 +206,8 @@ void GUI::renderLegitbotWindow(bool contentOnly) noexcept
     ImGui::Checkbox("Auto shot", &config->legitbot[currentCategory].autoShot);
     ImGui::Checkbox("Auto scope", &config->legitbot[currentCategory].autoScope);
     ImGui::Checkbox("Auto stop", &config->legitbot[currentCategory].autoStop);
-    static const char* hitGroups[]{ "Head", "Chest", "Stomach", "Arms", "Legs" };
-    static std::string previewvalue = "";
-    if (ImGui::BeginCombo("Hit groups", previewvalue.c_str())) {
-        previewvalue = "";
-        for (size_t i = 0; i < ARRAYSIZE(hitGroups); i++)
-            ImGui::Selectable(hitGroups[i], &config->legitbot[currentCategory].hitGroups[i], ImGuiSelectableFlags_::ImGuiSelectableFlags_DontClosePopups);
-        ImGui::EndCombo();
-    }
-    bool once = false;
-    for (size_t i = 0; i < ARRAYSIZE(hitGroups); i++) {
-        if (!once) {
-            previewvalue = "";
-            once = true;
-        }
-        if (config->legitbot[currentCategory].hitGroups[i])
-            previewvalue += previewvalue.size() ? std::string(", ") + hitGroups[i] : hitGroups[i];
-    }
+    std::vector<const char*> hitGroups = { "Head", "Chest", "Stomach", "Arms", "Legs" };
+    ImGui::multiCombo("Hit groups", hitGroups.data(), config->legitbot[currentCategory].hitGroups, hitGroups.size());
     ImGui::NextColumn();
     ImGui::PushItemWidth(240.0f);
     ImGui::SliderFloat("Fov", &config->legitbot[currentCategory].fov, 0.0f, 255.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
@@ -278,23 +263,8 @@ void GUI::renderRagebotWindow(bool contentOnly) noexcept
     ImGui::Checkbox("Auto shot", &config->ragebot[currentCategory].autoShot);
     ImGui::Checkbox("Auto scope", &config->ragebot[currentCategory].autoScope);
     ImGui::Checkbox("Auto stop", &config->ragebot[currentCategory].autoStop);
-    static const char* hitGroups[]{ "Head", "Chest", "Stomach", "Arms", "Legs" };
-    static std::string previewvalue = "";
-    if (ImGui::BeginCombo("Hit groups", previewvalue.c_str())) {
-        previewvalue = "";
-        for (size_t i = 0; i < ARRAYSIZE(hitGroups); i++)
-            ImGui::Selectable(hitGroups[i], &config->ragebot[currentCategory].hitGroups[i], ImGuiSelectableFlags_::ImGuiSelectableFlags_DontClosePopups);
-        ImGui::EndCombo();
-    }
-    bool once = false;
-    for (size_t i = 0; i < ARRAYSIZE(hitGroups); i++) {
-        if (!once) {
-            previewvalue = "";
-            once = true;
-        }
-        if (config->ragebot[currentCategory].hitGroups[i])
-            previewvalue += previewvalue.size() ? std::string(", ") + hitGroups[i] : hitGroups[i];
-    }
+    std::vector<const char*> hitGroups = { "Head", "Chest", "Stomach", "Arms", "Legs" };
+    ImGui::multiCombo("Hit groups", hitGroups.data(), config->ragebot[currentCategory].hitGroups, hitGroups.size());
     ImGui::NextColumn();
     ImGui::PushItemWidth(240.0f);
     ImGui::SliderFloat("Fov", &config->ragebot[currentCategory].fov, 0.0f, 255.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
@@ -332,23 +302,8 @@ void GUI::renderTriggerbotWindow(bool contentOnly) noexcept
     ImGui::Checkbox("Scoped only", &config->triggerbot[currentCategory].scopedOnly);
     ImGui::Checkbox("Ignore flash", &config->triggerbot[currentCategory].ignoreFlash);
     ImGui::Checkbox("Ignore smoke", &config->triggerbot[currentCategory].ignoreSmoke);
-    static const char* hitGroups[]{ "Head", "Chest", "Stomach", "Arms", "Legs" };
-    static std::string previewvalue = "";
-    if (ImGui::BeginCombo("Hit groups", previewvalue.c_str())) {
-        previewvalue = "";
-        for (size_t i = 0; i < ARRAYSIZE(hitGroups); i++)
-            ImGui::Selectable(hitGroups[i], &config->triggerbot[currentCategory].hitGroups[i], ImGuiSelectableFlags_::ImGuiSelectableFlags_DontClosePopups);
-        ImGui::EndCombo();
-    }
-    bool once = false;
-    for (size_t i = 0; i < ARRAYSIZE(hitGroups); i++) {
-        if (!once) {
-            previewvalue = "";
-            once = true;
-        }
-        if (config->triggerbot[currentCategory].hitGroups[i])
-            previewvalue += previewvalue.size() ? std::string(", ") + hitGroups[i] : hitGroups[i];
-    }
+    std::vector<const char*> hitGroups = { "Head", "Chest", "Stomach", "Arms", "Legs" };
+    ImGui::multiCombo("Hit groups", hitGroups.data(), config->triggerbot[currentCategory].hitGroups, hitGroups.size());
     ImGui::PushItemWidth(220.0f);
     ImGui::SliderInt("Shot delay", &config->triggerbot[currentCategory].shotDelay, 0, 250, "%d ms");
     ImGui::SliderInt("Hit chance", &config->triggerbot[currentCategory].hitChance, 0, 100, "%d%%");
