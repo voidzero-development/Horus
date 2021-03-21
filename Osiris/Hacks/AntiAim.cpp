@@ -3,6 +3,7 @@
 #include "Aimbot.h"
 #include "AntiAim.h"
 #include "../Interfaces.h"
+#include "../imguiCustom.h"
 #include "../SDK/Engine.h"
 #include "../SDK/Entity.h"
 #include "../SDK/EntityList.h"
@@ -22,8 +23,11 @@ struct AntiAimConfig {
     bool atTarget = false;
 
     bool fakeLag = false;
+    FakeLagDisablers flDisablers;
     int flMode = 0;
     int flLimit = 1;
+    FakeLagTriggers flTriggers;
+    int flTriggerLimit = 1;
     
 } antiAimConfig;
 
@@ -278,10 +282,12 @@ void AntiAim::fakeLag(UserCmd* cmd, bool& sendPacket) noexcept
 
     chokedPackets = antiAimConfig.enabled ? 1 : 0;
 
+    std::clamp(antiAimConfig.flLimit, 1, 14);
+
     if (antiAimConfig.fakeLag) {
         switch (antiAimConfig.flMode) {
         case 0: //Static
-            chokedPackets = std::clamp(antiAimConfig.flLimit, 1, 14);
+            chokedPackets = antiAimConfig.flLimit;
             break;
         case 1: //Adaptive
             chokedPackets = std::clamp(static_cast<int>(std::ceilf(64 / (localPlayer->velocity().length() * memory->globalVars->intervalPerTick))), 1, antiAimConfig.flLimit);
@@ -292,8 +298,32 @@ void AntiAim::fakeLag(UserCmd* cmd, bool& sendPacket) noexcept
     if (!localPlayer->isAlive())
         return;
 
-    if (didShoot(cmd))
+    auto activeWeapon = localPlayer->getActiveWeapon();
+    if (!activeWeapon)
         return;
+
+    if ((antiAimConfig.flDisablers.enabled[0] //On shot disabler
+        && didShoot(cmd)))
+        chokedPackets = antiAimConfig.enabled ? 1 : 0;
+
+    if ((antiAimConfig.flDisablers.enabled[1] //On use disabler
+        && (cmd->buttons & (UserCmd::IN_USE))))
+        chokedPackets = antiAimConfig.enabled ? 1 : 0;
+
+    if ((antiAimConfig.flDisablers.enabled[2] //On grenade throw disabler
+        && activeWeapon->isThrowing()))
+        chokedPackets = antiAimConfig.enabled ? 1 : 0;
+
+    for (int i = 1; i <= interfaces->engine->getMaxClients(); i++) {
+        auto entity = interfaces->entityList->getEntity(i);
+        if (!entity || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive()
+            || !entity->isOtherEnemy(localPlayer.get()))
+            continue;
+
+        if ((antiAimConfig.flTriggers.enabled[0] //On visible trigger
+            && entity->isVisible(localPlayer->getBonePosition(8))))
+            chokedPackets = antiAimConfig.flTriggerLimit;
+    }
 
     sendPacket = interfaces->engine->getNetworkChannel()->chokedPackets >= chokedPackets;
 }
@@ -337,10 +367,25 @@ void AntiAim::drawGUI(bool contentOnly) noexcept
         ImGui::Checkbox("At target", &antiAimConfig.atTarget);
     ImGui::Separator();
     ImGui::Checkbox("Fake lag", &antiAimConfig.fakeLag);
+    ImGui::multiCombo("Disablers", antiAimConfig.flDisablers.flDisablersText.data(), antiAimConfig.flDisablers.enabled, antiAimConfig.flDisablers.flDisablersText.size());
     ImGui::Combo("Mode", &antiAimConfig.flMode, "Static\0Adaptive\0");
     ImGui::SliderInt("Limit", &antiAimConfig.flLimit, 1, 14, "%d");
+    ImGui::multiCombo("Triggers", antiAimConfig.flTriggers.flTriggersText.data(), antiAimConfig.flTriggers.enabled, antiAimConfig.flTriggers.flTriggersText.size());
+    ImGui::SliderInt("Trigger limit", &antiAimConfig.flTriggerLimit, 1, 14, "%d");
     if (!contentOnly)
         ImGui::End();
+}
+
+static void to_json(json& j, const FakeLagDisablers& o, const FakeLagDisablers& dummy = {})
+{
+    WRITE("On shot", enabled[0]);
+    WRITE("On use", enabled[1]);
+    WRITE("On grenade throw", enabled[1]);
+}
+
+static void to_json(json& j, const FakeLagTriggers& o, const FakeLagTriggers& dummy = {})
+{
+    WRITE("On visible", enabled[0]);
 }
 
 static void to_json(json& j, const AntiAimConfig& o, const AntiAimConfig& dummy = {})
@@ -353,8 +398,11 @@ static void to_json(json& j, const AntiAimConfig& o, const AntiAimConfig& dummy 
     WRITE("Jitter mode", jitterMode);
     WRITE("At target", atTarget);
     WRITE("Fake lag", fakeLag);
+    WRITE("Fake lag disablers", flDisablers);
     WRITE("Fake lag mode", flMode);
     WRITE("Fake lag limit", flLimit);
+    WRITE("Fake lag triggers", flTriggers);
+    WRITE("Fake lag trigger limit", flTriggerLimit);
 }
 
 json AntiAim::toJson() noexcept
@@ -362,6 +410,18 @@ json AntiAim::toJson() noexcept
     json j;
     to_json(j, antiAimConfig);
     return j;
+}
+
+static void from_json(const json& j, FakeLagDisablers& fd)
+{
+    read(j, "On shot", fd.enabled[0]);
+    read(j, "On use", fd.enabled[1]);
+    read(j, "On grenade throw", fd.enabled[1]);
+}
+
+static void from_json(const json& j, FakeLagTriggers& ft)
+{
+    read(j, "On visible", ft.enabled[0]);
 }
 
 static void from_json(const json& j, AntiAimConfig& a)
@@ -374,8 +434,11 @@ static void from_json(const json& j, AntiAimConfig& a)
     read(j, "Jitter mode", a.jitterMode);
     read(j, "At target", a.atTarget);
     read(j, "Fake lag", a.fakeLag);
+    read<value_t::object>(j, "Fake lag disablers", a.flDisablers);
     read(j, "Fake lag mode", a.flMode);
     read(j, "Fake lag limit", a.flLimit);
+    read<value_t::object>(j, "Fake lag triggers", a.flTriggers);
+    read(j, "Fake lag trigger limit", a.flTriggerLimit);
 }
 
 void AntiAim::fromJson(const json& j) noexcept

@@ -171,6 +171,30 @@ struct ViewmodelChanger {
     int roll{ 0 };
 };
 
+struct FakeLagDisablers {
+    std::vector<const char*> flDisablersText = {
+    "On shot",
+    "On use",
+    "On grenade throw",
+    };
+
+    bool enabled[3]{
+    false,
+    false,
+    false,
+    };
+};
+
+struct FakeLagTriggers {
+    std::vector<const char*> flTriggersText = {
+    "On visible",
+    };
+
+    bool enabled[1]{
+    false,
+    };
+};
+
 using json = nlohmann::basic_json<std::map, std::vector, std::string, bool, std::int64_t, std::uint64_t, float>;
 using value_t = json::value_t;
 

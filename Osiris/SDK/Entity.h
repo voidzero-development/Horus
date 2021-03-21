@@ -179,7 +179,7 @@ public:
             return false;
 
         Trace trace;
-        interfaces->engineTrace->traceRay({ localPlayer->getEyePosition(), position.notNull() ? position : getBonePosition(8) }, 0x46004009, { localPlayer.get() }, trace);
+        interfaces->engineTrace->traceRay({ getEyePosition(), position.notNull() ? position : getBonePosition(8) }, 0x46004009, { this }, trace);
         return trace.entity == this || trace.fraction > 0.97f;
     }
     

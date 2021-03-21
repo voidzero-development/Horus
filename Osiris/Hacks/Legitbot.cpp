@@ -191,7 +191,7 @@ void Legitbot::run(UserCmd* cmd) noexcept
                     if (!cfg.ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
                         continue;
 
-                    if (!entity->isVisible(bonePosition) && (cfg.visibleOnly || !Aimbot::canScan(entity, bonePosition, activeWeapon->getWeaponData(), cfg.killshot ? entity->health() : cfg.minDamage, cfg.friendlyFire)))
+                    if (!localPlayer->isVisible(bonePosition) && (cfg.visibleOnly || !Aimbot::canScan(entity, bonePosition, activeWeapon->getWeaponData(), cfg.killshot ? entity->health() : cfg.minDamage, cfg.friendlyFire)))
                         continue;
 
                     if (cfg.scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped() && localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP))) {
@@ -253,7 +253,7 @@ void Legitbot::run(UserCmd* cmd) noexcept
                     if (!cfg.ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
                         continue;
 
-                    if (!entity->isVisible(bonePosition) && (cfg.visibleOnly || !Aimbot::canScan(entity, bonePosition, activeWeapon->getWeaponData(), cfg.killshot ? entity->health() : cfg.minDamage, cfg.friendlyFire)))
+                    if (!localPlayer->isVisible(bonePosition) && (cfg.visibleOnly || !Aimbot::canScan(entity, bonePosition, activeWeapon->getWeaponData(), cfg.killshot ? entity->health() : cfg.minDamage, cfg.friendlyFire)))
                         continue;
 
                     if (cfg.scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped() && localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP))) {
