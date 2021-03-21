@@ -215,6 +215,9 @@ void Ragebot::run(UserCmd* cmd) noexcept
                     if (((bonePosition - localPlayer->getAbsOrigin()).length()) > range)
                         continue;
 
+                    if (fov > bestFov)
+                        continue;
+
                     if (!localPlayer->isVisible(bonePosition) && cfg.visibleOnly)
                         continue;
 
@@ -241,12 +244,6 @@ void Ragebot::run(UserCmd* cmd) noexcept
                         bestDamage = damage;
                         bestTarget = bonePosition;
                         bestAngle = angle;
-                    }
-                    if (fov > bestFov)
-                    {
-                        bestDamage = config->ragebot[weaponClass].minDamage;
-                        bestTarget = Vector{ };
-                        bestAngle = Vector{ };
                     }
                 }
 
@@ -284,6 +281,9 @@ void Ragebot::run(UserCmd* cmd) noexcept
                     if (((bonePosition - localPlayer->getAbsOrigin()).length()) > range)
                         continue;
 
+                    if (fov > bestFov)
+                        continue;
+
                     if (!localPlayer->isVisible(bonePosition) && cfg.visibleOnly)
                         continue;
 
@@ -310,12 +310,6 @@ void Ragebot::run(UserCmd* cmd) noexcept
                         bestDamage = damage;
                         bestTarget = bonePosition;
                         bestAngle = angle;
-                    }
-                    if (fov > bestFov)
-                    {
-                        bestDamage = config->ragebot[weaponClass].minDamage;
-                        bestTarget = Vector{ };
-                        bestAngle = Vector{ };
                     }
                 }
             }
