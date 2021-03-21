@@ -50,7 +50,7 @@ void Ragebot::autoStop(UserCmd* cmd) noexcept
     if (!cfg.autoStop || !shouldRunAutoStop.at(weaponClass))
         return;
 
-    if (!cfg.betweenShots && activeWeapon->nextPrimaryAttack() > memory->globalVars->serverTime())
+    if (activeWeapon->nextPrimaryAttack() > memory->globalVars->serverTime())
         return;
 
     if (!cfg.ignoreFlash && localPlayer->isFlashed())
@@ -107,7 +107,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
 
     const auto& cfg = config->ragebot[weaponClass];
 
-    if (!cfg.betweenShots && activeWeapon->nextPrimaryAttack() > memory->globalVars->serverTime())
+    if (activeWeapon->nextPrimaryAttack() > memory->globalVars->serverTime())
         return;
 
     if (!cfg.ignoreFlash && localPlayer->isFlashed())
@@ -152,17 +152,47 @@ void Ragebot::run(UserCmd* cmd) noexcept
         }
 
         auto bestFov = cfg.fov;
+        auto bestDamage = config->ragebot[weaponClass].minDamage;
         Vector bestTarget{ };
         Vector bestAngle{ };
         const auto localPlayerEyePosition = localPlayer->getEyePosition();
+        const auto localPlayerOrigin = localPlayer->getAbsOrigin();
 
         const auto aimPunch = activeWeapon->requiresRecoilControl() ? localPlayer->getAimPunch() : Vector{ };
 
+        std::vector<Ragebot::Enemies> enemies;
+
         for (int i = 1; i <= interfaces->engine->getMaxClients(); i++) {
-            auto entity = interfaces->entityList->getEntity(i);
+            const auto entity{ interfaces->entityList->getEntity(i) };
             if (!entity || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive()
                 || !entity->isOtherEnemy(localPlayer.get()) && !cfg.friendlyFire || entity->gunGameImmunity())
                 continue;
+
+            const auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, entity->getBonePosition(8), cmd->viewangles + aimPunch);
+            const auto& origin = entity->getAbsOrigin();
+            const auto fov = std::hypot(angle.x, angle.y); //Fov
+            const auto health = entity->health(); //Health
+            const auto distance = (origin - localPlayer->getAbsOrigin()).length(); //Distance
+            enemies.emplace_back(i, health, distance, fov);
+        }
+
+        switch (cfg.priority)
+        {
+        case 0:
+            std::sort(enemies.begin(), enemies.end(), healthSort);
+            break;
+        case 1:
+            std::sort(enemies.begin(), enemies.end(), distanceSort);
+            break;
+        case 2:
+            std::sort(enemies.begin(), enemies.end(), fovSort);
+            break;
+        default:
+            break;
+        }
+
+        for (const auto& target : enemies) {
+            const auto entity{ interfaces->entityList->getEntity(target.id) };
 
             const Model* mod = entity->getModel();
             if (!mod)
@@ -180,18 +210,19 @@ void Ragebot::run(UserCmd* cmd) noexcept
                 for (auto bonePosition : Aimbot::multiPoint(entity, boneMatrices, hdr, j, weaponClass, cfg.multiPoint)) {
                     const auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch);
                     const auto fov = std::hypot(angle.x, angle.y);
-
-                    if (fov > bestFov)
-                        continue;
-
                     const auto range = activeWeapon->getWeaponData()->range;
+
                     if (((bonePosition - localPlayer->getAbsOrigin()).length()) > range)
                         continue;
 
-                    if (!cfg.ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
+                    if (!localPlayer->isVisible(bonePosition) && cfg.visibleOnly)
                         continue;
 
-                    if (!localPlayer->isVisible(bonePosition) && (cfg.visibleOnly || !Aimbot::canScan(entity, bonePosition, activeWeapon->getWeaponData(), cfg.killshot ? entity->health() : cfg.minDamage, cfg.friendlyFire)))
+                    auto damage = Aimbot::canScan(entity, bonePosition, activeWeapon->getWeaponData(), cfg.friendlyFire);
+                    if (damage <= 0.f)
+                        continue;
+
+                    if (!cfg.ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
                         continue;
 
                     if (cfg.scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped() && localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP))) {
@@ -206,14 +237,20 @@ void Ragebot::run(UserCmd* cmd) noexcept
                     if (!Aimbot::hitChance(localPlayer.get(), entity, activeWeapon, angle, cmd, cfg.hitChance))
                         continue;
 
-                    if (fov < bestFov) {
-                        bestFov = fov;
+                    if (bestDamage <= damage) {
+                        bestDamage = damage;
                         bestTarget = bonePosition;
                         bestAngle = angle;
                     }
+                    if (fov > bestFov)
+                    {
+                        bestDamage = config->ragebot[weaponClass].minDamage;
+                        bestTarget = Vector{ };
+                        bestAngle = Vector{ };
+                    }
                 }
 
-                const auto records = Backtrack::getRecords(i);
+                const auto records = Backtrack::getRecords(target.id);
                 if (!records || records->empty() || records->size() <= 3 || !Backtrack::valid(records->front().simulationTime))
                     continue;
 
@@ -242,18 +279,19 @@ void Ragebot::run(UserCmd* cmd) noexcept
                 {
                     const auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch);
                     const auto fov = std::hypot(angle.x, angle.y);
-
-                    if (fov > bestFov)
-                        continue;
-
                     const auto range = activeWeapon->getWeaponData()->range;
+
                     if (((bonePosition - localPlayer->getAbsOrigin()).length()) > range)
                         continue;
 
-                    if (!cfg.ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
+                    if (!localPlayer->isVisible(bonePosition) && cfg.visibleOnly)
                         continue;
 
-                    if (!localPlayer->isVisible(bonePosition) && (cfg.visibleOnly || !Aimbot::canScan(entity, bonePosition, activeWeapon->getWeaponData(), cfg.killshot ? entity->health() : cfg.minDamage, cfg.friendlyFire)))
+                    auto damage = Aimbot::canScan(entity, bonePosition, activeWeapon->getWeaponData(), cfg.friendlyFire);
+                    if (damage <= 0.f)
+                        continue;
+
+                    if (!cfg.ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
                         continue;
 
                     if (cfg.scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped() && localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP))) {
@@ -268,10 +306,16 @@ void Ragebot::run(UserCmd* cmd) noexcept
                     if (!Aimbot::hitChance(localPlayer.get(), entity, activeWeapon, angle, cmd, cfg.hitChance))
                         continue;
 
-                    if (fov < bestFov) {
-                        bestFov = fov;
+                    if (bestDamage <= damage) {
+                        bestDamage = damage;
                         bestTarget = bonePosition;
                         bestAngle = angle;
+                    }
+                    if (fov > bestFov)
+                    {
+                        bestDamage = config->ragebot[weaponClass].minDamage;
+                        bestTarget = Vector{ };
+                        bestAngle = Vector{ };
                     }
                 }
             }

@@ -198,18 +198,22 @@ void Legitbot::run(UserCmd* cmd) noexcept
                 for (auto bonePosition : Aimbot::multiPoint(entity, boneMatrices, hdr, j, weaponClass, cfg.multiPoint)) {
                     const auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch);
                     const auto fov = std::hypot(angle.x, angle.y);
+                    const auto range = activeWeapon->getWeaponData()->range;
 
-                    if (fov > bestFov)
+                    if (((bonePosition - localPlayer->getAbsOrigin()).length()) > range)
                         continue;
 
-                    const auto range = activeWeapon->getWeaponData()->range;
-                    if (((bonePosition - localPlayer->getAbsOrigin()).length()) > range)
+                    if (fov > bestFov)
                         continue;
 
                     if (!cfg.ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
                         continue;
 
-                    if (!localPlayer->isVisible(bonePosition) && (cfg.visibleOnly || !Aimbot::canScan(entity, bonePosition, activeWeapon->getWeaponData(), cfg.killshot ? entity->health() : cfg.minDamage, cfg.friendlyFire)))
+                    if (!localPlayer->isVisible(bonePosition) && cfg.visibleOnly)
+                        continue;
+
+                    auto damage = Aimbot::canScan(entity, bonePosition, activeWeapon->getWeaponData(), cfg.friendlyFire);
+                    if (damage < cfg.minDamage)
                         continue;
 
                     if (cfg.scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped() && localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP))) {
@@ -260,18 +264,22 @@ void Legitbot::run(UserCmd* cmd) noexcept
                 {
                     const auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch);
                     const auto fov = std::hypot(angle.x, angle.y);
+                    const auto range = activeWeapon->getWeaponData()->range;
 
-                    if (fov > bestFov)
+                    if (((bonePosition - localPlayer->getAbsOrigin()).length()) > range)
                         continue;
 
-                    const auto range = activeWeapon->getWeaponData()->range;
-                    if (((bonePosition - localPlayer->getAbsOrigin()).length()) > range)
+                    if (fov > bestFov)
                         continue;
 
                     if (!cfg.ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
                         continue;
 
-                    if (!localPlayer->isVisible(bonePosition) && (cfg.visibleOnly || !Aimbot::canScan(entity, bonePosition, activeWeapon->getWeaponData(), cfg.killshot ? entity->health() : cfg.minDamage, cfg.friendlyFire)))
+                    if (!localPlayer->isVisible(bonePosition) && cfg.visibleOnly)
+                        continue;
+
+                    auto damage = Aimbot::canScan(entity, bonePosition, activeWeapon->getWeaponData(), cfg.friendlyFire);
+                    if (damage < cfg.minDamage)
                         continue;
 
                     if (cfg.scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped() && localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP))) {

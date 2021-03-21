@@ -264,8 +264,6 @@ static void from_json(const json& j, Config::Ragebot& r)
     read(j, "Multi point", r.multiPoint);
     read(j, "Hit chance", r.hitChance);
     read(j, "Min damage", r.minDamage);
-    read(j, "Killshot", r.killshot);
-    read(j, "Between shots", r.betweenShots);
     read(j, "Auto stop", r.autoStop);
     read(j, "Head hit group", r.hitGroups[0]);
     read(j, "Chest hit group", r.hitGroups[1]);
@@ -764,8 +762,6 @@ static void to_json(json& j, const Config::Ragebot& o, const Config::Ragebot& du
     WRITE("Multi point", multiPoint);
     WRITE("Hit chance", hitChance);
     WRITE("Min damage", minDamage);
-    WRITE("Killshot", killshot);
-    WRITE("Between shots", betweenShots);
     WRITE("Auto stop", autoStop);
     WRITE("Head hit group", hitGroups[0]);
     WRITE("Chest hit group", hitGroups[1]);

@@ -274,8 +274,7 @@ void GUI::renderRagebotWindow(bool contentOnly) noexcept
     ImGui::SliderInt("Hit chance", &config->ragebot[currentCategory].hitChance, 0, 100, "%d%%");
     ImGui::InputInt("Min damage", &config->ragebot[currentCategory].minDamage);
     config->ragebot[currentCategory].minDamage = std::clamp(config->ragebot[currentCategory].minDamage, 0, 250);
-    ImGui::Checkbox("Killshot", &config->ragebot[currentCategory].killshot);
-    ImGui::Checkbox("Between shots", &config->ragebot[currentCategory].betweenShots);
+    ImGui::Combo("Priority", &config->ragebot[currentCategory].priority, "Health\0Distance\0Fov\0");
     ImGui::Columns(1);
     if (!contentOnly)
         ImGui::End();

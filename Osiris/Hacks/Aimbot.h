@@ -22,6 +22,6 @@ namespace Aimbot
 {
     bool hitChance(Entity* localPlayer, Entity* entity, Entity* weaponData, const Vector& destination, const UserCmd* cmd, const int hitChance) noexcept;
     Vector calculateRelativeAngle(const Vector& source, const Vector& destination, const Vector& viewAngles) noexcept;
-    bool canScan(Entity* entity, const Vector& destination, const WeaponInfo* weaponData, int minDamage, bool allowFriendlyFire) noexcept;
+    float canScan(Entity* entity, const Vector& destination, const WeaponInfo* weaponData, bool allowFriendlyFire) noexcept;
     std::vector<Vector> multiPoint(Entity* entity, matrix3x4 matrix[256], StudioHdr* hdr, int iHitbox, int weaponClass, int multiPoint) noexcept;
 }

@@ -109,10 +109,10 @@ float handleBulletPenetration(SurfaceData* enterSurfaceData, const Trace& enterT
     return damage;
 }
 
-bool Aimbot::canScan(Entity* entity, const Vector& destination, const WeaponInfo* weaponData, int minDamage, bool allowFriendlyFire) noexcept
+float Aimbot::canScan(Entity* entity, const Vector& destination, const WeaponInfo* weaponData, bool allowFriendlyFire) noexcept
 {
     if (!localPlayer)
-        return false;
+        return 0;
 
     float damage{ static_cast<float>(weaponData->damage) };
 
@@ -129,17 +129,18 @@ bool Aimbot::canScan(Entity* entity, const Vector& destination, const WeaponInfo
         if (!allowFriendlyFire && trace.entity && trace.entity->isPlayer() && !localPlayer->isOtherEnemy(trace.entity))
             return false;
 
-        if (trace.fraction == 1.0f)
-            break;
-
-        if (trace.entity == entity && trace.hitgroup > HitGroup::Generic && trace.hitgroup <= HitGroup::RightLeg) {
+        if (trace.entity && trace.entity->isPlayer() && trace.entity == entity && trace.hitgroup > HitGroup::Generic && trace.hitgroup <= HitGroup::RightLeg) {
             damage = HitGroup::getDamageMultiplier(trace.hitgroup) * damage * powf(weaponData->rangeModifier, trace.fraction * weaponData->range / 500.0f);
 
             if (float armorRatio{ weaponData->armorRatio / 2.0f }; HitGroup::isArmored(trace.hitgroup, trace.entity->hasHelmet()))
                 damage -= (trace.entity->armor() < damage * armorRatio / 2.0f ? trace.entity->armor() * 4.0f : damage) * (1.0f - armorRatio);
 
-            return damage >= minDamage;
+            return damage;
         }
+
+        if (trace.fraction == 1.0f)
+            break;
+
         const auto surfaceData = interfaces->physicsSurfaceProps->getSurfaceData(trace.surface.surfaceProps);
 
         if (surfaceData->penetrationmodifier < 0.1f)
@@ -148,7 +149,7 @@ bool Aimbot::canScan(Entity* entity, const Vector& destination, const WeaponInfo
         damage = handleBulletPenetration(surfaceData, trace, direction, start, weaponData->penetration, damage);
         hitsLeft--;
     }
-    return false;
+    return 0;
 }
 
 std::vector<Vector> Aimbot::multiPoint(Entity* entity, matrix3x4 matrix[256], StudioHdr* hdr, int iHitbox, int weaponClass, int multiPoint) noexcept
