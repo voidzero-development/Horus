@@ -324,6 +324,10 @@ void AntiAim::fakeLag(UserCmd* cmd, bool& sendPacket) noexcept
             && activeWeapon->isThrowing()))
             chokedPackets = antiAimConfig.enabled ? 1 : 0;
     }
+    else {
+        if (didShoot(cmd))
+            return;
+    }
 
     sendPacket = interfaces->engine->getNetworkChannel()->chokedPackets >= chokedPackets;
 }
