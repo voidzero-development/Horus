@@ -25,10 +25,10 @@ void Legitbot::updateInput() noexcept
     if (config->legitbotKeyMode == 1 && config->legitbotKey.isPressed())
         keyPressed = !keyPressed;
 }
-/*
+
 std::array<bool, 7> shouldRunAutoStop;
 
-void Aimbot::autoStop(UserCmd* cmd) noexcept
+void Legitbot::autoStop(UserCmd* cmd) noexcept
 {
     if (!localPlayer || !localPlayer->isAlive())
         return;
@@ -42,24 +42,26 @@ void Aimbot::autoStop(UserCmd* cmd) noexcept
         return;
 
     auto weaponClass = getWeaponClass(activeWeapon->itemDefinitionIndex2());
-    if (!config->aimbot[weaponClass].enabled)
+    if (!config->legitbot[weaponClass].enabled)
         weaponClass = 0;
 
-    if (!config->aimbot[weaponClass].autoStop || !shouldRunAutoStop.at(weaponClass))
+    const auto& cfg = config->legitbot[weaponClass];
+
+    if (!cfg.autoStop || !shouldRunAutoStop.at(weaponClass))
         return;
 
-    if (!config->aimbot[weaponClass].betweenShots && activeWeapon->nextPrimaryAttack() > memory->globalVars->serverTime())
+    if (!cfg.betweenShots && activeWeapon->nextPrimaryAttack() > memory->globalVars->serverTime())
         return;
 
-    if (!config->aimbot[weaponClass].ignoreFlash && localPlayer->isFlashed())
+    if (!cfg.ignoreFlash && localPlayer->isFlashed())
         return;
 
-    if (config->aimbotOnKey && !keyPressed)
+    if (config->legitbotOnKey && !keyPressed)
         return;
 
-    if (config->aimbot[weaponClass].enabled && (cmd->buttons & UserCmd::IN_ATTACK || config->aimbot[weaponClass].autoShot))
+    if (cfg.enabled && (cmd->buttons & UserCmd::IN_ATTACK || cfg.autoShot))
     {
-        if (config->aimbot[weaponClass].scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped())
+        if (cfg.scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped())
             return;
 
         const auto weaponData = activeWeapon->getWeaponData();
@@ -82,7 +84,7 @@ void Aimbot::autoStop(UserCmd* cmd) noexcept
     }
     shouldRunAutoStop.at(weaponClass) = false;
 }
-*/
+
 void Legitbot::run(UserCmd* cmd) noexcept
 {
     if (!localPlayer || localPlayer->nextAttack() > memory->globalVars->serverTime() || localPlayer->isDefusing() || localPlayer->waitForNoAttack())
@@ -198,8 +200,8 @@ void Legitbot::run(UserCmd* cmd) noexcept
                         return;
                     }
 
-                    //if (localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP)) && ((entity->getAbsOrigin() - localPlayer->getAbsOrigin()).length()) <= activeWeapon->getWeaponData()->range)
-                    //    shouldRunAutoStop.at(weaponClass) = cfg.autoStop;
+                    if (localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP)) && ((entity->getAbsOrigin() - localPlayer->getAbsOrigin()).length()) <= activeWeapon->getWeaponData()->range)
+                        shouldRunAutoStop.at(weaponClass) = cfg.autoStop;
 
                     if (!Aimbot::hitChance(localPlayer.get(), entity, activeWeapon, angle, cmd, cfg.hitChance))
                         continue;
@@ -260,8 +262,8 @@ void Legitbot::run(UserCmd* cmd) noexcept
                         return;
                     }
 
-                    //if (localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP)) && ((entity->getAbsOrigin() - localPlayer->getAbsOrigin()).length()) <= activeWeapon->getWeaponData()->range)
-                    //    shouldRunAutoStop.at(weaponClass) = cfg.autoStop;
+                    if (localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP)) && ((entity->getAbsOrigin() - localPlayer->getAbsOrigin()).length()) <= activeWeapon->getWeaponData()->range)
+                        shouldRunAutoStop.at(weaponClass) = cfg.autoStop;
 
                     if (!Aimbot::hitChance(localPlayer.get(), entity, activeWeapon, angle, cmd, cfg.hitChance))
                         continue;
