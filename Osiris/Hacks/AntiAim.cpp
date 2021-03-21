@@ -282,8 +282,8 @@ void AntiAim::fakeLag(UserCmd* cmd, bool& sendPacket) noexcept
 
     chokedPackets = antiAimConfig.enabled ? 1 : 0;
 
-    std::clamp(antiAimConfig.flLimit, 1, (*memory->gameRules)->isValveDS() ? 6 : 14);
-    std::clamp(antiAimConfig.flTriggerLimit, 1, (*memory->gameRules)->isValveDS() ? 6 : 14);
+    auto limit = std::clamp(antiAimConfig.flLimit, 1, (*memory->gameRules)->isValveDS() ? 6 : 14);
+    auto triggerLimit = std::clamp(antiAimConfig.flTriggerLimit, 1, (*memory->gameRules)->isValveDS() ? 6 : 14);
 
     if (!localPlayer->isAlive())
         return;
@@ -295,10 +295,10 @@ void AntiAim::fakeLag(UserCmd* cmd, bool& sendPacket) noexcept
     if (antiAimConfig.fakeLag) {
         switch (antiAimConfig.flMode) {
         case 0: //Static
-            chokedPackets = antiAimConfig.flLimit;
+            chokedPackets = limit;
             break;
         case 1: //Adaptive
-            chokedPackets = std::clamp(static_cast<int>(std::ceilf(64 / (localPlayer->velocity().length() * memory->globalVars->intervalPerTick))), 1, antiAimConfig.flLimit);
+            chokedPackets = std::clamp(static_cast<int>(std::ceilf(64 / (localPlayer->velocity().length() * memory->globalVars->intervalPerTick))), 1, limit);
             break;
         }
 
@@ -310,7 +310,7 @@ void AntiAim::fakeLag(UserCmd* cmd, bool& sendPacket) noexcept
 
             if ((antiAimConfig.flTriggers.enabled[0] //On visible trigger
                 && entity->isVisible(localPlayer->getBonePosition(8))))
-                chokedPackets = antiAimConfig.flTriggerLimit;
+                chokedPackets = triggerLimit;
         }
 
         if ((antiAimConfig.flDisablers.enabled[0] //On shot disabler
