@@ -302,6 +302,17 @@ void AntiAim::fakeLag(UserCmd* cmd, bool& sendPacket) noexcept
     if (!activeWeapon)
         return;
 
+    for (int i = 1; i <= interfaces->engine->getMaxClients(); i++) {
+        auto entity = interfaces->entityList->getEntity(i);
+        if (!entity || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive()
+            || !entity->isOtherEnemy(localPlayer.get()))
+            continue;
+
+        if ((antiAimConfig.flTriggers.enabled[0] //On visible trigger
+            && entity->isVisible(localPlayer->getBonePosition(8))))
+            chokedPackets = antiAimConfig.flTriggerLimit;
+    }
+
     if ((antiAimConfig.flDisablers.enabled[0] //On shot disabler
         && didShoot(cmd)))
         chokedPackets = antiAimConfig.enabled ? 1 : 0;
@@ -313,17 +324,6 @@ void AntiAim::fakeLag(UserCmd* cmd, bool& sendPacket) noexcept
     if ((antiAimConfig.flDisablers.enabled[2] //On grenade throw disabler
         && activeWeapon->isThrowing()))
         chokedPackets = antiAimConfig.enabled ? 1 : 0;
-
-    for (int i = 1; i <= interfaces->engine->getMaxClients(); i++) {
-        auto entity = interfaces->entityList->getEntity(i);
-        if (!entity || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive()
-            || !entity->isOtherEnemy(localPlayer.get()))
-            continue;
-
-        if ((antiAimConfig.flTriggers.enabled[0] //On visible trigger
-            && entity->isVisible(localPlayer->getBonePosition(8))))
-            chokedPackets = antiAimConfig.flTriggerLimit;
-    }
 
     sendPacket = interfaces->engine->getNetworkChannel()->chokedPackets >= chokedPackets;
 }
