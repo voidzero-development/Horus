@@ -47,8 +47,6 @@ public:
         int hitChance{ 0 };
         int multiPoint{ 0 };
         int minDamage{ 1 };
-        bool killshot{ false };
-        bool betweenShots{ true };
         bool autoStop{ false };
         bool hitGroups[5]{ false };
     };

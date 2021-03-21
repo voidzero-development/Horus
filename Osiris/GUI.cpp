@@ -217,8 +217,6 @@ void GUI::renderLegitbotWindow(bool contentOnly) noexcept
     ImGui::SliderInt("Hit chance", &config->legitbot[currentCategory].hitChance, 0, 100, "%d%%");
     ImGui::InputInt("Min damage", &config->legitbot[currentCategory].minDamage);
     config->legitbot[currentCategory].minDamage = std::clamp(config->legitbot[currentCategory].minDamage, 0, 250);
-    ImGui::Checkbox("Killshot", &config->legitbot[currentCategory].killshot);
-    ImGui::Checkbox("Between shots", &config->legitbot[currentCategory].betweenShots);
     ImGui::Columns(1);
     if (!contentOnly)
         ImGui::End();

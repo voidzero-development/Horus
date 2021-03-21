@@ -237,8 +237,6 @@ static void from_json(const json& j, Config::Legitbot& l)
     read(j, "Multi point", l.multiPoint);
     read(j, "Hit chance", l.hitChance);
     read(j, "Min damage", l.minDamage);
-    read(j, "Killshot", l.killshot);
-    read(j, "Between shots", l.betweenShots);
     read(j, "Auto stop", l.autoStop);
     read(j, "Head hit group", l.hitGroups[0]);
     read(j, "Chest hit group", l.hitGroups[1]);
@@ -735,8 +733,6 @@ static void to_json(json& j, const Config::Legitbot& o, const Config::Legitbot& 
     WRITE("Multi point", multiPoint);
     WRITE("Hit chance", hitChance);
     WRITE("Min damage", minDamage);
-    WRITE("Killshot", killshot);
-    WRITE("Between shots", betweenShots);
     WRITE("Auto stop", autoStop);
     WRITE("Head hit group", hitGroups[0]);
     WRITE("Chest hit group", hitGroups[1]);

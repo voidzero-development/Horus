@@ -63,7 +63,7 @@ void Legitbot::autoStop(UserCmd* cmd) noexcept
     if (!cfg.autoStop || !shouldRunAutoStop.at(weaponClass))
         return;
 
-    if (!cfg.betweenShots && activeWeapon->nextPrimaryAttack() > memory->globalVars->serverTime())
+    if (cfg.silent && activeWeapon->nextPrimaryAttack() > memory->globalVars->serverTime())
         return;
 
     if (!cfg.ignoreFlash && localPlayer->isFlashed())
@@ -120,7 +120,7 @@ void Legitbot::run(UserCmd* cmd) noexcept
 
     const auto& cfg = config->legitbot[weaponClass];
 
-    if (!cfg.betweenShots && activeWeapon->nextPrimaryAttack() > memory->globalVars->serverTime())
+    if (cfg.silent && activeWeapon->nextPrimaryAttack() > memory->globalVars->serverTime())
         return;
 
     if (!cfg.ignoreFlash && localPlayer->isFlashed())
