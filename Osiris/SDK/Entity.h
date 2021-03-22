@@ -163,6 +163,7 @@ public:
             *effects = backupEffects;
             return result;
         }
+        return VirtualMethod::call<bool, 13>(this + 4, out, maxBones, boneMask, currentTime);
     }
 
     Vector getBonePosition(int bone) noexcept
