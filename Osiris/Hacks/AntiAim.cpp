@@ -2,7 +2,6 @@
 
 #include "Aimbot.h"
 #include "AntiAim.h"
-#include "Misc.h"
 #include "../Interfaces.h"
 #include "../imguiCustom.h"
 #include "../SDK/Engine.h"
@@ -263,9 +262,7 @@ void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& 
         if (lby) {
             if (antiAimConfig.lbyBreak) {
                 sendPacket = false;
-
-                const auto lbyDelta = std::clamp(119.95f * 2, 0.f, Misc::shouldAimStep() ? 39.f : 255.f);
-                cmd->viewangles.y += invert ? -lbyDelta : lbyDelta;
+                invert ? cmd->viewangles.y -= 119.95f : cmd->viewangles.y += 119.95f;
             }
             return;
         }
@@ -274,8 +271,7 @@ void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& 
             if (((*memory->gameRules)->freezePeriod()))
                 return;
 
-            const auto maxDelta = std::clamp(localPlayer->getMaxDesyncAngle() * 2, 0.f, Misc::shouldAimStep() ? 39.f : 255.f);
-            cmd->viewangles.y += invert ? -maxDelta : maxDelta;
+            invert ? cmd->viewangles.y -= localPlayer->getMaxDesyncAngle() * 2 : cmd->viewangles.y += localPlayer->getMaxDesyncAngle() * 2;
         }
     }
 }
