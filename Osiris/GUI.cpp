@@ -1137,7 +1137,10 @@ void GUI::renderMiscWindow(bool contentOnly) noexcept
     ImGui::SetColumnOffset(1, 230.0f);
     hotkey2("Menu Key", config->misc.menuKey);
     ImGui::Checkbox("Anti AFK kick", &config->misc.antiAfkKick);
-    ImGui::Checkbox("Auto strafe", &config->misc.autoStrafe);
+    ImGui::Checkbox("Auto strafer", &config->misc.autoStrafer.enabled);
+    ImGui::PushID("Auto strafer mode");
+    ImGui::Combo("Mode", &config->misc.autoStrafer.mode, "Legit\0Rage\0");
+    ImGui::PopID();
     ImGui::Checkbox("Bunny hop", &config->misc.bunnyHop);
     ImGui::Checkbox("Fast duck", &config->misc.fastDuck);
     ImGui::Checkbox("Moonwalk", &config->misc.moonwalk);

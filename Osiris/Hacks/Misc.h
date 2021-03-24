@@ -4,6 +4,7 @@ enum class FrameStage;
 class GameEvent;
 struct ImDrawList;
 struct UserCmd;
+struct Vector;
 
 namespace Misc
 {
@@ -33,7 +34,8 @@ namespace Misc
     bool shouldAimStep() noexcept;
     void autoPistol(UserCmd* cmd) noexcept;
     void revealRanks(UserCmd* cmd) noexcept;
-    void autoStrafe(UserCmd* cmd) noexcept;
+    void legitStrafer(UserCmd* cmd) noexcept;
+    float rageStrafer(UserCmd* cmd, const Vector& currentViewAngles) noexcept;
     void removeCrouchCooldown(UserCmd* cmd) noexcept;
     void moonwalk(UserCmd* cmd) noexcept;
     void playHitSound(GameEvent& event) noexcept;

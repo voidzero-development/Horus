@@ -593,10 +593,11 @@ void Misc::revealRanks(UserCmd* cmd) noexcept
         interfaces->client->dispatchUserMessage(50, 0, 0, nullptr);
 }
 
-void Misc::autoStrafe(UserCmd* cmd) noexcept
+void Misc::legitStrafer(UserCmd* cmd) noexcept
 {
     if (localPlayer
-        && config->misc.autoStrafe
+        && config->misc.autoStrafer.enabled
+        && config->misc.autoStrafer.mode == 0
         && !(localPlayer->flags() & 1)
         && localPlayer->moveType() != MoveType::NOCLIP) {
         if (cmd->mousedx < 0)
@@ -604,6 +605,122 @@ void Misc::autoStrafe(UserCmd* cmd) noexcept
         else if (cmd->mousedx > 0)
             cmd->sidemove = 450.0f;
     }
+}
+
+float Misc::rageStrafer(UserCmd* cmd, const Vector& currentViewAngles) noexcept
+{
+    static float angle = 0.f;
+    static float direction = 0.f;
+    static float autoStrafeAngle = 0.f;
+    if (!config->misc.autoStrafer.enabled || !(config->misc.autoStrafer.mode == 1)) {
+        angle = 0.f;
+        direction = 0.f;
+        autoStrafeAngle = 0.f;
+        return autoStrafeAngle;
+    }
+    if (!localPlayer || !localPlayer->isAlive())
+        return 0.f;
+    if (localPlayer->velocity().length2D() < 5.f)
+    {
+        angle = 0.f;
+        direction = 0.f;
+        autoStrafeAngle = 0.f;
+        return autoStrafeAngle;
+    }
+    if (localPlayer->moveType() == MoveType::NOCLIP || localPlayer->moveType() == MoveType::LADDER || (!(cmd->buttons & UserCmd::IN_JUMP)))
+    {
+        angle = 0.f;
+        if (cmd->buttons & UserCmd::IN_FORWARD)
+        {
+            angle = 0.f;
+            if (cmd->buttons & UserCmd::IN_MOVELEFT)
+                angle = 45.f;
+            else if (cmd->buttons & UserCmd::IN_MOVERIGHT)
+                angle = -45.f;
+        }
+        if (!(cmd->buttons & (UserCmd::IN_FORWARD | UserCmd::IN_BACK)))
+        {
+            if (cmd->buttons & UserCmd::IN_MOVELEFT)
+                angle = 90.f;
+            if (cmd->buttons & UserCmd::IN_MOVERIGHT)
+                angle = -90.f;
+        }
+        if (cmd->buttons & UserCmd::IN_BACK)
+        {
+            angle = 180.f;
+            if (cmd->buttons & UserCmd::IN_MOVELEFT)
+                angle = 135.f;
+            else if (cmd->buttons & UserCmd::IN_MOVERIGHT)
+                angle = -135.f;
+        }
+        direction = angle;
+        autoStrafeAngle = 0.f;
+        return autoStrafeAngle;
+    }
+    Vector base;
+    interfaces->engine->getViewAngles(base);
+    float delta = std::clamp(radiansToDegrees(std::atan2(15.f, localPlayer->velocity().length2D())), 0.f, 45.f);
+
+    static bool flip = true;
+    if (cmd->buttons & (UserCmd::IN_FORWARD | UserCmd::IN_MOVELEFT | UserCmd::IN_MOVERIGHT | UserCmd::IN_BACK))
+    {
+        cmd->forwardmove = 0;
+        cmd->sidemove = 0;
+        cmd->upmove = 0;
+    }
+    angle = 0.f;
+    if (cmd->buttons & UserCmd::IN_FORWARD)
+    {
+        angle = 0.f;
+        if (cmd->buttons & UserCmd::IN_MOVELEFT)
+            angle = 45.f;
+        else if (cmd->buttons & UserCmd::IN_MOVERIGHT)
+            angle = -45.f;
+    }
+    if (!(cmd->buttons & (UserCmd::IN_FORWARD | UserCmd::IN_BACK)))
+    {
+        if (cmd->buttons & UserCmd::IN_MOVELEFT)
+            angle = 90.f;
+        if (cmd->buttons & UserCmd::IN_MOVERIGHT)
+            angle = -90.f;
+    }
+    if (cmd->buttons & UserCmd::IN_BACK)
+    {
+        angle = 180.f;
+        if (cmd->buttons & UserCmd::IN_MOVELEFT)
+            angle = 135.f;
+        else if (cmd->buttons & UserCmd::IN_MOVERIGHT)
+            angle = -135.f;
+    }
+    if (std::abs(direction - angle) <= 180)
+    {
+        if (direction < angle)
+            direction += delta;
+        else
+            direction -= delta;
+    }
+    else {
+        if (direction < angle)
+            direction -= delta;
+        else
+            direction += delta;
+    }
+    direction = std::isfinite(direction) ? std::remainder(direction, 360.0f) : 0.0f;
+
+    if (cmd->mousedx < 0)
+        cmd->sidemove = -450.0f;
+    else if (cmd->mousedx > 0)
+        cmd->sidemove = 450.0f;
+
+    flip ? base.y += direction + delta : base.y += direction - delta;
+    flip ? autoStrafeAngle = direction + delta : autoStrafeAngle = direction - delta;
+    if (cmd->viewangles.y == currentViewAngles.y)
+    {
+        cmd->viewangles.y = base.y;
+    }
+    flip ? cmd->sidemove = 450.f : cmd->sidemove = -450.f;
+    flip = !flip;
+    return autoStrafeAngle;
 }
 
 void Misc::removeCrouchCooldown(UserCmd* cmd) noexcept

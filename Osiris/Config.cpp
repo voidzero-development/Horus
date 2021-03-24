@@ -476,11 +476,17 @@ static void from_json(const json& j, ViewmodelChanger& vc)
     read(j, "Viewmodel roll", vc.roll);
 }
 
+static void from_json(const json& j, AutoStrafer& as)
+{
+    read(j, "Enabled", as.enabled);
+    read(j, "Mode", as.mode);
+}
+
 static void from_json(const json& j, Config::Misc& m)
 {
     read(j, "Menu key", m.menuKey);
     read(j, "Anti AFK kick", m.antiAfkKick);
-    read(j, "Auto strafe", m.autoStrafe);
+    read<value_t::object>(j, "Auto strafer", m.autoStrafer);
     read(j, "Bunny hop", m.bunnyHop);
     read(j, "Custom clan tag", m.customClanTag);
     read(j, "Clock tag", m.clocktag);
@@ -889,13 +895,19 @@ static void to_json(json& j, const ViewmodelChanger& o, const ViewmodelChanger& 
     WRITE("Viewmodel roll", roll);
 }
 
+static void to_json(json& j, const AutoStrafer& o, const AutoStrafer& dummy = {})
+{
+    WRITE("Enabled", enabled);
+    WRITE("Mode", mode);
+}
+
 static void to_json(json& j, const Config::Misc& o)
 {
     const Config::Misc dummy;
 
     WRITE("Menu key", menuKey);
     WRITE("Anti AFK kick", antiAfkKick);
-    WRITE("Auto strafe", autoStrafe);
+    WRITE("Auto strafer", autoStrafer);
     WRITE("Bunny hop", bunnyHop);
     WRITE("Custom clan tag", customClanTag);
     WRITE("Clock tag", clocktag);

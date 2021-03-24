@@ -148,7 +148,7 @@ static HRESULT __stdcall reset(IDirect3DDevice9* device, D3DPRESENT_PARAMETERS* 
 
 #endif
 
-static Vector angle;
+static Vector fakeAngle;
 static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTime, UserCmd* cmd) noexcept
 {
     auto result = hooks->clientMode.callOriginal<bool, IS_WIN32() ? 24 : 25>(inputSampleTime, cmd);
@@ -166,8 +166,10 @@ static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTim
 #endif
 
     static auto previousViewAngles{ cmd->viewangles };
-    const auto currentViewAngles{ cmd->viewangles };
+    const auto oldCurrentViewAngles{ cmd->viewangles };
 
+    float angle = Misc::rageStrafer(cmd, oldCurrentViewAngles);
+    const auto currentViewAngles{ cmd->viewangles };
     memory->globalVars->serverTime(cmd);
     Misc::antiAfkKick(cmd);
     Misc::fastStop(cmd);
@@ -175,7 +177,7 @@ static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTim
     Visuals::removeShadows();
     Misc::runReportbot();
     Misc::bunnyHop(cmd);
-    Misc::autoStrafe(cmd);
+    Misc::legitStrafer(cmd);
     Misc::removeCrouchCooldown(cmd);
     Misc::autoPistol(cmd);
     Misc::updateClanTag();
@@ -186,6 +188,8 @@ static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTim
     Legitbot::autoStop(cmd);
     Ragebot::autoStop(cmd);
     GrenadePrediction::run(cmd);
+
+    cmd->viewangles.y -= angle;
 
     EnginePrediction::run(cmd);
 
@@ -200,7 +204,9 @@ static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTim
     Misc::recoilCrosshair();
 
     AntiAim::fakeLag(cmd, sendPacket);
+    cmd->viewangles.y += angle;
     AntiAim::run(cmd, previousViewAngles, currentViewAngles, sendPacket);
+    cmd->viewangles.y -= angle;
 
     auto viewAnglesDelta{ cmd->viewangles - previousViewAngles };
     viewAnglesDelta.normalize();
@@ -223,7 +229,7 @@ static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTim
     previousViewAngles = cmd->viewangles;
 
     if (sendPacket)
-        angle = cmd->viewangles;
+        fakeAngle = cmd->viewangles;
 
     return false;
 }
@@ -297,7 +303,7 @@ static void __STDCALL frameStageNotify(LINUX_ARGS(void* thisptr,) FrameStage sta
         Misc::fakePrime();
     }
     if (interfaces->engine->isInGame()) {
-        Visuals::thirdperson(stage, angle);
+        Visuals::thirdperson(stage, fakeAngle);
         Visuals::skybox(stage);
         Visuals::removeBlur(stage);
         Misc::oppositeHandKnife(stage);

@@ -210,7 +210,7 @@ public:
 
         KeyBind menuKey = KeyBind::INSERT;
         bool antiAfkKick{ false };
-        bool autoStrafe{ false };
+        AutoStrafer autoStrafer;
         bool bunnyHop{ false };
         bool customClanTag{ false };
         bool clocktag{ false };
