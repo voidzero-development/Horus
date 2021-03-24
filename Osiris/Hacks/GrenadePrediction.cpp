@@ -11,6 +11,7 @@
 
 #include "../Config.h"
 #include "../GameData.h"
+#include "../Helpers.h"
 #include "../Memory.h"
 #include "../Interfaces.h"
 
@@ -373,7 +374,7 @@ void GrenadePrediction::run(UserCmd* cmd) noexcept
 
 void GrenadePrediction::draw() noexcept
 {
-	if (!config->misc.grenadePrediction)
+	if (!config->misc.grenadePrediction.enabled)
 		return;
 
 	if (!interfaces->engine->isInGame() || !localPlayer || !localPlayer->isAlive())
@@ -387,16 +388,13 @@ void GrenadePrediction::draw() noexcept
 	if (savedPoints.empty())
 		return;
 
-	static const auto redColor = ImGui::GetColorU32(ImVec4(1.f, 0.f, 0.f, 1.f));
-	static const auto whiteColor = ImGui::GetColorU32(ImVec4(1.f, 1.f, 1.f, 0.5f));
-
 	auto drawList = ImGui::GetBackgroundDrawList();
 
 	//Draw nade path
 	for (auto& point : savedPoints)
-		drawList->AddLine(ImVec2(point.first.x, point.first.y), ImVec2(point.second.x, point.second.y), whiteColor);
+		drawList->AddLine(ImVec2(point.first.x, point.first.y), ImVec2(point.second.x, point.second.y), Helpers::calculateColor(config->misc.grenadePrediction.color));
 
 	//Draw bounce points
 	for (auto& point : bouncePoints)
-		drawList->AddCircleFilled(ImVec2(point.x, point.y), 2.f, redColor);
+		drawList->AddCircleFilled(ImVec2(point.x, point.y), 2.f, Helpers::calculateColor(config->misc.grenadePrediction.bounceColor));
 }

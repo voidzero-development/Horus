@@ -201,6 +201,12 @@ struct AutoStrafer {
     int mode = 0;
 };
 
+struct GrenadePredict {
+    bool enabled = false;
+    Color4 color{ 1.f, 1.f, 1.f, 0.5f };
+    Color4 bounceColor{ 1.f, 0.f, 0.f, 1.f };
+};
+
 using json = nlohmann::basic_json<std::map, std::vector, std::string, bool, std::int64_t, std::uint64_t, float>;
 using value_t = json::value_t;
 

@@ -1232,7 +1232,19 @@ void GUI::renderMiscWindow(bool contentOnly) noexcept
         if (ImGui::IsItemHovered())
             ImGui::SetTooltip("audio file must be put in csgo/sound/ directory");
     }
-    ImGui::Checkbox("Grenade prediction", &config->misc.grenadePrediction);
+    ImGui::Checkbox("Grenade prediction", &config->misc.grenadePrediction.enabled);
+    ImGui::SameLine();
+
+    ImGui::PushID("Grenade prediction");
+    if (ImGui::Button("..."))
+        ImGui::OpenPopup("");
+
+    if (ImGui::BeginPopup("")) {
+        ImGuiCustom::colorPicker("Line color", config->misc.grenadePrediction.color.color.data(), &config->misc.grenadePrediction.color.color[3]);
+        ImGuiCustom::colorPicker("Bounce point color", config->misc.grenadePrediction.bounceColor.color.data(), &config->misc.grenadePrediction.bounceColor.color[3]);
+        ImGui::EndPopup();
+    }
+    ImGui::PopID();
     ImGui::Checkbox("Unlock inventory", &config->misc.unlockInventory);
     ImGui::Checkbox("Auto GG", &config->misc.autoGG);
     ImGui::Checkbox("Fix tablet signal", &config->misc.fixTabletSignal);

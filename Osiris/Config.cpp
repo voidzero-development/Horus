@@ -482,6 +482,13 @@ static void from_json(const json& j, AutoStrafer& as)
     read(j, "Mode", as.mode);
 }
 
+static void from_json(const json& j, GrenadePredict& gp)
+{
+    read(j, "Enabled", gp.enabled);
+    read<value_t::object>(j, "Color", gp.color);
+    read<value_t::object>(j, "Bounce point color", gp.bounceColor);
+}
+
 static void from_json(const json& j, Config::Misc& m)
 {
     read(j, "Menu key", m.menuKey);
@@ -522,7 +529,7 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Prepare revolver key", m.prepareRevolverKey);
     read(j, "Hit sound", m.hitSound);
     read(j, "Quick healthshot key", m.quickHealthshotKey);
-    read(j, "Grenade prediction", m.grenadePrediction);
+    read<value_t::string>(j, "Grenade prediction", m.grenadePrediction);
     read(j, "Unlock inventory", m.unlockInventory);
     read(j, "Auto GG", m.autoGG);
     read(j, "Fix tablet signal", m.fixTabletSignal);
@@ -899,6 +906,13 @@ static void to_json(json& j, const AutoStrafer& o, const AutoStrafer& dummy = {}
 {
     WRITE("Enabled", enabled);
     WRITE("Mode", mode);
+}
+
+static void to_json(json& j, const GrenadePredict& o, const GrenadePredict& dummy = {})
+{
+    WRITE("Enabled", enabled);
+    WRITE("Color", color);
+    WRITE("Bounce point color", bounceColor);
 }
 
 static void to_json(json& j, const Config::Misc& o)

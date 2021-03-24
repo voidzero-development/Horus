@@ -229,7 +229,7 @@ public:
         bool nameStealer{ false };
         bool disablePanoramablur{ false };
         bool killMessage{ false };
-        bool grenadePrediction{ false };
+        GrenadePredict grenadePrediction;
         bool unlockInventory{ false };
         bool autoGG{ false };
         bool fixTabletSignal{ false };
