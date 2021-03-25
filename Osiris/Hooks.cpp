@@ -187,15 +187,16 @@ static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTim
     Misc::slowwalk(cmd);
     Legitbot::autoStop(cmd);
     Ragebot::autoStop(cmd);
-    GrenadePrediction::run(cmd);
 
     cmd->viewangles.y -= angle;
 
+    GrenadePrediction::run(cmd);
+
     EnginePrediction::run(cmd);
 
+    Triggerbot::run(cmd);
     Legitbot::run(cmd);
     Ragebot::run(cmd);
-    Triggerbot::run(cmd);
     Backtrack::run(cmd);
     Misc::edgejump(cmd);
     Misc::moonwalk(cmd);
