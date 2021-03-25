@@ -225,6 +225,7 @@ public:
         bool revealRanks{ false };
         bool revealMoney{ false };
         bool revealSuspect{ false };
+        bool revealVotes{ false };
         bool disableModelOcclusion{ false };
         bool nameStealer{ false };
         bool disablePanoramablur{ false };
