@@ -283,6 +283,7 @@ public:
 
         OffscreenEnemies offscreenEnemies;
         ViewmodelChanger viewmodelChanger;
+        bool dmGod = false;
     } misc;
 
     void scheduleFontLoad(const std::string& name) noexcept;

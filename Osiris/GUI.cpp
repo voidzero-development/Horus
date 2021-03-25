@@ -1250,6 +1250,7 @@ void GUI::renderMiscWindow(bool contentOnly) noexcept
     ImGui::Checkbox("Auto GG", &config->misc.autoGG);
     ImGui::Checkbox("Fix tablet signal", &config->misc.fixTabletSignal);
     ImGui::Checkbox("Fake prime", &config->misc.fakePrime);
+    ImGui::Checkbox("Deathmatch godmode", &config->misc.dmGod);
     ImGui::Checkbox("Opposite Hand Knife", &config->misc.oppositeHandKnife);
     ImGui::Checkbox("Preserve Killfeed", &config->misc.preserveKillfeed.enabled);
     ImGui::SameLine();

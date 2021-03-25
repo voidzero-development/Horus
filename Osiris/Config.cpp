@@ -546,6 +546,7 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Opposite Hand Knife", m.oppositeHandKnife);
     read<value_t::object>(j, "Viewmodel changer", m.viewmodelChanger);
     read<value_t::object>(j, "Preserve Killfeed", m.preserveKillfeed);
+    read(j, "Deathmatch godmode", m.dmGod);
 }
 
 static void from_json(const json& j, Config::Misc::Reportbot& r)
@@ -978,6 +979,7 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Opposite Hand Knife", oppositeHandKnife);
     WRITE("Viewmodel changer", viewmodelChanger);
     WRITE("Preserve Killfeed", preserveKillfeed);
+    WRITE("Deathmatch godmode", dmGod);
 }
 
 static void to_json(json& j, const Config::Visuals::ColorCorrection& o, const Config::Visuals::ColorCorrection& dummy)
