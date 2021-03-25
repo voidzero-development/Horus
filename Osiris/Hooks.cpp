@@ -205,9 +205,7 @@ static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTim
     Misc::recoilCrosshair();
 
     AntiAim::fakeLag(cmd, sendPacket);
-    cmd->viewangles.y += angle;
     AntiAim::run(cmd, previousViewAngles, currentViewAngles, sendPacket);
-    cmd->viewangles.y -= angle;
 
     auto viewAnglesDelta{ cmd->viewangles - previousViewAngles };
     viewAnglesDelta.normalize();
