@@ -504,6 +504,9 @@
     </ClInclude>
     <ClInclude Include="Hacks\Ragebot.h">
       <Filter>Hacks</Filter>
+	</ClInclude>
+    <ClInclude Include="SDK\ClientMode.h">
+      <Filter>SDK</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
