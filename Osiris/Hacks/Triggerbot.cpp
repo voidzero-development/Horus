@@ -123,7 +123,7 @@ void Triggerbot::run(UserCmd* cmd) noexcept
             return;
     }
 
-    const auto aimPunch = activeWeapon->requiresRecoilControl() ? localPlayer->getAimPunch() : Vector{ };
+    const auto aimPunch = localPlayer->getAimPunch();
     const auto angle = Aimbot::calculateRelativeAngle(localPlayer->getEyePosition(), trace.endpos, cmd->viewangles + aimPunch);
 
     float damage = (activeWeapon->itemDefinitionIndex2() != WeaponId::Taser ? HitGroup::getDamageMultiplier(trace.hitgroup) : 1.0f) * weaponData->damage * std::pow(weaponData->rangeModifier, trace.fraction * weaponData->range / 500.0f);

@@ -158,7 +158,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
         const auto localPlayerEyePosition = localPlayer->getEyePosition();
         const auto localPlayerOrigin = localPlayer->getAbsOrigin();
 
-        const auto aimPunch = activeWeapon->requiresRecoilControl() ? localPlayer->getAimPunch() : Vector{ };
+        const auto aimPunch = localPlayer->getAimPunch();
 
         std::vector<Ragebot::Enemies> enemies;
 

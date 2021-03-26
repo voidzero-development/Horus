@@ -174,7 +174,7 @@ void Legitbot::run(UserCmd* cmd) noexcept
         Vector bestAngle{ };
         const auto localPlayerEyePosition = localPlayer->getEyePosition();
 
-        const auto aimPunch = activeWeapon->requiresRecoilControl() ? localPlayer->getAimPunch() : Vector{ };
+        const auto aimPunch = localPlayer->getAimPunch();
 
         for (int i = 1; i <= interfaces->engine->getMaxClients(); i++) {
             auto entity = interfaces->entityList->getEntity(i);
