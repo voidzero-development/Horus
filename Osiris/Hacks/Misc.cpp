@@ -568,6 +568,8 @@ bool Misc::shouldAimStep() noexcept
             }
         case 4:
             return false;
+        case 6: //Danger Zone
+            return false;
         }
     }
     else {
