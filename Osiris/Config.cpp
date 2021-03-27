@@ -261,7 +261,6 @@ static void from_json(const json& j, Config::Ragebot& r)
     read(j, "Auto shot", r.autoShot);
     read(j, "Auto scope", r.autoScope);
     read(j, "Fov", r.fov);
-    read(j, "Smooth", r.smooth);
     read(j, "Multi point", r.multiPoint);
     read(j, "Hit chance", r.hitChance);
     read(j, "Min damage", r.minDamage);
@@ -773,7 +772,6 @@ static void to_json(json& j, const Config::Ragebot& o, const Config::Ragebot& du
     WRITE("Auto shot", autoShot);
     WRITE("Auto scope", autoScope);
     WRITE("Fov", fov);
-    WRITE("Smooth", smooth);
     WRITE("Multi point", multiPoint);
     WRITE("Hit chance", hitChance);
     WRITE("Min damage", minDamage);

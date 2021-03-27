@@ -267,7 +267,6 @@ void GUI::renderRagebotWindow(bool contentOnly) noexcept
     ImGui::NextColumn();
     ImGui::PushItemWidth(240.0f);
     ImGui::SliderFloat("Fov", &config->ragebot[currentCategory].fov, 0.0f, 255.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
-    ImGui::SliderFloat("Smooth", &config->ragebot[currentCategory].smooth, 1.0f, 100.0f, "%.2f");
     ImGui::SliderInt("Multi point", &config->ragebot[currentCategory].multiPoint, 0, 100, "%d");
     ImGui::SliderInt("Hit chance", &config->ragebot[currentCategory].hitChance, 0, 100, "%d%%");
     ImGui::InputInt("Min damage", &config->ragebot[currentCategory].minDamage);

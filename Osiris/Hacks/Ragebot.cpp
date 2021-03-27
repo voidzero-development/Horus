@@ -332,7 +332,6 @@ void Ragebot::run(UserCmd* cmd) noexcept
                 clamped = true;
             }
 
-            angle /= cfg.smooth;
             cmd->viewangles += angle;
             if (!cfg.silent)
                 interfaces->engine->setViewAngles(cmd->viewangles);
@@ -343,7 +342,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
             if (clamped)
                 cmd->buttons &= ~UserCmd::IN_ATTACK;
 
-            if (clamped || cfg.smooth > 1.0f) lastAngles = cmd->viewangles;
+            if (clamped) lastAngles = cmd->viewangles;
             else lastAngles = Vector{ };
 
             lastCommand = cmd->commandNumber;
