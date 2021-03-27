@@ -266,6 +266,7 @@ bool checkDetonate(const Vector& vecThrow, const Trace& tr, int tick, float inte
 	{
 	case WeaponId::SmokeGrenade:
 	case WeaponId::Decoy:
+	case WeaponId::Diversion:
 		if (vecThrow.length2D() < 0.1f)
 		{
 			int detTickMod = (int)(0.2f / interval);
