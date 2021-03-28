@@ -531,7 +531,7 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Prepare revolver key", m.prepareRevolverKey);
     read(j, "Hit sound", m.hitSound);
     read(j, "Quick healthshot key", m.quickHealthshotKey);
-    read<value_t::string>(j, "Grenade prediction", m.grenadePrediction);
+    read<value_t::object>(j, "Grenade prediction", m.grenadePrediction);
     read(j, "Unlock inventory", m.unlockInventory);
     read(j, "Auto GG", m.autoGG);
     read(j, "Fix tablet signal", m.fixTabletSignal);
