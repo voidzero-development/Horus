@@ -308,6 +308,7 @@ static void __STDCALL frameStageNotify(LINUX_ARGS(void* thisptr,) FrameStage sta
         Visuals::removeBlur(stage);
         Misc::oppositeHandKnife(stage);
         Misc::viewmodelChanger(stage);
+        //Misc::chatSpammer();
         Visuals::removeGrass(stage);
         Visuals::modifySmoke(stage);
         Visuals::playerModel(stage);

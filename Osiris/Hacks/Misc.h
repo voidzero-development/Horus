@@ -51,6 +51,7 @@ namespace Misc
     void autoAccept(const char* soundEntry) noexcept;
     void autoGG() noexcept;
     void dmGod() noexcept;
+    void chatSpammer() noexcept;
 
     void updateInput() noexcept;
 }
