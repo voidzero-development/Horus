@@ -50,7 +50,7 @@ namespace Misc
     void drawOffscreenEnemies(ImDrawList* drawList) noexcept;
     void autoAccept(const char* soundEntry) noexcept;
     void autoGG() noexcept;
-    void dmGod() noexcept;
+    void deathmatchGod() noexcept;
     void chatSpammer() noexcept;
 
     void updateInput() noexcept;
