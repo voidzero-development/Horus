@@ -227,6 +227,8 @@ void Legitbot::run(UserCmd* cmd) noexcept
                     if (localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP)) && ((entity->getAbsOrigin() - localPlayer->getAbsOrigin()).length()) <= activeWeapon->getWeaponData()->range)
                         shouldRunAutoStop.at(weaponClass) = cfg.autoStop;
 
+                    cmd->tickCount = Backtrack::timeToTicks(entity->simulationTime() + Backtrack::getLerp());
+
                     if (!Aimbot::hitChance(localPlayer.get(), entity, activeWeapon, angle, cmd, cfg.hitChance))
                         continue;
 
@@ -236,9 +238,6 @@ void Legitbot::run(UserCmd* cmd) noexcept
                         bestAngle = angle;
                     }
                 }
-
-                if (bestTarget.notNull())
-                    cmd->tickCount = Backtrack::timeToTicks(entity->simulationTime() + Backtrack::getLerp());
 
                 const auto records = Backtrack::getRecords(i);
                 if (!records || records->empty() || records->size() <= 3 || !Backtrack::valid(records->front().simulationTime))
@@ -297,6 +296,9 @@ void Legitbot::run(UserCmd* cmd) noexcept
                     if (localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP)) && ((entity->getAbsOrigin() - localPlayer->getAbsOrigin()).length()) <= activeWeapon->getWeaponData()->range)
                         shouldRunAutoStop.at(weaponClass) = cfg.autoStop;
 
+                    cmd->tickCount = Backtrack::timeToTicks(currentRecord.simulationTime + Backtrack::getLerp());
+                    Animations::setup(entity, currentRecord);
+
                     if (!Aimbot::hitChance(localPlayer.get(), entity, activeWeapon, angle, cmd, cfg.hitChance))
                         continue;
 
@@ -305,12 +307,6 @@ void Legitbot::run(UserCmd* cmd) noexcept
                         bestTarget = bonePosition;
                         bestAngle = angle;
                     }
-                }
-
-                if (bestTarget.notNull())
-                {
-                    cmd->tickCount = Backtrack::timeToTicks(currentRecord.simulationTime + Backtrack::getLerp());
-                    Animations::setup(entity, currentRecord);
                 }
                 Animations::finishSetup(entity);
             }
