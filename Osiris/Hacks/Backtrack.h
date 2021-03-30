@@ -17,6 +17,9 @@ struct UserCmd;
 
 namespace Backtrack
 {
+    int timeToTicks(float time) noexcept;
+    float getLerp() noexcept;
+
     void update(FrameStage) noexcept;
     void run(UserCmd*) noexcept;
 
@@ -24,6 +27,8 @@ namespace Backtrack
         StudioHdr* hdr;
         Vector head;
         Vector origin;
+        Vector max;
+        Vector mins;
         float simulationTime;
         matrix3x4 matrix[256];
     };

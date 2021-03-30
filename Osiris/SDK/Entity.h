@@ -26,6 +26,25 @@
 
 struct AnimState;
 
+struct AnimationLayer
+{
+public:
+    bool clientblend;
+    float blendin;
+    void* studioHdr;
+    int dispatchedsrc;
+    int dispatcheddst;
+    unsigned int order;
+    unsigned int sequence;
+    float prevcycle;
+    float weight;
+    float weightdeltarate;
+    float playbackRate;
+    float cycle;
+    void* owner;
+    int invalidatephysicsbits;
+};
+
 enum class MoveType {
     NOCLIP = 8,
     LADDER = 9
@@ -50,8 +69,8 @@ enum class Team {
 
 class Collideable {
 public:
-    VIRTUAL_METHOD(const Vector&, obbMins, 1, (), (this))
-    VIRTUAL_METHOD(const Vector&, obbMaxs, 2, (), (this))
+    VIRTUAL_METHOD(Vector&, obbMins, 1, (), (this))
+    VIRTUAL_METHOD(Vector&, obbMaxs, 2, (), (this))
 };
 
 class Entity {
@@ -65,6 +84,7 @@ public:
     VIRTUAL_METHOD(void, setDestroyedOnRecreateEntities, 13, (), (this + sizeof(uintptr_t) * 2))
 
     VIRTUAL_METHOD(bool, shouldDraw, WIN32_LINUX(3, 149), (), (this + WIN32_LINUX(sizeof(uintptr_t), 0)))
+    VIRTUAL_METHOD(Vector&, getRenderOrigin, 1, (), (this + 4))
     VIRTUAL_METHOD(const Model*, getModel, 8, (), (this + sizeof(uintptr_t)))
     VIRTUAL_METHOD(const matrix3x4&, toWorldTransform, 32, (), (this + sizeof(uintptr_t)))
 
@@ -72,6 +92,7 @@ public:
     VIRTUAL_METHOD_V(Collideable*, getCollideable, 3, (), (this))
 
     VIRTUAL_METHOD(const Vector&, getAbsOrigin, WIN32_LINUX(10, 12), (), (this))
+    VIRTUAL_METHOD(Vector&, getAbsAngle, 11, (), (this))
     VIRTUAL_METHOD(void, setModelIndex, WIN32_LINUX(75, 111), (int index), (this, index))
     VIRTUAL_METHOD(bool, getAttachment, WIN32_LINUX(83, 121), (int index, Vector& origin), (this, index, std::ref(origin)))
     VIRTUAL_METHOD(Team, getTeamNumber, WIN32_LINUX(87, 127), (), (this))
@@ -89,6 +110,7 @@ public:
     VIRTUAL_METHOD(int, getMuzzleAttachmentIndex3rdPerson, WIN32_LINUX(468, 536), (), (this))
     VIRTUAL_METHOD(float, getInaccuracy, WIN32_LINUX(482, 550), (), (this))
     VIRTUAL_METHOD(float, getSpread, 452, (), (this))
+    VIRTUAL_METHOD(void, UpdateClientSideAnimation, 223, (), (this))
 
 #if IS_WIN32()
     auto getEyePosition() noexcept
@@ -164,6 +186,16 @@ public:
             return result;
         }
         return VirtualMethod::call<bool, 13>(this + 4, out, maxBones, boneMask, currentTime);
+    }
+
+    uint32_t* getEffects()
+    {
+        return (uint32_t*)((uintptr_t)this + 0xF0);
+    }
+
+    Vector* getAbsVelocity()
+    {
+        return (Vector*)(this + 0x94);
     }
 
     Vector getBonePosition(int bone) noexcept
@@ -255,6 +287,56 @@ public:
     bool canSee(Entity* other, const Vector& pos) noexcept;
     bool visibleTo(Entity* other) noexcept;
 
+    int getAnimationLayerCount() noexcept
+    {
+        return *reinterpret_cast<int*>(this + 0x298C);
+    }
+
+    AnimationLayer* animOverlays()
+    {
+        return *reinterpret_cast<AnimationLayer**>(uintptr_t(this) + 0x2980);
+    }
+
+    AnimationLayer* getAnimationLayer(int overlay) noexcept
+    {
+        return &animOverlays()[overlay];
+    }
+
+    std::array<float, 24>& pose_parameters()
+    {
+        return *reinterpret_cast<std::add_pointer_t<std::array<float, 24>>>((uintptr_t)this + netvars->operator[](fnv::hash("CBaseAnimating->m_flPoseParameter")));
+    }
+
+    void CreateState(AnimState* state)
+    {
+        static auto CreateAnimState = reinterpret_cast<void(__thiscall*)(AnimState*, Entity*)>(memory->CreateState);
+        if (!CreateAnimState)
+            return;
+
+        CreateAnimState(state, this);
+    }
+
+    void UpdateState(AnimState* state, Vector angle) {
+        if (!state || !angle.notNull())
+            return;
+        static auto UpdateAnimState = reinterpret_cast<void(__vectorcall*)(void*, void*, float, float, float, void*)>(memory->UpdateState);
+        if (!UpdateAnimState)
+            return;
+        UpdateAnimState(state, nullptr, 0.0f, angle.y, angle.x, nullptr);
+    }
+
+    float spawnTime()
+    {
+        return *(float*)((uintptr_t)this + 0xA370);
+    }
+
+    void InvalidateBoneCache()
+    {
+        static auto invalidate_bone_cache = memory->InvalidateBoneCache;
+        reinterpret_cast<void(__fastcall*) (void*)> (invalidate_bone_cache) (this);
+    }
+
+    NETVAR(ClientSideAnimation, "CBaseAnimating", "m_bClientSideAnimation", bool)
     NETVAR(body, "CBaseAnimating", "m_nBody", int)
     NETVAR(hitboxSet, "CBaseAnimating", "m_nHitboxSet", int)
 

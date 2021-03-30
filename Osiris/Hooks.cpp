@@ -31,6 +31,7 @@
 #include "Interfaces.h"
 #include "Memory.h"
 
+#include "Hacks/Animations.h"
 #include "Hacks/AntiAim.h"
 #include "Hacks/Backtrack.h"
 #include "Hacks/Chams.h"
@@ -199,6 +200,9 @@ static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTim
     Legitbot::run(cmd);
     Ragebot::run(cmd);
     Backtrack::run(cmd);
+
+    Resolver::updateShots(cmd);
+
     Misc::edgejump(cmd);
     Misc::moonwalk(cmd);
     Misc::fastPlant(cmd);
@@ -227,6 +231,9 @@ static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTim
     cmd->sidemove = std::clamp(cmd->sidemove, -450.0f, 450.0f);
 
     previousViewAngles = cmd->viewangles;
+
+    Animations::update(cmd, sendPacket);
+    Animations::fake();
 
     if (sendPacket)
         fakeAngle = cmd->viewangles;
@@ -301,6 +308,8 @@ static void __STDCALL frameStageNotify(LINUX_ARGS(void* thisptr,) FrameStage sta
         Misc::disablePanoramablur();
         Visuals::colorWorld();
         Misc::fakePrime();
+        Animations::players();
+        Animations::real();
     }
     if (interfaces->engine->isInGame()) {
         Visuals::thirdperson(stage, fakeAngle);

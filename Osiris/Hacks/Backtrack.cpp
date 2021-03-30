@@ -32,7 +32,7 @@ struct Cvars {
 
 static Cvars cvars;
 
-static auto timeToTicks(float time) noexcept
+int Backtrack::timeToTicks(float time) noexcept
 {
     return static_cast<int>(0.5f + time / memory->globalVars->intervalPerTick);
 }
@@ -62,6 +62,9 @@ void Backtrack::update(FrameStage stage) noexcept
             record.head = entity->getBonePosition(8);
             record.origin = entity->getAbsOrigin();
             record.simulationTime = entity->simulationTime();
+            record.simulationTime = entity->simulationTime();
+            record.mins = entity->getCollideable()->obbMins();
+            record.max = entity->getCollideable()->obbMaxs();
 
             entity->setupBones(record.matrix, 256, 0x7FF00, memory->globalVars->currenttime);
 
@@ -76,7 +79,7 @@ void Backtrack::update(FrameStage stage) noexcept
     }
 }
 
-static float getLerp() noexcept
+float Backtrack::getLerp() noexcept
 {
     auto ratio = std::clamp(cvars.interpRatio->getFloat(), cvars.minInterpRatio->getFloat(), cvars.maxInterpRatio->getFloat());
     return (std::max)(cvars.interp->getFloat(), (ratio / ((cvars.maxUpdateRate) ? cvars.maxUpdateRate->getFloat() : cvars.updateRate->getFloat())));
@@ -98,7 +101,7 @@ void Backtrack::run(UserCmd* cmd) noexcept
     auto bestFov{ 255.f };
     Entity * bestTarget{ };
     int bestTargetIndex{ };
-    Vector bestTargetOrigin{ };
+    Vector bestTargetHead{ };
     int bestRecord{ };
 
     const auto aimPunch = localPlayer->getAimPunch();
@@ -109,20 +112,20 @@ void Backtrack::run(UserCmd* cmd) noexcept
             || !entity->isOtherEnemy(localPlayer.get()))
             continue;
 
-        const auto& origin = entity->getAbsOrigin();
+        const auto head = entity->getBonePosition(8);
 
-        auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, origin, cmd->viewangles + (backtrackConfig.recoilBasedFov ? aimPunch : Vector{ }));
+        auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, head, cmd->viewangles + (backtrackConfig.recoilBasedFov ? aimPunch : Vector{ }));
         auto fov = std::hypotf(angle.x, angle.y);
         if (fov < bestFov) {
             bestFov = fov;
             bestTarget = entity;
             bestTargetIndex = i;
-            bestTargetOrigin = origin;
+            bestTargetHead = head;
         }
     }
 
     if (bestTarget) {
-        if (records[bestTargetIndex].size() <= 3 || (!backtrackConfig.ignoreSmoke && memory->lineGoesThroughSmoke(localPlayer->getEyePosition(), bestTargetOrigin, 1)))
+        if (records[bestTargetIndex].size() <= 3 || (!backtrackConfig.ignoreSmoke && memory->lineGoesThroughSmoke(localPlayer->getEyePosition(), bestTargetHead, 1)))
             return;
 
         bestFov = 255.f;
@@ -143,7 +146,6 @@ void Backtrack::run(UserCmd* cmd) noexcept
 
     if (bestRecord) {
         const auto& record = records[bestTargetIndex][bestRecord];
-        memory->setAbsOrigin(bestTarget, record.origin);
         cmd->tickCount = timeToTicks(record.simulationTime + getLerp());
     }
 }

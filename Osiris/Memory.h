@@ -12,6 +12,7 @@ class GameEventManager;
 class Input;
 class ItemSystem;
 class KeyValues;
+class MemAlloc;
 class MoveHelper;
 class MoveData;
 class PlantedC4;
@@ -96,6 +97,10 @@ public:
     uintptr_t money;
     uintptr_t demoFileEndReached;
     Entity** gameRules;
+    uintptr_t UpdateState;
+    uintptr_t CreateState;
+    uintptr_t InvalidateBoneCache;
+    MemAlloc* memalloc;
 
     short makePanoramaSymbol(const char* name) const noexcept
     {

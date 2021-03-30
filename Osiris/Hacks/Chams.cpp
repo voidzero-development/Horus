@@ -1,6 +1,7 @@
 #include <cstring>
 #include <functional>
 
+#include "Animations.h"
 #include "Chams.h"
 #include "../Config.h"
 #include "../Hooks.h"
@@ -168,8 +169,28 @@ void Chams::renderPlayer(Entity* player) noexcept
     } else if (player == localPlayer.get()) {
         if (localPlayer->isScoped())
             interfaces->renderView->setBlend((100.f - config->visuals.scopeBlend) / 100.f);
-
         applyChams(config->chams["Local player"].materials, health);
+
+        if (Animations::data.gotMatrix) {
+            for (auto& i : Animations::data.fakematrix)
+            {
+                i[0][3] += info->origin.x;
+                i[1][3] += info->origin.y;
+                i[2][3] += info->origin.z;
+            }
+            if (!appliedChams)
+                hooks->modelRender.callOriginal<void, 21>(ctx, state, info, customBoneToWorld);
+            if (localPlayer->isScoped())
+                interfaces->renderView->setBlend((100.f - config->visuals.scopeBlend) / 100.f);
+            applyChams(config->chams["Fake model"].materials, health, Animations::data.fakematrix);
+            interfaces->studioRender->forcedMaterialOverride(nullptr);
+            for (auto& i : Animations::data.fakematrix)
+            {
+                i[0][3] -= info->origin.x;
+                i[1][3] -= info->origin.y;
+                i[2][3] -= info->origin.z;
+            }
+        }
     } else if (localPlayer->isOtherEnemy(player)) {
         applyChams(config->chams["Enemies"].materials, health);
 

@@ -1,4 +1,5 @@
 #include "Aimbot.h"
+#include "Animations.h"
 #include "Backtrack.h"
 #include "Legitbot.h"
 #include "Misc.h"
@@ -189,6 +190,7 @@ void Legitbot::run(UserCmd* cmd) noexcept
             StudioHdr* hdr = interfaces->modelInfo->getStudioModel(mod);
             matrix3x4 boneMatrices[256];
             entity->setupBones(boneMatrices, 256, 0x7FF00, memory->globalVars->currenttime);
+            Animations::finishSetup(entity);
 
             for (int j = 0; j < 19; j++)
             {
@@ -235,6 +237,9 @@ void Legitbot::run(UserCmd* cmd) noexcept
                     }
                 }
 
+                if (bestTarget.notNull())
+                    cmd->tickCount = Backtrack::timeToTicks(entity->simulationTime() + Backtrack::getLerp());
+
                 const auto records = Backtrack::getRecords(i);
                 if (!records || records->empty() || records->size() <= 3 || !Backtrack::valid(records->front().simulationTime))
                     continue;
@@ -260,6 +265,7 @@ void Legitbot::run(UserCmd* cmd) noexcept
                     continue;
 
                 auto currentRecord = records->at(bestRecord);
+                Animations::setup(entity, currentRecord);
                 for (auto bonePosition : Aimbot::multiPoint(entity, currentRecord.matrix, currentRecord.hdr, j, weaponClass, cfg.multiPoint))
                 {
                     const auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch);
@@ -300,6 +306,13 @@ void Legitbot::run(UserCmd* cmd) noexcept
                         bestAngle = angle;
                     }
                 }
+
+                if (bestTarget.notNull())
+                {
+                    cmd->tickCount = Backtrack::timeToTicks(currentRecord.simulationTime + Backtrack::getLerp());
+                    Animations::setup(entity, currentRecord);
+                }
+                Animations::finishSetup(entity);
             }
         }
 

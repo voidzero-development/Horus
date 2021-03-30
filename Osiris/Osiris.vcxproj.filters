@@ -170,6 +170,12 @@
     <ClCompile Include="Hacks\Ragebot.cpp">
       <Filter>Hacks</Filter>
     </ClCompile>
+    <ClCompile Include="Hacks\Animations.cpp">
+      <Filter>Hacks</Filter>
+    </ClCompile>
+    <ClCompile Include="Hacks\Resolver.cpp">
+      <Filter>Hacks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI.h">
@@ -504,9 +510,18 @@
     </ClInclude>
     <ClInclude Include="Hacks\Ragebot.h">
       <Filter>Hacks</Filter>
-	</ClInclude>
+    </ClInclude>
     <ClInclude Include="SDK\ClientMode.h">
       <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Hacks\Animations.h">
+      <Filter>Hacks</Filter>
+    </ClInclude>
+    <ClInclude Include="MemAlloc.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Hacks\Resolver.h">
+      <Filter>Hacks</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

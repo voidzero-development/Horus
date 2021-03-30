@@ -8,6 +8,8 @@
 #include "../SDK/WeaponId.h"
 #include "../SDK/ModelInfo.h"
 #include "Aimbot.h"
+#include "Animations.h"
+#include "Backtrack.h"
 #include "Triggerbot.h"
 
 static bool keyPressed;
@@ -74,6 +76,66 @@ void Triggerbot::run(UserCmd* cmd) noexcept
     interfaces->engineTrace->traceRay({ startPos, endPos }, 0x46004009, localPlayer.get(), trace);
 
     lastTime = now;
+
+    if ((!trace.entity || !trace.entity->isPlayer()))
+    {
+        auto bestFov{ 255.f };
+        Vector bestTargetHead{ };
+        int bestRecord = -1;
+        int bestTargetIndex{ };
+        Entity* bestTarget{ };
+
+        for (int i = 1; i <= interfaces->engine->getMaxClients(); i++) {
+            auto entity = interfaces->entityList->getEntity(i);
+            if (!entity || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive()
+                || !entity->isOtherEnemy(localPlayer.get()))
+                continue;
+
+            const auto records = Backtrack::getRecords(i);
+
+            Animations::finishSetup(entity);
+
+            auto head = entity->getBonePosition(8);
+
+            auto angle = Aimbot::calculateRelativeAngle(localPlayer->getEyePosition(), head, cmd->viewangles + localPlayer->getAimPunch());
+            auto fov = std::hypotf(angle.x, angle.y);
+            if (fov < bestFov) {
+                bestFov = fov;
+                bestTarget = entity;
+                bestTargetIndex = i;
+                bestTargetHead = head;
+            }
+        }
+
+        if (bestTarget) {
+            const auto records = Backtrack::getRecords(bestTargetIndex);
+            if (!records || records->empty() || records->size() <= 3 || !Backtrack::valid(records->front().simulationTime) || (!cfg.ignoreSmoke && memory->lineGoesThroughSmoke(localPlayer->getEyePosition(), bestTargetHead, 1)))
+                return;
+
+            bestFov = 255.f;
+
+            for (size_t p = 0; p < records->size(); p++) {
+                const auto& record = records->at(p);
+                if (!Backtrack::valid(record.simulationTime))
+                    continue;
+
+                const auto angle = Aimbot::calculateRelativeAngle(localPlayer->getEyePosition(), record.head, cmd->viewangles + localPlayer->getAimPunch());
+                const auto fov = std::hypotf(angle.x, angle.y);
+
+                if (fov < bestFov) {
+                    bestFov = fov;
+                    bestRecord = p;
+                }
+            }
+        }
+
+        if (bestRecord != -1) {
+            const auto& record = Backtrack::getRecords(bestTargetIndex)->at(bestRecord);
+            Animations::setup(bestTarget, record);
+            cmd->tickCount = Backtrack::timeToTicks(record.simulationTime + Backtrack::getLerp());
+            interfaces->engineTrace->traceRay({ startPos, endPos }, 0x46004009, localPlayer.get(), trace);
+        }
+    }
 
     if (!trace.entity || !trace.entity->isPlayer())
         return;

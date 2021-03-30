@@ -5,6 +5,7 @@
 #include "GameData.h"
 #include "Hacks/Legitbot.h"
 #include "Hacks/Misc.h"
+#include "Hacks/Resolver.h"
 #include "Hacks/SkinChanger.h"
 #include "Hacks/Visuals.h"
 #include "Interfaces.h"
@@ -18,6 +19,7 @@ EventListener::EventListener() noexcept
     interfaces->gameEventManager->addListener(this, "round_start");
     interfaces->gameEventManager->addListener(this, "round_freeze_end");
     interfaces->gameEventManager->addListener(this, "player_hurt");
+    interfaces->gameEventManager->addListener(this, "weapon_fire");
     interfaces->gameEventManager->addListener(this, "bullet_impact");
     interfaces->gameEventManager->addListener(this, "cs_win_panel_match");
 
@@ -43,7 +45,8 @@ void EventListener::fireGameEvent(GameEvent* event)
     case fnv::hash("round_start"):
         GameData::clearProjectileList();
         Misc::preserveKillfeed(true);
-        [[fallthrough]];
+        Resolver::update(event);
+        break;
     case fnv::hash("item_purchase"):
     case fnv::hash("round_freeze_end"):
         Misc::purchaseList(event);
@@ -54,14 +57,20 @@ void EventListener::fireGameEvent(GameEvent* event)
         Misc::killMessage(*event);
         Misc::killSound(*event);
         Legitbot::handleKill(*event);
+        Resolver::update(event);
+        break;
+    case fnv::hash("weapon_fire"):
+        Resolver::update(event);
         break;
     case fnv::hash("player_hurt"):
         Misc::playHitSound(*event);
         Visuals::hitEffect(event);
         Visuals::hitMarker(event);
+        Resolver::update(event);
         break;
     case fnv::hash("bullet_impact"):
         Visuals::bulletTracer(*event);
+        Resolver::update(event);
         break;
     case fnv::hash("cs_win_panel_match"):
         Misc::autoGG();

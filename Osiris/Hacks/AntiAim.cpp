@@ -2,6 +2,7 @@
 
 #include "Aimbot.h"
 #include "AntiAim.h"
+#include "Animations.h"
 #include "../Interfaces.h"
 #include "../imguiCustom.h"
 #include "../SDK/Engine.h"
@@ -155,6 +156,7 @@ bool didShoot(UserCmd* cmd) noexcept
 void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& currentViewAngles, bool& sendPacket) noexcept
 {
     bool lby = isLbyUpdating();
+    Animations::data.lby = lby;
 
     if (!localPlayer->isAlive())
         return;
@@ -271,7 +273,7 @@ void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& 
             if (((*memory->gameRules)->freezePeriod()))
                 return;
 
-            invert ? cmd->viewangles.y -= localPlayer->getMaxDesyncAngle() * 2 : cmd->viewangles.y += localPlayer->getMaxDesyncAngle() * 2;
+            invert ? cmd->viewangles.y += localPlayer->getMaxDesyncAngle() * 2 : cmd->viewangles.y -= localPlayer->getMaxDesyncAngle() * 2;
         }
     }
 }

@@ -208,6 +208,7 @@ public:
         Misc() { clanTag[0] = '\0'; }
 
         KeyBind menuKey = KeyBind::INSERT;
+        bool resolver{ false };
         bool antiAfkKick{ false };
         AutoStrafer autoStrafer;
         bool bunnyHop{ false };

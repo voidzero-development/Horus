@@ -493,6 +493,7 @@ static void from_json(const json& j, GrenadePredict& gp)
 static void from_json(const json& j, Config::Misc& m)
 {
     read(j, "Menu key", m.menuKey);
+    read(j, "Resolver", m.resolver);
     read(j, "Anti AFK kick", m.antiAfkKick);
     read<value_t::object>(j, "Auto strafer", m.autoStrafer);
     read(j, "Bunny hop", m.bunnyHop);
@@ -922,6 +923,7 @@ static void to_json(json& j, const Config::Misc& o)
     const Config::Misc dummy;
 
     WRITE("Menu key", menuKey);
+    WRITE("Resolver", resolver);
     WRITE("Anti AFK kick", antiAfkKick);
     WRITE("Auto strafer", autoStrafer);
     WRITE("Bunny hop", bunnyHop);
