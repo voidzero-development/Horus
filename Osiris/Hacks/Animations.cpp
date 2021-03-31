@@ -180,7 +180,7 @@ void Animations::players() noexcept
         *entity->getAbsVelocity() = entity->velocity();
         std::memcpy(&data.player[i].networked_layers, entity->animOverlays(), sizeof(AnimationLayer) * entity->getAnimationLayerCount());
         entity->ClientSideAnimation() = true;
-        if (entity->isOtherEnemy(localPlayer.get()) && config->misc.resolver && data.player[i].chokedPackets > 1 && localPlayer->isAlive())
+        if (entity->isOtherEnemy(localPlayer.get()) && config->misc.resolver && data.player[i].chokedPackets > 0 && localPlayer->isAlive())
             entity->getAnimstate()->GoalFeetYaw = Resolver::calculateFeet(entity);
         entity->UpdateClientSideAnimation();
         entity->ClientSideAnimation() = false;
