@@ -248,6 +248,7 @@ static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTim
 static void __STDCALL doPostScreenEffects(LINUX_ARGS(void* thisptr,) void* param) noexcept
 {
     if (interfaces->engine->isInGame()) {
+        Visuals::thirdPerson();
         Misc::inverseRagdollGravity();
         Visuals::reduceFlashEffect();
         Visuals::updateBrightness();
@@ -316,7 +317,6 @@ static void __STDCALL frameStageNotify(LINUX_ARGS(void* thisptr,) FrameStage sta
         Animations::real();
     }
     if (interfaces->engine->isInGame()) {
-        Visuals::thirdperson(stage, fakeAngle);
         Visuals::skybox(stage);
         Visuals::removeBlur(stage);
         Misc::oppositeHandKnife(stage);
