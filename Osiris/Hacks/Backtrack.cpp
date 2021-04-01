@@ -264,8 +264,8 @@ void Backtrack::drawGUI(bool contentOnly) noexcept
     ImGui::Checkbox("Ignore smoke", &backtrackConfig.ignoreSmoke);
     ImGui::Checkbox("Recoil based fov", &backtrackConfig.recoilBasedFov);
     ImGui::PushItemWidth(220.0f);
-    ImGui::SliderInt("Time limit", &backtrackConfig.timeLimit, 1, 200 + config->misc.fakeLatency.amount, "%d ms");
-    backtrackConfig.timeLimit = std::clamp(backtrackConfig.timeLimit, 1, 200 + config->misc.fakeLatency.amount);
+    ImGui::SliderInt("Time limit", &backtrackConfig.timeLimit, 1, config->misc.fakeLatency.enabled ? 200 + config->misc.fakeLatency.amount : 200, "%d ms");
+    backtrackConfig.timeLimit = std::clamp(backtrackConfig.timeLimit, 1, config->misc.fakeLatency.enabled ? 200 + config->misc.fakeLatency.amount : 200);
     ImGui::PopItemWidth();
     if (!contentOnly)
         ImGui::End();
