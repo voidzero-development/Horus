@@ -208,7 +208,7 @@ struct GrenadePredict {
 };
 
 struct FakeLatency {
-    bool enabled = true;
+    bool enabled = false;
     int amount = 200;
 };
 
