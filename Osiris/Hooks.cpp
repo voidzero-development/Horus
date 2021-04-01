@@ -219,7 +219,7 @@ static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTim
 
     static void* oldPointer = nullptr;
     auto network = interfaces->engine->getNetworkChannel();
-    if (oldPointer != network && network && interfaces->engine->isInGame())
+    if (oldPointer != network && network && interfaces->engine->isInGame() && interfaces->engine->isConnected())
     {
         oldPointer = network;
         Backtrack::updateIncomingSequences(true);
