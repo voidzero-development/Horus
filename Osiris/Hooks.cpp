@@ -28,6 +28,7 @@
 #include "GameData.h"
 #include "GUI.h"
 #include "Hooks.h"
+#include "ExtraHooks.h"
 #include "Interfaces.h"
 #include "Memory.h"
 
@@ -190,6 +191,8 @@ static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTim
     Misc::deathmatchGod();
     Legitbot::autoStop(cmd);
     Ragebot::autoStop(cmd);
+
+    extraHook.init();
 
     cmd->viewangles.y -= angle;
 
@@ -741,6 +744,7 @@ void Hooks::uninstall() noexcept
     surface.restore();
     svCheats.restore();
     viewRender.restore();
+    extraHook.restore();
 
     netvars->restore();
 

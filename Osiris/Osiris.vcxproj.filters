@@ -176,6 +176,9 @@
     <ClCompile Include="Hacks\Resolver.cpp">
       <Filter>Hacks</Filter>
     </ClCompile>
+    <ClCompile Include="ExtraHooks.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI.h">
@@ -522,6 +525,9 @@
     </ClInclude>
     <ClInclude Include="Hacks\Resolver.h">
       <Filter>Hacks</Filter>
+    </ClInclude>
+    <ClInclude Include="ExtraHooks.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
