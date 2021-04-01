@@ -151,7 +151,6 @@ static HRESULT __stdcall reset(IDirect3DDevice9* device, D3DPRESENT_PARAMETERS* 
 
 #endif
 
-static Vector fakeAngle;
 static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTime, UserCmd* cmd) noexcept
 {
     auto result = hooks->clientMode.callOriginal<bool, IS_WIN32() ? 24 : 25>(inputSampleTime, cmd);
@@ -238,9 +237,6 @@ static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTim
 
     Animations::update(cmd, sendPacket);
     Animations::fake();
-
-    if (sendPacket)
-        fakeAngle = cmd->viewangles;
 
     return false;
 }
