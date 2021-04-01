@@ -14,7 +14,6 @@
 struct BacktrackConfig {
     bool enabled = false;
     bool ignoreSmoke = false;
-    bool recoilBasedFov = false;
     int timeLimit = 200;
 } backtrackConfig;
 
@@ -124,7 +123,7 @@ void Backtrack::run(UserCmd* cmd) noexcept
 
         const auto head = entity->getBonePosition(8);
 
-        auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, head, cmd->viewangles + (backtrackConfig.recoilBasedFov ? aimPunch : Vector{ }));
+        auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, head, cmd->viewangles + aimPunch);
         auto fov = std::hypotf(angle.x, angle.y);
         if (fov < bestFov) {
             bestFov = fov;
@@ -145,7 +144,7 @@ void Backtrack::run(UserCmd* cmd) noexcept
             if (!valid(record.simulationTime))
                 continue;
 
-            auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, record.head, cmd->viewangles + (backtrackConfig.recoilBasedFov ? aimPunch : Vector{ }));
+            auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, record.head, cmd->viewangles + aimPunch);
             auto fov = std::hypotf(angle.x, angle.y);
             if (fov < bestFov) {
                 bestFov = fov;
@@ -262,7 +261,6 @@ void Backtrack::drawGUI(bool contentOnly) noexcept
     }
     ImGui::Checkbox("Enabled", &backtrackConfig.enabled);
     ImGui::Checkbox("Ignore smoke", &backtrackConfig.ignoreSmoke);
-    ImGui::Checkbox("Recoil based fov", &backtrackConfig.recoilBasedFov);
     ImGui::PushItemWidth(220.0f);
     ImGui::SliderInt("Time limit", &backtrackConfig.timeLimit, 1, config->misc.fakeLatency.enabled ? 200 + config->misc.fakeLatency.amount : 200, "%d ms");
     backtrackConfig.timeLimit = std::clamp(backtrackConfig.timeLimit, 1, config->misc.fakeLatency.enabled ? 200 + config->misc.fakeLatency.amount : 200);
@@ -275,7 +273,6 @@ static void to_json(json& j, const BacktrackConfig& o, const BacktrackConfig& du
 {
     WRITE("Enabled", enabled);
     WRITE("Ignore smoke", ignoreSmoke);
-    WRITE("Recoil based fov", recoilBasedFov);
     WRITE("Time limit", timeLimit);
 }
 
@@ -290,7 +287,6 @@ static void from_json(const json& j, BacktrackConfig& b)
 {
     read(j, "Enabled", b.enabled);
     read(j, "Ignore smoke", b.ignoreSmoke);
-    read(j, "Recoil based fov", b.recoilBasedFov);
     read(j, "Time limit", b.timeLimit);
 }
 
