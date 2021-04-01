@@ -104,6 +104,7 @@ static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, cons
 
     StreamProofESP::render();
     GrenadePrediction::draw();
+    Misc::antiAimLines();
     Misc::purchaseList();
     Misc::drawOffscreenEnemies(ImGui::GetBackgroundDrawList());
     Misc::drawBombTimer();

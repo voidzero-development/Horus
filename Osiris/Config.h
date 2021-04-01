@@ -284,6 +284,7 @@ public:
         OffscreenEnemies offscreenEnemies;
         ViewmodelChanger viewmodelChanger;
         bool deathmatchGod = false;
+        bool antiAimLines = false;
     } misc;
 
     void scheduleFontLoad(const std::string& name) noexcept;

@@ -52,6 +52,7 @@ namespace Misc
     void autoGG() noexcept;
     void deathmatchGod() noexcept;
     void chatSpammer() noexcept;
+    void antiAimLines() noexcept;
 
     void updateInput() noexcept;
 }

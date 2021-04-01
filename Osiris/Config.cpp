@@ -547,6 +547,7 @@ static void from_json(const json& j, Config::Misc& m)
     read<value_t::object>(j, "Viewmodel changer", m.viewmodelChanger);
     read<value_t::object>(j, "Preserve Killfeed", m.preserveKillfeed);
     read(j, "Deathmatch godmode", m.deathmatchGod);
+    read(j, "Anti aim lines", m.antiAimLines);
 }
 
 static void from_json(const json& j, Config::Misc::Reportbot& r)
@@ -980,6 +981,7 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Viewmodel changer", viewmodelChanger);
     WRITE("Preserve Killfeed", preserveKillfeed);
     WRITE("Deathmatch godmode", deathmatchGod);
+    WRITE("Anti aim lines", antiAimLines);
 }
 
 static void to_json(json& j, const Config::Visuals::ColorCorrection& o, const Config::Visuals::ColorCorrection& dummy)
