@@ -19,6 +19,7 @@ struct BacktrackConfig {
 } backtrackConfig;
 
 static std::array<std::deque<Backtrack::Record>, 65> records;
+std::deque<Backtrack::IncomingSequence> Backtrack::incomingSequences;
 
 struct Cvars {
     ConVar* updateRate;
@@ -35,6 +36,15 @@ static Cvars cvars;
 int Backtrack::timeToTicks(float time) noexcept
 {
     return static_cast<int>(0.5f + time / memory->globalVars->intervalPerTick);
+}
+
+float Backtrack::getExtraTicks() noexcept
+{
+    auto network = interfaces->engine->getNetworkChannel();
+    if (!network)
+        return 0.f;
+
+    return std::clamp(network->getLatency(1) - network->getLatency(0), 0.f, 0.2f);
 }
 
 void Backtrack::update(FrameStage stage) noexcept
@@ -70,7 +80,7 @@ void Backtrack::update(FrameStage stage) noexcept
 
             records[i].push_front(record);
 
-            while (records[i].size() > 3 && records[i].size() > static_cast<size_t>(timeToTicks(static_cast<float>(backtrackConfig.timeLimit) / 1000.f)))
+            while (records[i].size() > 3 && records[i].size() > static_cast<size_t>(timeToTicks(std::clamp(static_cast<float>(backtrackConfig.timeLimit) / 1000.f, 0.f, 0.2f + getExtraTicks()))))
                 records[i].pop_back();
 
             if (auto invalid = std::find_if(std::cbegin(records[i]), std::cend(records[i]), [](const Record & rec) { return !valid(rec.simulationTime); }); invalid != std::cend(records[i]))
@@ -150,6 +160,51 @@ void Backtrack::run(UserCmd* cmd) noexcept
     }
 }
 
+void Backtrack::addLatencyToNetwork(NetworkChannel* network, float latency) noexcept
+{
+    for (auto& sequence : incomingSequences)
+    {
+        if (memory->globalVars->serverTime() - sequence.serverTime >= latency)
+        {
+            network->inReliableState = sequence.inReliableState;
+            network->inSequenceNr = sequence.sequenceNr;
+            break;
+        }
+    }
+}
+
+void Backtrack::updateIncomingSequences(bool reset) noexcept
+{
+    static float lastIncomingSequenceNumber = 0.f;
+
+    if (reset)
+        lastIncomingSequenceNumber = 0.f;
+
+    if (!config->misc.fakeLatency.enabled)
+        return;
+
+    if (!localPlayer)
+        return;
+
+    auto network = interfaces->engine->getNetworkChannel();
+    if (!network)
+        return;
+
+    if (network->inSequenceNr > lastIncomingSequenceNumber)
+    {
+        lastIncomingSequenceNumber = network->inSequenceNr;
+
+        IncomingSequence sequence{ };
+        sequence.inReliableState = network->inReliableState;
+        sequence.sequenceNr = network->inSequenceNr;
+        sequence.serverTime = memory->globalVars->serverTime();
+        incomingSequences.push_front(sequence);
+    }
+
+    while (incomingSequences.size() > 2048)
+        incomingSequences.pop_back();
+}
+
 const std::deque<Backtrack::Record>* Backtrack::getRecords(std::size_t index) noexcept
 {
     if (!backtrackConfig.enabled)
@@ -209,7 +264,8 @@ void Backtrack::drawGUI(bool contentOnly) noexcept
     ImGui::Checkbox("Ignore smoke", &backtrackConfig.ignoreSmoke);
     ImGui::Checkbox("Recoil based fov", &backtrackConfig.recoilBasedFov);
     ImGui::PushItemWidth(220.0f);
-    ImGui::SliderInt("Time limit", &backtrackConfig.timeLimit, 1, 200, "%d ms");
+    ImGui::SliderInt("Time limit", &backtrackConfig.timeLimit, 1, 200 + config->misc.fakeLatency.amount, "%d ms");
+    backtrackConfig.timeLimit = std::clamp(backtrackConfig.timeLimit, 1, 200 + config->misc.fakeLatency.amount);
     ImGui::PopItemWidth();
     if (!contentOnly)
         ImGui::End();

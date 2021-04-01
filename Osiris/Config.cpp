@@ -490,10 +490,17 @@ static void from_json(const json& j, GrenadePredict& gp)
     read<value_t::object>(j, "Bounce point color", gp.bounceColor);
 }
 
+static void from_json(const json& j, FakeLatency& fl)
+{
+    read(j, "Enabled", fl.enabled);
+    read(j, "Amount", fl.amount);
+}
+
 static void from_json(const json& j, Config::Misc& m)
 {
     read(j, "Menu key", m.menuKey);
     read(j, "Resolver", m.resolver);
+    read<value_t::object>(j, "Fake latency", m.fakeLatency);
     read(j, "Anti AFK kick", m.antiAfkKick);
     read<value_t::object>(j, "Auto strafer", m.autoStrafer);
     read(j, "Bunny hop", m.bunnyHop);
@@ -919,12 +926,19 @@ static void to_json(json& j, const GrenadePredict& o, const GrenadePredict& dumm
     WRITE("Bounce point color", bounceColor);
 }
 
+static void to_json(json& j, const FakeLatency& o, const FakeLatency& dummy = {})
+{
+    WRITE("Enabled", enabled);
+    WRITE("Amount", amount);
+}
+
 static void to_json(json& j, const Config::Misc& o)
 {
     const Config::Misc dummy;
 
     WRITE("Menu key", menuKey);
     WRITE("Resolver", resolver);
+    WRITE("Fake latency", fakeLatency);
     WRITE("Anti AFK kick", antiAfkKick);
     WRITE("Auto strafer", autoStrafer);
     WRITE("Bunny hop", bunnyHop);

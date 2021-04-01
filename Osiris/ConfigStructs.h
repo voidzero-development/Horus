@@ -207,6 +207,11 @@ struct GrenadePredict {
     Color4 bounceColor{ 1.f, 0.f, 0.f, 1.f };
 };
 
+struct FakeLatency {
+    bool enabled = true;
+    int amount = 200;
+};
+
 using json = nlohmann::basic_json<std::map, std::vector, std::string, bool, std::int64_t, std::uint64_t, float>;
 using value_t = json::value_t;
 

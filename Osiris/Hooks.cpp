@@ -1,3 +1,4 @@
+#define NOMINMAX
 #include <functional>
 #include <string>
 
@@ -47,6 +48,7 @@
 #include "Hacks/Triggerbot.h"
 #include "Hacks/Visuals.h"
 
+#include "SDK/ConVar.h"
 #include "SDK/Engine.h"
 #include "SDK/Entity.h"
 #include "SDK/EntityList.h"
@@ -151,6 +153,28 @@ static HRESULT __stdcall reset(IDirect3DDevice9* device, D3DPRESENT_PARAMETERS* 
 
 #endif
 
+static int __fastcall sendDatagram(NetworkChannel* network, void* edx, void* datagram)
+{
+    auto original = hooks->networkChannel.getOriginal<int, void*>(46, datagram);
+    if (!config->misc.fakeLatency.enabled || datagram || !interfaces->engine->isInGame())
+    {
+        return original(network, datagram);
+    }
+    int instate = network->inReliableState;
+    int insequencenr = network->inSequenceNr;
+
+    float delta = std::max(0.f, std::clamp(config->misc.fakeLatency.amount / 1000.f, 0.f, interfaces->cvar->findVar("sv_maxunlag")->getFloat()) - network->getLatency(0));
+
+    Backtrack::addLatencyToNetwork(network, delta);
+
+    int result = original(network, datagram);
+
+    network->inReliableState = instate;
+    network->inSequenceNr = insequencenr;
+
+    return result;
+}
+
 static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTime, UserCmd* cmd) noexcept
 {
     auto result = hooks->clientMode.callOriginal<bool, IS_WIN32() ? 24 : 25>(inputSampleTime, cmd);
@@ -192,6 +216,17 @@ static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTim
     Ragebot::autoStop(cmd);
 
     extraHook.init();
+
+    static void* oldPointer = nullptr;
+    auto network = interfaces->engine->getNetworkChannel();
+    if (oldPointer != network && network && interfaces->engine->isInGame())
+    {
+        oldPointer = network;
+        Backtrack::updateIncomingSequences(true);
+        hooks->networkChannel.init(network);
+        hooks->networkChannel.hookAt(46, sendDatagram);
+    }
+    Backtrack::updateIncomingSequences();
 
     cmd->viewangles.y -= angle;
 
@@ -741,6 +776,7 @@ void Hooks::uninstall() noexcept
     svCheats.restore();
     viewRender.restore();
     extraHook.restore();
+    networkChannel.restore();
 
     netvars->restore();
 

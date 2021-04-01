@@ -9,6 +9,7 @@
 #include "../SDK/Vector.h"
 #include "../SDK/StudioRender.h"
 #include "../SDK/ModelInfo.h"
+#include "../SDK/NetworkChannel.h"
 
 enum class FrameStage;
 struct UserCmd;
@@ -19,9 +20,13 @@ namespace Backtrack
 {
     int timeToTicks(float time) noexcept;
     float getLerp() noexcept;
+    float getExtraTicks() noexcept;
 
     void update(FrameStage) noexcept;
     void run(UserCmd*) noexcept;
+
+    void addLatencyToNetwork(NetworkChannel*, float) noexcept;
+    void updateIncomingSequences(bool reset = false) noexcept;
 
     struct Record {
         StudioHdr* hdr;
@@ -32,6 +37,15 @@ namespace Backtrack
         float simulationTime;
         matrix3x4 matrix[256];
     };
+
+    struct IncomingSequence
+    {
+        int inReliableState;
+        int sequenceNr;
+        float serverTime;
+    };
+
+    extern std::deque<IncomingSequence> incomingSequences;
 
     const std::deque<Record>* getRecords(std::size_t index) noexcept;
     bool valid(float simtime) noexcept;

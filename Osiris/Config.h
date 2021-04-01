@@ -209,6 +209,7 @@ public:
 
         KeyBind menuKey = KeyBind::INSERT;
         bool resolver{ false };
+        FakeLatency fakeLatency;
         bool antiAfkKick{ false };
         AutoStrafer autoStrafer;
         bool bunnyHop{ false };
