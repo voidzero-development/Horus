@@ -1166,6 +1166,7 @@ void GUI::renderMiscWindow(bool contentOnly) noexcept
     ImGui::PushID("Fake latency amount");
     ImGui::SliderInt("Amount", &config->misc.fakeLatency.amount, 1, 200, "%d ms");
     ImGui::PopID();
+    ImGui::Checkbox("Bypass sv_pure", &config->misc.pureBypass);
     ImGui::Checkbox("Anti AFK kick", &config->misc.antiAfkKick);
     ImGui::Checkbox("Auto strafer", &config->misc.autoStrafer.enabled);
     ImGui::PushID("Auto strafer mode");

@@ -175,6 +175,16 @@ static int __fastcall sendDatagram(NetworkChannel* network, void* edx, void* dat
     return result;
 }
 
+static bool __fastcall sendNetworkMessage(NetworkChannel* network, void* edx, NetworkMessage& msg, bool forceReliable, bool voice)
+{
+    auto original = hooks->networkChannel.getOriginal<bool, NetworkMessage&, bool, bool>(40, msg, forceReliable, voice);
+
+    if (msg.getType() == 14 && config->misc.pureBypass)
+        return false;
+
+    return original(network, msg, forceReliable, voice);
+}
+
 static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTime, UserCmd* cmd) noexcept
 {
     auto result = hooks->clientMode.callOriginal<bool, IS_WIN32() ? 24 : 25>(inputSampleTime, cmd);
@@ -224,6 +234,7 @@ static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTim
         oldPointer = network;
         Backtrack::updateIncomingSequences(true);
         hooks->networkChannel.init(network);
+        hooks->networkChannel.hookAt(40, sendNetworkMessage);
         hooks->networkChannel.hookAt(46, sendDatagram);
     }
     Backtrack::updateIncomingSequences();

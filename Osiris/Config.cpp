@@ -501,6 +501,7 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Menu key", m.menuKey);
     read(j, "Resolver", m.resolver);
     read<value_t::object>(j, "Fake latency", m.fakeLatency);
+    read(j, "Bypass sv_pure", m.pureBypass);
     read(j, "Anti AFK kick", m.antiAfkKick);
     read<value_t::object>(j, "Auto strafer", m.autoStrafer);
     read(j, "Bunny hop", m.bunnyHop);
@@ -939,6 +940,7 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Menu key", menuKey);
     WRITE("Resolver", resolver);
     WRITE("Fake latency", fakeLatency);
+    WRITE("Bypass sv_pure", pureBypass);
     WRITE("Anti AFK kick", antiAfkKick);
     WRITE("Auto strafer", autoStrafer);
     WRITE("Bunny hop", bunnyHop);
