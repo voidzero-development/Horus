@@ -78,7 +78,10 @@ void ExtraHooks::restore()
 {
 	for (size_t i = 0; i < player.size(); i++)
 	{
-		player[i].isHooked = false;
-		player[i].vmt.restore();
+		if (player[i].isHooked)
+		{
+			player[i].vmt.restore();
+			player[i].isHooked = false;
+		}
 	}
 }
