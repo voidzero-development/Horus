@@ -54,6 +54,7 @@
 #include "SDK/EntityList.h"
 #include "SDK/FrameStage.h"
 #include "SDK/GameEvent.h"
+#include "SDK/GameMovement.h"
 #include "SDK/GameUI.h"
 #include "SDK/GlobalVars.h"
 #include "SDK/InputSystem.h"
@@ -260,6 +261,7 @@ static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTim
     Misc::blockBot(cmd);
 
     AntiAim::fakeLag(cmd, sendPacket);
+    AntiAim::fakeDuck(cmd);
     AntiAim::run(cmd, previousViewAngles, currentViewAngles, sendPacket);
 
     auto viewAnglesDelta{ cmd->viewangles - previousViewAngles };
@@ -455,6 +457,11 @@ struct ViewSetup {
     float farZ;
 };
 
+constexpr void fakeDuckFix(ViewSetup* setup) noexcept {
+    if (localPlayer && localPlayer->isAlive() && AntiAim::fakeDucking && localPlayer->flags() & 1)
+        setup->origin.z = localPlayer->getAbsOrigin().z + interfaces->gameMovement->getPlayerViewOffset(false).z;
+}
+
 static void __STDCALL overrideView(LINUX_ARGS(void* thisptr,) ViewSetup* setup) noexcept
 {
     if (localPlayer) {
@@ -473,6 +480,7 @@ static void __STDCALL overrideView(LINUX_ARGS(void* thisptr,) ViewSetup* setup) 
     if (localPlayer && !localPlayer->isScoped())
         setup->fov += config->visuals.fov;
     setup->farZ += config->visuals.farZ * 10;
+    fakeDuckFix(setup);
     hooks->clientMode.callOriginal<void, IS_WIN32() ? 18 : 19>(setup);
 }
 

@@ -1,5 +1,12 @@
 #define NOMINMAX
 
+#include "../imgui/imgui.h"
+#include "../imgui/imgui_internal.h"
+#include "../imgui/imgui_impl_win32.h"
+#include "../imgui/imgui_stdlib.h"
+
+#include "../imguiCustom.h"
+
 #include "Aimbot.h"
 #include "AntiAim.h"
 #include "Animations.h"
@@ -33,6 +40,9 @@ struct AntiAimConfig {
     int flLimit = 1;
     FakeLagTriggers flTriggers;
     int flTriggerLimit = 1;
+
+    bool fakeDuck = false;
+    KeyBind fakeDuckKey = KeyBind::NONE;
     
 } antiAimConfig;
 
@@ -362,12 +372,32 @@ void AntiAim::fakeLag(UserCmd* cmd, bool& sendPacket) noexcept
             && activeWeapon->isThrowing()))
             chokedPackets = antiAimConfig.enabled ? 1 : 0;
     }
-    else {
-        if (didShoot(cmd))
-            return;
-    }
+
+    if (fakeDucking)
+        chokedPackets = 14;
 
     sendPacket = interfaces->engine->getNetworkChannel()->chokedPackets >= chokedPackets;
+}
+
+void AntiAim::fakeDuck(UserCmd* cmd) noexcept
+{
+    if (!localPlayer || !localPlayer->isAlive())
+        return;
+
+    if (antiAimConfig.fakeDuck && antiAimConfig.fakeDuckKey.isDown())
+        fakeDucking = true;
+    else
+        fakeDucking = false;
+
+    if (!fakeDucking)
+        return;
+
+    cmd->buttons |= UserCmd::IN_BULLRUSH;
+
+    if (interfaces->engine->getNetworkChannel()->chokedPackets > 7)
+        cmd->buttons |= UserCmd::IN_DUCK;
+    else
+        cmd->buttons &= ~UserCmd::IN_DUCK;
 }
 
 static bool antiAimOpen = false;
@@ -387,6 +417,32 @@ void AntiAim::tabItem() noexcept
         drawGUI(true);
         ImGui::EndTabItem();
     }
+}
+
+#include "../InputUtil.h"
+
+static void hotkey2(const char* label, KeyBind& key, float samelineOffset = 0.0f, const ImVec2& size = { 100.0f, 0.0f }) noexcept
+{
+    const auto id = ImGui::GetID(label);
+    ImGui::PushID(label);
+
+    ImGui::TextUnformatted(label);
+    ImGui::SameLine(samelineOffset);
+
+    if (ImGui::GetActiveID() == id) {
+        ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetColorU32(ImGuiCol_ButtonActive));
+        ImGui::Button("...", size);
+        ImGui::PopStyleColor();
+
+        ImGui::GetCurrentContext()->ActiveIdAllowOverlap = true;
+        if ((!ImGui::IsItemHovered() && ImGui::GetIO().MouseClicked[0]) || key.setToPressedKey())
+            ImGui::ClearActiveID();
+    }
+    else if (ImGui::Button(key.toString(), size)) {
+        ImGui::SetActiveID(id, ImGui::GetCurrentWindow());
+    }
+
+    ImGui::PopID();
 }
 
 void AntiAim::drawGUI(bool contentOnly) noexcept
@@ -414,13 +470,24 @@ void AntiAim::drawGUI(bool contentOnly) noexcept
     }
     if (antiAimConfig.yawOffset >= 1)
         ImGui::Checkbox("At target", &antiAimConfig.atTarget);
+
     ImGui::Separator();
+
     ImGui::Checkbox("Fake lag", &antiAimConfig.fakeLag);
     ImGui::multiCombo("Disablers", antiAimConfig.flDisablers.flDisablersText.data(), antiAimConfig.flDisablers.enabled, antiAimConfig.flDisablers.flDisablersText.size());
     ImGui::Combo("Mode", &antiAimConfig.flMode, "Static\0Adaptive\0");
     ImGui::SliderInt("Limit", &antiAimConfig.flLimit, 1, 14, "%d");
     ImGui::multiCombo("Triggers", antiAimConfig.flTriggers.flTriggersText.data(), antiAimConfig.flTriggers.enabled, antiAimConfig.flTriggers.flTriggersText.size());
     ImGui::SliderInt("Trigger limit", &antiAimConfig.flTriggerLimit, 1, 14, "%d");
+
+    ImGui::Separator();
+
+    ImGui::Checkbox("Fake duck", &antiAimConfig.fakeDuck);
+    ImGui::SameLine();
+    ImGui::PushID("Fake duck key");
+    hotkey2("", antiAimConfig.fakeDuckKey);
+    ImGui::PopID();
+
     if (!contentOnly)
         ImGui::End();
 }

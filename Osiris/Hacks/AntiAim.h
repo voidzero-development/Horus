@@ -9,8 +9,11 @@ struct Vector;
 
 namespace AntiAim
 {
+    bool fakeDucking = false;
+
     void run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& currentViewAngles, bool& sendPacket) noexcept;
     void fakeLag(UserCmd* cmd, bool& sendPacket) noexcept;
+    void fakeDuck(UserCmd* cmd) noexcept;
 
     // GUI
     void menuBarItem() noexcept;
