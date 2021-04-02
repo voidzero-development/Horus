@@ -1231,15 +1231,12 @@ void GUI::renderMiscWindow(bool contentOnly) noexcept
     ImGui::SliderFloat("Aspect Ratio", &config->misc.aspectratio, 0.0f, 5.0f, "%.2f");
     ImGui::NextColumn();
     ImGui::Checkbox("Disable HUD blur", &config->misc.disablePanoramablur);
-    ImGui::Checkbox("Animated clan tag", &config->misc.animatedClanTag);
-    ImGui::Checkbox("Clock tag", &config->misc.clocktag);
-    ImGui::Checkbox("Custom clantag", &config->misc.customClanTag);
+    ImGui::Checkbox("Clantag", &config->misc.clanTag);
     ImGui::SameLine();
     ImGui::PushItemWidth(120.0f);
     ImGui::PushID(0);
-
-    if (ImGui::InputText("", config->misc.clanTag, sizeof(config->misc.clanTag)))
-        Misc::updateClanTag(true);
+    if (ImGui::InputText("", config->misc.clanTagText, sizeof(config->misc.clanTagText)))
+        Misc::clanTag(true);
     ImGui::PopID();
     ImGui::Checkbox("Kill message", &config->misc.killMessage);
     ImGui::SameLine();
@@ -1449,7 +1446,7 @@ void GUI::renderConfigWindow(bool contentOnly) noexcept
 
                 if (ImGui::Selectable(names[i])) {
                     switch (i) {
-                    case 0: config->reset(); updateColors(); Misc::updateClanTag(true); SkinChanger::scheduleHudUpdate(); break;
+                    case 0: config->reset(); updateColors(); Misc::clanTag(true); SkinChanger::scheduleHudUpdate(); break;
                     case 1: config->legitbot = { }; break;
                     case 2: config->ragebot = { }; break;
                     case 3: config->triggerbot = { }; break;
@@ -1462,7 +1459,7 @@ void GUI::renderConfigWindow(bool contentOnly) noexcept
                     case 10: config->skinChanger = { }; SkinChanger::scheduleHudUpdate(); break;
                     case 11: config->sound = { }; break;
                     case 12: config->style = { }; updateColors(); break;
-                    case 13: config->misc = { };  Misc::updateClanTag(true); break;
+                    case 13: config->misc = { };  Misc::clanTag(true); break;
                     }
                 }
             }
@@ -1473,7 +1470,7 @@ void GUI::renderConfigWindow(bool contentOnly) noexcept
                 config->load(currentConfig, incrementalLoad);
                 updateColors();
                 SkinChanger::scheduleHudUpdate();
-                Misc::updateClanTag(true);
+                Misc::clanTag(true);
             }
             if (ImGui::Button("Save selected", { 100.0f, 25.0f }))
                 config->save(currentConfig);

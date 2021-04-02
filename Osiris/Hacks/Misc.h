@@ -12,7 +12,7 @@ namespace Misc
     void edgejump(UserCmd* cmd) noexcept;
     void slowwalk(UserCmd* cmd) noexcept;
     void inverseRagdollGravity() noexcept;
-    void updateClanTag(bool = false) noexcept;
+    void clanTag(bool = false) noexcept;
     void spectatorList() noexcept;
     void forceCrosshair() noexcept;
     void recoilCrosshair() noexcept;

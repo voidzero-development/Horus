@@ -205,7 +205,7 @@ public:
     } style;
 
     struct Misc {
-        Misc() { clanTag[0] = '\0'; }
+        Misc() { clanTagText[0] = '\0'; }
 
         KeyBind menuKey = KeyBind::INSERT;
         bool resolver{ false };
@@ -214,9 +214,6 @@ public:
         bool antiAfkKick{ false };
         AutoStrafer autoStrafer;
         bool bunnyHop{ false };
-        bool customClanTag{ false };
-        bool clocktag{ false };
-        bool animatedClanTag{ false };
         bool fastDuck{ false };
         bool moonwalk{ false };
         bool edgejump{ false };
@@ -242,7 +239,6 @@ public:
         bool prepareRevolver{ false };
         bool oppositeHandKnife = false;
         PreserveKillfeed preserveKillfeed;
-        char clanTag[16];
         KeyBind edgejumpkey = KeyBind::NONE;
         KeyBind slowwalkKey = KeyBind::NONE;
         bool forceCrosshair = false;
@@ -290,6 +286,8 @@ public:
         bool blockBot = false;
         KeyBind blockBotKey = KeyBind::NONE;
         int forceRelayCluster = 0;
+        bool clanTag = false;
+        char clanTagText[16];
     } misc;
 
     void scheduleFontLoad(const std::string& name) noexcept;

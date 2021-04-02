@@ -65,7 +65,7 @@ Config::Config(const char* name) noexcept
 
     path /= name;
     listConfigs();
-    misc.clanTag[0] = '\0';
+    misc.clanTagText[0] = '\0';
 
     load(u8"default.json", false);
 
@@ -506,10 +506,8 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Anti AFK kick", m.antiAfkKick);
     read<value_t::object>(j, "Auto strafer", m.autoStrafer);
     read(j, "Bunny hop", m.bunnyHop);
-    read(j, "Custom clan tag", m.customClanTag);
-    read(j, "Clock tag", m.clocktag);
-    read(j, "Clan tag", m.clanTag, sizeof(m.clanTag));
-    read(j, "Animated clan tag", m.animatedClanTag);
+    read(j, "Clan tag", m.clanTag);
+    read(j, "Clan tag text", m.clanTagText, sizeof(m.clanTagText));
     read(j, "Fast duck", m.fastDuck);
     read(j, "Moonwalk", m.moonwalk);
     read(j, "Edge Jump", m.edgejump);
@@ -948,13 +946,9 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Anti AFK kick", antiAfkKick);
     WRITE("Auto strafer", autoStrafer);
     WRITE("Bunny hop", bunnyHop);
-    WRITE("Custom clan tag", customClanTag);
-    WRITE("Clock tag", clocktag);
-
-    if (o.clanTag[0])
-        j["Clan tag"] = o.clanTag;
-
-    WRITE("Animated clan tag", animatedClanTag);
+    WRITE("Clan tag", clanTag);
+    if (o.clanTagText[0])
+        j["Clan tag text"] = o.clanTagText;
     WRITE("Fast duck", fastDuck);
     WRITE("Moonwalk", moonwalk);
     WRITE("Edge Jump", edgejump);
