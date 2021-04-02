@@ -171,7 +171,7 @@ void Chams::renderPlayer(Entity* player) noexcept
             interfaces->renderView->setBlend((100.f - config->visuals.scopeBlend) / 100.f);
         applyChams(config->chams["Local player"].materials, health);
 
-        if (Animations::data.gotMatrix && fabs(Animations::data.fakeAngle - localPlayer->getAbsAngle().y) > 30.f) {
+        if (Animations::data.gotMatrix && fabs(Animations::data.fakeAngle - localPlayer->getAbsAngle().y) > 20.f) {
             for (auto& i : Animations::data.fakematrix)
             {
                 i[0][3] += info->origin.x;
