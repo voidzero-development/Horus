@@ -287,6 +287,8 @@ public:
         ViewmodelChanger viewmodelChanger;
         bool deathmatchGod = false;
         bool antiAimLines = false;
+        bool blockBot = false;
+        KeyBind blockBotKey = KeyBind::NONE;
     } misc;
 
     void scheduleFontLoad(const std::string& name) noexcept;

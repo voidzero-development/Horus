@@ -1173,6 +1173,11 @@ void GUI::renderMiscWindow(bool contentOnly) noexcept
     ImGui::Checkbox("Bunny hop", &config->misc.bunnyHop);
     ImGui::Checkbox("Fast duck", &config->misc.fastDuck);
     ImGui::Checkbox("Moonwalk", &config->misc.moonwalk);
+    ImGui::Checkbox("Block bot", &config->misc.blockBot);
+    ImGui::SameLine();
+    ImGui::PushID("Block bot key");
+    hotkey2("", config->misc.blockBotKey);
+    ImGui::PopID();
     ImGui::Checkbox("Edge Jump", &config->misc.edgejump);
     ImGui::SameLine();
     ImGui::PushID("Edge Jump Key");

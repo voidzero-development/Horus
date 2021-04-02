@@ -257,6 +257,7 @@ static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTim
     Misc::fastPlant(cmd);
     Misc::forceCrosshair();
     Misc::recoilCrosshair();
+    Misc::blockBot(cmd);
 
     AntiAim::fakeLag(cmd, sendPacket);
     AntiAim::run(cmd, previousViewAngles, currentViewAngles, sendPacket);

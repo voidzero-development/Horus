@@ -8,6 +8,7 @@ struct Vector;
 
 namespace Misc
 {
+    void blockBot(UserCmd* cmd) noexcept;
     void edgejump(UserCmd* cmd) noexcept;
     void slowwalk(UserCmd* cmd) noexcept;
     void inverseRagdollGravity() noexcept;
