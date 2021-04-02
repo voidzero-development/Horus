@@ -17,6 +17,7 @@
 struct AntiAimConfig {
     bool enabled = false;
     AntiAimDisablers aaDisablers;
+    int desyncMode = 0;
     int extendMode = 0;
     int lbyMode = 0;
     int desyncAmount = 100;
@@ -283,12 +284,19 @@ void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& 
             return;
         }
 
+        static bool flipDesync{ false };
         if (!sendPacket) 
         {
             if (((*memory->gameRules)->freezePeriod()))
                 return;
 
-            invert ? cmd->viewangles.y += (localPlayer->getMaxDesyncAngle() * 2) * ((antiAimConfig.desyncAmount / 2 + 50) / 100.f) : cmd->viewangles.y -= (localPlayer->getMaxDesyncAngle() * 2) * ((antiAimConfig.desyncAmount / 2 + 50) / 100.f);
+            if (antiAimConfig.desyncMode == 0) { //Static
+                invert ? cmd->viewangles.y += (localPlayer->getMaxDesyncAngle() * 2) * ((antiAimConfig.desyncAmount / 2 + 50) / 100.f) : cmd->viewangles.y -= (localPlayer->getMaxDesyncAngle() * 2) * ((antiAimConfig.desyncAmount / 2 + 50) / 100.f);
+            }
+            else { //Jitter
+                flipDesync ? cmd->viewangles.y += (localPlayer->getMaxDesyncAngle() * 2) * ((antiAimConfig.desyncAmount / 2 + 50) / 100.f) : cmd->viewangles.y -= (localPlayer->getMaxDesyncAngle() * 2) * ((antiAimConfig.desyncAmount / 2 + 50) / 100.f);
+                flipDesync ^= 1;
+            }
         }
 
         if (antiAimConfig.extendMode == 1)
@@ -391,6 +399,7 @@ void AntiAim::drawGUI(bool contentOnly) noexcept
     ImGui::PushID("Anti aim disablers");
     ImGui::multiCombo("Disablers", antiAimConfig.aaDisablers.aaDisablersText.data(), antiAimConfig.aaDisablers.enabled, antiAimConfig.aaDisablers.aaDisablersText.size());
     ImGui::PopID();
+    ImGui::Combo("Desync mode", &antiAimConfig.desyncMode, "Static\0Jitter\0");
     ImGui::Combo("Extend mode", &antiAimConfig.extendMode, "Break LBY\0Micromovement\0");
     if (antiAimConfig.extendMode == 0)
         ImGui::Combo("LBY mode", &antiAimConfig.lbyMode, "Static\0Sway\0");
@@ -435,6 +444,7 @@ static void to_json(json& j, const AntiAimConfig& o, const AntiAimConfig& dummy 
 {
     WRITE("Enabled", enabled);
     WRITE("Anti aim disablers", aaDisablers);
+    WRITE("Desync mode", desyncMode);
     WRITE("Extend mode", extendMode);
     WRITE("LBY mode", lbyMode);
     WRITE("Desync amount", desyncAmount);
@@ -479,6 +489,7 @@ static void from_json(const json& j, AntiAimConfig& a)
 {
     read(j, "Enabled", a.enabled);
     read<value_t::object>(j, "Anti aim disablers", a.aaDisablers);
+    read(j, "Desync mode", a.desyncMode);
     read(j, "Extend mode", a.extendMode);
     read(j, "LBY mode", a.lbyMode);
     read(j, "Desync amount", a.desyncAmount);
