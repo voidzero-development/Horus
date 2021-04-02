@@ -233,13 +233,12 @@ void GUI::renderLegitbotWindow(bool contentOnly) noexcept
     ImGui::multiCombo("Hit groups", hitGroups.data(), config->legitbot[currentCategory].hitGroups, hitGroups.size());
     ImGui::NextColumn();
     ImGui::PushItemWidth(240.0f);
-    ImGui::SliderFloat("Fov", &config->legitbot[currentCategory].fov, 0.0f, 255.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
+    ImGui::SliderFloat("FOV", &config->legitbot[currentCategory].fov, 0.0f, 255.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
     ImGui::SliderFloat("Smooth", &config->legitbot[currentCategory].smooth, 1.0f, 100.0f, "%.2f");
     ImGui::SliderInt("Kill delay", &config->legitbot[currentCategory].killDelay, 0, 1000, "%d ms");
     ImGui::SliderInt("Multi point", &config->legitbot[currentCategory].multiPoint, 0, 100, "%d");
     ImGui::SliderInt("Hit chance", &config->legitbot[currentCategory].hitChance, 0, 100, "%d%%");
-    ImGui::InputInt("Min damage", &config->legitbot[currentCategory].minDamage);
-    config->legitbot[currentCategory].minDamage = std::clamp(config->legitbot[currentCategory].minDamage, 0, 250);
+    ImGui::SliderInt("Minimum damage", &config->legitbot[currentCategory].minDamage, 0, 150, "%d");
     ImGui::Columns(1);
     if (!contentOnly)
         ImGui::End();
@@ -289,11 +288,10 @@ void GUI::renderRagebotWindow(bool contentOnly) noexcept
     ImGui::multiCombo("Hit groups", hitGroups.data(), config->ragebot[currentCategory].hitGroups, hitGroups.size());
     ImGui::NextColumn();
     ImGui::PushItemWidth(240.0f);
-    ImGui::SliderFloat("Fov", &config->ragebot[currentCategory].fov, 0.0f, 255.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
+    ImGui::SliderFloat("FOV", &config->ragebot[currentCategory].fov, 0.0f, 255.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
     ImGui::SliderInt("Multi point", &config->ragebot[currentCategory].multiPoint, 0, 100, "%d");
     ImGui::SliderInt("Hit chance", &config->ragebot[currentCategory].hitChance, 0, 100, "%d%%");
-    ImGui::InputInt("Min damage", &config->ragebot[currentCategory].minDamage);
-    config->ragebot[currentCategory].minDamage = std::clamp(config->ragebot[currentCategory].minDamage, 0, 250);
+    ImGui::SliderInt("Minimum damage", &config->legitbot[currentCategory].minDamage, 0, 150, "%d");
     ImGui::Combo("Priority", &config->ragebot[currentCategory].priority, "Health\0Distance\0Fov\0");
     ImGui::Columns(1);
     if (!contentOnly)
