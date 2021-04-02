@@ -178,7 +178,7 @@ struct AntiAimDisablers {
     };
 
     bool enabled[1]{
-    false,
+    false
     };
 };
 
@@ -192,7 +192,7 @@ struct FakeLagDisablers {
     bool enabled[3]{
     false,
     false,
-    false,
+    false
     };
 };
 
@@ -202,7 +202,7 @@ struct FakeLagTriggers {
     };
 
     bool enabled[1]{
-    false,
+    false
     };
 };
 

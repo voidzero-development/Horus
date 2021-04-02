@@ -422,6 +422,7 @@ static void to_json(json& j, const FakeLagTriggers& o, const FakeLagTriggers& du
 static void to_json(json& j, const AntiAimConfig& o, const AntiAimConfig& dummy = {})
 {
     WRITE("Enabled", enabled);
+    WRITE("Anti aim disablers", aaDisablers);
     WRITE("Extend mode", extendMode);
     WRITE("Desync amount", desyncAmount);
     WRITE("Pitch angle", pitchAngle);
@@ -464,6 +465,7 @@ static void from_json(const json& j, FakeLagTriggers& ft)
 static void from_json(const json& j, AntiAimConfig& a)
 {
     read(j, "Enabled", a.enabled);
+    read<value_t::object>(j, "Anti aim disablers", a.aaDisablers);
     read(j, "Extend mode", a.extendMode);
     read(j, "Desync amount", a.desyncAmount);
     read(j, "Pitch angle", a.pitchAngle);
