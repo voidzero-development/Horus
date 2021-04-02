@@ -158,7 +158,7 @@ bool didShoot(UserCmd* cmd) noexcept
 void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& currentViewAngles, bool& sendPacket) noexcept
 {
     bool lby = isLbyUpdating();
-    Animations::data.lby = lby;
+    Animations::data.lby = antiAimConfig.extendMode == 0 ? lby : 0;
 
     if (!localPlayer->isAlive())
         return;
