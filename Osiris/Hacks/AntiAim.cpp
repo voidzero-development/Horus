@@ -16,6 +16,7 @@
 
 struct AntiAimConfig {
     bool enabled = false;
+    AntiAimDisablers aaDisablers;
     int extendMode = 0;
     int pitchAngle = 0;
     int yawOffset = 0;
@@ -167,6 +168,10 @@ void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& 
     if ((cmd->buttons & (UserCmd::IN_USE)))
         return;
 
+    if ((antiAimConfig.aaDisablers.enabled[0] //On freeze period disabler
+        && (*memory->gameRules)->freezePeriod()))
+        return;
+
     auto activeWeapon = localPlayer->getActiveWeapon();
     if (!activeWeapon)
         return;
@@ -267,12 +272,8 @@ void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& 
             return;
         }
 
-        if (!sendPacket) {
-            if (((*memory->gameRules)->freezePeriod()))
-                return;
-
+        if (!sendPacket)
             invert ? cmd->viewangles.y += localPlayer->getMaxDesyncAngle() * 2 : cmd->viewangles.y -= localPlayer->getMaxDesyncAngle() * 2;
-        }
 
         if (antiAimConfig.extendMode == 1)
         {
@@ -371,6 +372,9 @@ void AntiAim::drawGUI(bool contentOnly) noexcept
         ImGui::Begin("Anti aim", &antiAimOpen, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
     }
     ImGui::Checkbox("Enabled", &antiAimConfig.enabled);
+    ImGui::PushID("Anti aim disablers");
+    ImGui::multiCombo("Disablers", antiAimConfig.aaDisablers.aaDisablersText.data(), antiAimConfig.aaDisablers.enabled, antiAimConfig.aaDisablers.aaDisablersText.size());
+    ImGui::PopID();
     ImGui::Combo("Extend mode", &antiAimConfig.extendMode, "Break LBY\0Micromovement\0");
     ImGui::Combo("Pitch angle", &antiAimConfig.pitchAngle, "Off\0Down\0Zero\0Up\0");
     ImGui::Combo("Yaw offset", &antiAimConfig.yawOffset, "Off\0Back\0Forward jitter\0Back jitter\0");
@@ -389,6 +393,11 @@ void AntiAim::drawGUI(bool contentOnly) noexcept
     ImGui::SliderInt("Trigger limit", &antiAimConfig.flTriggerLimit, 1, 14, "%d");
     if (!contentOnly)
         ImGui::End();
+}
+
+static void to_json(json& j, const AntiAimDisablers& o, const AntiAimDisablers& dummy = {})
+{
+    WRITE("On freeze period", enabled[0]);
 }
 
 static void to_json(json& j, const FakeLagDisablers& o, const FakeLagDisablers& dummy = {})
@@ -425,6 +434,11 @@ json AntiAim::toJson() noexcept
     json j;
     to_json(j, antiAimConfig);
     return j;
+}
+
+static void from_json(const json& j, AntiAimDisablers& ad)
+{
+    read(j, "On freeze period", ad.enabled[0]);
 }
 
 static void from_json(const json& j, FakeLagDisablers& fd)

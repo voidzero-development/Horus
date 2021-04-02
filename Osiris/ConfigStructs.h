@@ -172,11 +172,21 @@ struct ViewmodelChanger {
     int roll{ 0 };
 };
 
+struct AntiAimDisablers {
+    std::vector<const char*> aaDisablersText = {
+    "On freeze period"
+    };
+
+    bool enabled[1]{
+    false,
+    };
+};
+
 struct FakeLagDisablers {
     std::vector<const char*> flDisablersText = {
     "On shot",
     "On use",
-    "On grenade throw",
+    "On grenade throw"
     };
 
     bool enabled[3]{
@@ -188,7 +198,7 @@ struct FakeLagDisablers {
 
 struct FakeLagTriggers {
     std::vector<const char*> flTriggersText = {
-    "On visible",
+    "On visible"
     };
 
     bool enabled[1]{
