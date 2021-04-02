@@ -295,9 +295,11 @@ void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& 
             }
             else { //Jitter
                 flipDesync ? cmd->viewangles.y += (localPlayer->getMaxDesyncAngle() * 2) * ((antiAimConfig.desyncAmount / 2 + 50) / 100.f) : cmd->viewangles.y -= (localPlayer->getMaxDesyncAngle() * 2) * ((antiAimConfig.desyncAmount / 2 + 50) / 100.f);
-                flipDesync ^= 1;
             }
         }
+
+        if (sendPacket)
+            flipDesync ^= 1;
 
         if (antiAimConfig.extendMode == 1)
         {
