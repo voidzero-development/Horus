@@ -200,10 +200,6 @@ void Legitbot::run(UserCmd* cmd) noexcept
                 for (auto bonePosition : Aimbot::multiPoint(entity, boneMatrices, hdr, j, weaponClass, cfg.multiPoint)) {
                     const auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch);
                     const auto fov = std::hypot(angle.x, angle.y);
-                    const auto range = activeWeapon->getWeaponData()->range;
-
-                    if (((bonePosition - localPlayer->getAbsOrigin()).length()) > range)
-                        continue;
 
                     if (fov > bestFov)
                         continue;
@@ -224,7 +220,7 @@ void Legitbot::run(UserCmd* cmd) noexcept
                         return;
                     }
 
-                    if (localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP)) && ((entity->getAbsOrigin() - localPlayer->getAbsOrigin()).length()) <= activeWeapon->getWeaponData()->range)
+                    if (localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP)))
                         shouldRunAutoStop.at(weaponClass) = cfg.autoStop;
 
                     cmd->tickCount = Backtrack::timeToTicks(entity->simulationTime() + Backtrack::getLerp());
@@ -269,10 +265,6 @@ void Legitbot::run(UserCmd* cmd) noexcept
                 {
                     const auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch);
                     const auto fov = std::hypot(angle.x, angle.y);
-                    const auto range = activeWeapon->getWeaponData()->range;
-
-                    if (((bonePosition - localPlayer->getAbsOrigin()).length()) > range)
-                        continue;
 
                     if (fov > bestFov)
                         continue;
@@ -293,7 +285,7 @@ void Legitbot::run(UserCmd* cmd) noexcept
                         return;
                     }
 
-                    if (localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP)) && ((entity->getAbsOrigin() - localPlayer->getAbsOrigin()).length()) <= activeWeapon->getWeaponData()->range)
+                    if (localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP)))
                         shouldRunAutoStop.at(weaponClass) = cfg.autoStop;
 
                     cmd->tickCount = Backtrack::timeToTicks(currentRecord.simulationTime + Backtrack::getLerp());
