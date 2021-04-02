@@ -16,7 +16,7 @@
 
 struct AntiAimConfig {
     bool enabled = false;
-    bool lbyBreak = false;
+    int extendMode = 0;
     int pitchAngle = 0;
     int yawOffset = 0;
     float yawJitter = 0;
@@ -261,11 +261,9 @@ void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& 
 
         cmd->viewangles.y += yawOffset;
 
-        if (lby) {
-            if (antiAimConfig.lbyBreak) {
-                sendPacket = false;
-                invert ? cmd->viewangles.y -= 119.95f : cmd->viewangles.y += 119.95f;
-            }
+        if (lby && antiAimConfig.extendMode == 0) {
+            sendPacket = false;
+            invert ? cmd->viewangles.y -= 119.95f : cmd->viewangles.y += 119.95f;
             return;
         }
 
@@ -274,6 +272,16 @@ void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& 
                 return;
 
             invert ? cmd->viewangles.y += localPlayer->getMaxDesyncAngle() * 2 : cmd->viewangles.y -= localPlayer->getMaxDesyncAngle() * 2;
+        }
+
+        if (antiAimConfig.extendMode == 1)
+        {
+            if (fabsf(cmd->sidemove) < 5.0f) {
+                if (cmd->buttons & UserCmd::IN_DUCK)
+                    cmd->sidemove = cmd->tickCount & 1 ? 3.25f : -3.25f;
+                else
+                    cmd->sidemove = cmd->tickCount & 1 ? 1.1f : -1.1f;
+            }
         }
     }
 }
@@ -363,7 +371,7 @@ void AntiAim::drawGUI(bool contentOnly) noexcept
         ImGui::Begin("Anti aim", &antiAimOpen, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
     }
     ImGui::Checkbox("Enabled", &antiAimConfig.enabled);
-    ImGui::Checkbox("Extend LBY", &antiAimConfig.lbyBreak);
+    ImGui::Combo("Extend mode", &antiAimConfig.extendMode, "Break LBY\0Micromovement\0");
     ImGui::Combo("Pitch angle", &antiAimConfig.pitchAngle, "Off\0Down\0Zero\0Up\0");
     ImGui::Combo("Yaw offset", &antiAimConfig.yawOffset, "Off\0Back\0Forward jitter\0Back jitter\0");
     if (antiAimConfig.yawOffset >= 2) {
@@ -398,7 +406,7 @@ static void to_json(json& j, const FakeLagTriggers& o, const FakeLagTriggers& du
 static void to_json(json& j, const AntiAimConfig& o, const AntiAimConfig& dummy = {})
 {
     WRITE("Enabled", enabled);
-    WRITE("Extend LBY", lbyBreak);
+    WRITE("Extend mode", extendMode);
     WRITE("Pitch angle", pitchAngle);
     WRITE("Yaw offset", yawOffset);
     WRITE("Yaw jitter", yawJitter);
@@ -434,7 +442,7 @@ static void from_json(const json& j, FakeLagTriggers& ft)
 static void from_json(const json& j, AntiAimConfig& a)
 {
     read(j, "Enabled", a.enabled);
-    read(j, "Extend LBY", a.lbyBreak);
+    read(j, "Extend mode", a.extendMode);
     read(j, "Pitch angle", a.pitchAngle);
     read(j, "Yaw offset", a.yawOffset);
     read(j, "Yaw jitter", a.yawJitter);
