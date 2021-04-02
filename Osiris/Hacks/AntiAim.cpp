@@ -18,6 +18,7 @@ struct AntiAimConfig {
     bool enabled = false;
     AntiAimDisablers aaDisablers;
     int extendMode = 0;
+    int desyncAmount = 100;
     int pitchAngle = 0;
     int yawOffset = 0;
     float yawJitter = 0;
@@ -157,7 +158,6 @@ bool didShoot(UserCmd* cmd) noexcept
 void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& currentViewAngles, bool& sendPacket) noexcept
 {
     bool lby = isLbyUpdating();
-    Animations::data.lby = lby;
 
     if (!localPlayer->isAlive())
         return;
@@ -267,13 +267,19 @@ void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& 
         cmd->viewangles.y += yawOffset;
 
         if (lby && antiAimConfig.extendMode == 0) {
+            Animations::data.lby = lby;
             sendPacket = false;
             invert ? cmd->viewangles.y -= 119.95f : cmd->viewangles.y += 119.95f;
             return;
         }
 
-        if (!sendPacket)
-            invert ? cmd->viewangles.y += localPlayer->getMaxDesyncAngle() * 2 : cmd->viewangles.y -= localPlayer->getMaxDesyncAngle() * 2;
+        if (!sendPacket) 
+        {
+            if (((*memory->gameRules)->freezePeriod()))
+                return;
+
+            invert ? cmd->viewangles.y += (localPlayer->getMaxDesyncAngle() * 2) * ((antiAimConfig.desyncAmount / 2 + 50) / 100.f) : cmd->viewangles.y -= (localPlayer->getMaxDesyncAngle() * 2) * ((antiAimConfig.desyncAmount / 2 + 50) / 100.f);
+        }
 
         if (antiAimConfig.extendMode == 1)
         {
@@ -376,6 +382,7 @@ void AntiAim::drawGUI(bool contentOnly) noexcept
     ImGui::multiCombo("Disablers", antiAimConfig.aaDisablers.aaDisablersText.data(), antiAimConfig.aaDisablers.enabled, antiAimConfig.aaDisablers.aaDisablersText.size());
     ImGui::PopID();
     ImGui::Combo("Extend mode", &antiAimConfig.extendMode, "Break LBY\0Micromovement\0");
+    ImGui::SliderInt("Desync amount", &antiAimConfig.desyncAmount, 1, 100, "%d%%");
     ImGui::Combo("Pitch angle", &antiAimConfig.pitchAngle, "Off\0Down\0Zero\0Up\0");
     ImGui::Combo("Yaw offset", &antiAimConfig.yawOffset, "Off\0Back\0Forward jitter\0Back jitter\0");
     if (antiAimConfig.yawOffset >= 2) {
@@ -416,6 +423,7 @@ static void to_json(json& j, const AntiAimConfig& o, const AntiAimConfig& dummy 
 {
     WRITE("Enabled", enabled);
     WRITE("Extend mode", extendMode);
+    WRITE("Desync amount", desyncAmount);
     WRITE("Pitch angle", pitchAngle);
     WRITE("Yaw offset", yawOffset);
     WRITE("Yaw jitter", yawJitter);
@@ -457,6 +465,7 @@ static void from_json(const json& j, AntiAimConfig& a)
 {
     read(j, "Enabled", a.enabled);
     read(j, "Extend mode", a.extendMode);
+    read(j, "Desync amount", a.desyncAmount);
     read(j, "Pitch angle", a.pitchAngle);
     read(j, "Yaw offset", a.yawOffset);
     read(j, "Yaw jitter", a.yawJitter);
