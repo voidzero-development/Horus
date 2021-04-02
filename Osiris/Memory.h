@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <memory>
 #include <type_traits>
 
@@ -101,6 +102,7 @@ public:
     uintptr_t CreateState;
     uintptr_t InvalidateBoneCache;
     MemAlloc* memalloc;
+    std::string* forceRelayCluster;
 
     short makePanoramaSymbol(const char* name) const noexcept
     {

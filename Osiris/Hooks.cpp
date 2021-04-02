@@ -358,6 +358,7 @@ static void __STDCALL frameStageNotify(LINUX_ARGS(void* thisptr,) FrameStage sta
         Misc::fakePrime();
         Animations::players();
         Animations::real();
+        Misc::forceRelayCluster();
     }
     if (interfaces->engine->isInGame()) {
         Visuals::skybox(stage);

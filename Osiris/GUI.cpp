@@ -1165,6 +1165,9 @@ void GUI::renderMiscWindow(bool contentOnly) noexcept
     ImGui::SliderInt("Amount", &config->misc.fakeLatency.amount, 1, 200, "%d ms");
     ImGui::PopID();
     ImGui::Checkbox("Bypass sv_pure", &config->misc.pureBypass);
+    ImGui::PushItemWidth(120.0f);
+    ImGui::Combo("Force relay cluster", &config->misc.forceRelayCluster, "Off\0Australia\0Austria\0Brazil\0Chile\0Dubai\0France\0Germany\0Hong Kong\0India (Chennai)\0India (Mumbai)\0Japan\0Luxembourg\0Netherlands\0Peru\0Philipines\0Poland\0Singapore\0South Africa\0Spain\0Sweden\0UK\0USA (Atlanta)\0USA (Seattle)\0USA (Chicago)\0USA (Los Angeles)\0USA (Moses Lake)\0USA (Oklahoma)\0USA (Seattle)\0USA (Washington DC)\0");
+    ImGui::PopItemWidth();
     ImGui::Checkbox("Anti AFK kick", &config->misc.antiAfkKick);
     ImGui::Checkbox("Auto strafer", &config->misc.autoStrafer.enabled);
     ImGui::PushID("Auto strafer mode");

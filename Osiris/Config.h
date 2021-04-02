@@ -289,6 +289,7 @@ public:
         bool antiAimLines = false;
         bool blockBot = false;
         KeyBind blockBotKey = KeyBind::NONE;
+        int forceRelayCluster = 0;
     } misc;
 
     void scheduleFontLoad(const std::string& name) noexcept;

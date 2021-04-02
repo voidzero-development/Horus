@@ -54,6 +54,7 @@ namespace Misc
     void deathmatchGod() noexcept;
     void chatSpammer() noexcept;
     void antiAimLines() noexcept;
+    void forceRelayCluster() noexcept;
 
     void updateInput() noexcept;
 }
