@@ -18,6 +18,7 @@ struct AntiAimConfig {
     bool enabled = false;
     AntiAimDisablers aaDisablers;
     int extendMode = 0;
+    int lbyMode = 0;
     int desyncAmount = 100;
     int pitchAngle = 0;
     int yawOffset = 0;
@@ -267,9 +268,18 @@ void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& 
 
         cmd->viewangles.y += yawOffset;
 
+        static bool flipLby{ false };
         if (lby && antiAimConfig.extendMode == 0) {
             sendPacket = false;
-            invert ? cmd->viewangles.y -= 119.95f : cmd->viewangles.y += 119.95f;
+
+            if (antiAimConfig.lbyMode == 0) { //Static
+                invert ? cmd->viewangles.y -= 119.95f : cmd->viewangles.y += 119.95f;
+            }
+            else { //Sway
+                flipLby ? cmd->viewangles.y -= 119.95f : cmd->viewangles.y += 119.95f;
+                flipLby ^= 1;
+            }
+
             return;
         }
 
@@ -382,6 +392,8 @@ void AntiAim::drawGUI(bool contentOnly) noexcept
     ImGui::multiCombo("Disablers", antiAimConfig.aaDisablers.aaDisablersText.data(), antiAimConfig.aaDisablers.enabled, antiAimConfig.aaDisablers.aaDisablersText.size());
     ImGui::PopID();
     ImGui::Combo("Extend mode", &antiAimConfig.extendMode, "Break LBY\0Micromovement\0");
+    if (antiAimConfig.extendMode == 0)
+        ImGui::Combo("LBY mode", &antiAimConfig.lbyMode, "Static\0Sway\0");
     ImGui::SliderInt("Desync amount", &antiAimConfig.desyncAmount, 1, 100, "%d%%");
     ImGui::Combo("Pitch angle", &antiAimConfig.pitchAngle, "Off\0Down\0Zero\0Up\0");
     ImGui::Combo("Yaw offset", &antiAimConfig.yawOffset, "Off\0Back\0Forward jitter\0Back jitter\0");
@@ -389,7 +401,7 @@ void AntiAim::drawGUI(bool contentOnly) noexcept
         ImGui::SliderFloat("Yaw jitter", &antiAimConfig.yawJitter, -90.f, 90.f, "%.2f");
         ImGui::Combo("Jitter mode", &antiAimConfig.jitterMode, "Flip\0Random\0");
     }
-    if (antiAimConfig.yawOffset)
+    if (antiAimConfig.yawOffset >= 1)
         ImGui::Checkbox("At target", &antiAimConfig.atTarget);
     ImGui::Separator();
     ImGui::Checkbox("Fake lag", &antiAimConfig.fakeLag);
@@ -424,6 +436,7 @@ static void to_json(json& j, const AntiAimConfig& o, const AntiAimConfig& dummy 
     WRITE("Enabled", enabled);
     WRITE("Anti aim disablers", aaDisablers);
     WRITE("Extend mode", extendMode);
+    WRITE("LBY mode", lbyMode);
     WRITE("Desync amount", desyncAmount);
     WRITE("Pitch angle", pitchAngle);
     WRITE("Yaw offset", yawOffset);
@@ -467,6 +480,7 @@ static void from_json(const json& j, AntiAimConfig& a)
     read(j, "Enabled", a.enabled);
     read<value_t::object>(j, "Anti aim disablers", a.aaDisablers);
     read(j, "Extend mode", a.extendMode);
+    read(j, "LBY mode", a.lbyMode);
     read(j, "Desync amount", a.desyncAmount);
     read(j, "Pitch angle", a.pitchAngle);
     read(j, "Yaw offset", a.yawOffset);
