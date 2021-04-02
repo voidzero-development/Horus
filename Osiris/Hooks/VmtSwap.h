@@ -8,7 +8,8 @@ public:
     void init(void* base) noexcept;
     void restore() noexcept
     {
-        *reinterpret_cast<uintptr_t**>(base) = oldVmt;
+        if (newVmt)
+            *reinterpret_cast<uintptr_t**>(base) = oldVmt;
     }
 
     template<typename T>
