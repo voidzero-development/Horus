@@ -14,74 +14,6 @@
 
 static bool keyPressed;
 
-static bool hitChance(Entity* localPlayer, Entity* entity, Entity* weaponData, const Vector& destination, const UserCmd* cmd, const int hitChance) noexcept
-{
-    if (!hitChance)
-        return true;
-
-    constexpr int maxSeed = 256;
-
-    const Angle angles(destination + cmd->viewangles);
-
-    int hits = 0;
-    const int hitsNeed = static_cast<int>(static_cast<float>(maxSeed) * (static_cast<float>(hitChance) / 100.f));
-
-    const auto weapSpread = weaponData->getSpread();
-    const auto weapInaccuracy = weaponData->getInaccuracy();
-    const auto localEyePosition = localPlayer->getEyePosition();
-    const auto range = weaponData->getWeaponData()->range;
-
-    for (int i = 0; i < maxSeed; ++i)
-    {
-        memory->randomSeed(i + 1);
-        float inaccuracy = memory->randomFloat(0.f, 1.f);
-        float spread = memory->randomFloat(0.f, 1.f);
-        const float spreadX = memory->randomFloat(0.f, 2.f * static_cast<float>(M_PI));
-        const float spreadY = memory->randomFloat(0.f, 2.f * static_cast<float>(M_PI));
-
-        const auto weaponIndex = weaponData->itemDefinitionIndex2();
-        const auto recoilIndex = weaponData->recoilIndex();
-        if (weaponIndex == WeaponId::Revolver)
-        {
-            if (cmd->buttons & UserCmd::IN_ATTACK2)
-            {
-                inaccuracy = 1.f - inaccuracy * inaccuracy;
-                spread = 1.f - spread * spread;
-            }
-        }
-        else if (weaponIndex == WeaponId::Negev && recoilIndex < 3.f)
-        {
-            for (int i = 3; i > recoilIndex; --i)
-            {
-                inaccuracy *= inaccuracy;
-                spread *= spread;
-            }
-
-            inaccuracy = 1.f - inaccuracy;
-            spread = 1.f - spread;
-        }
-
-        inaccuracy *= weapInaccuracy;
-        spread *= weapSpread;
-
-        Vector spreadView{ (cosf(spreadX) * inaccuracy) + (cosf(spreadY) * spread),
-                           (sinf(spreadX) * inaccuracy) + (sinf(spreadY) * spread) };
-        Vector direction{ (angles.forward + (angles.right * spreadView.x) + (angles.up * spreadView.y)) * range };
-
-        static Trace trace;
-        interfaces->engineTrace->clipRayToEntity({ localEyePosition, localEyePosition + direction }, 0x4600400B, entity, trace);
-        if (trace.entity == entity)
-            ++hits;
-
-        if (hits >= hitsNeed)
-            return true;
-
-        if ((maxSeed - i + hits) < hitsNeed)
-            return false;
-    }
-    return false;
-}
-
 void Triggerbot::run(UserCmd* cmd) noexcept
 {
     if (!localPlayer || !localPlayer->isAlive() || localPlayer->nextAttack() > memory->globalVars->serverTime() || localPlayer->isDefusing() || localPlayer->waitForNoAttack())
@@ -257,7 +189,9 @@ void Triggerbot::run(UserCmd* cmd) noexcept
     const auto angle = Aimbot::calculateRelativeAngle(localPlayer->getEyePosition(), trace.endpos, cmd->viewangles + aimPunch);
 
     float damage = (activeWeapon->itemDefinitionIndex2() != WeaponId::Taser ? HitGroup::getDamageMultiplier(trace.hitgroup) : 1.0f) * weaponData->damage * std::pow(weaponData->rangeModifier, trace.fraction * weaponData->range / 500.0f);
-    if (!hitChance(localPlayer.get(), trace.entity, activeWeapon, angle, cmd, cfg.hitChance))
+    bool hitChance = Aimbot::hitChance(localPlayer.get(), trace.entity, activeWeapon, angle, cmd, cfg.hitChance);
+
+    if (!hitChance)
         return;
 
     if (float armorRatio{ weaponData->armorRatio / 2.0f }; activeWeapon->itemDefinitionIndex2() != WeaponId::Taser && HitGroup::isArmored(trace.hitgroup, trace.entity->hasHelmet()))

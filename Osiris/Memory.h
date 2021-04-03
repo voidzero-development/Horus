@@ -103,8 +103,6 @@ public:
     uintptr_t InvalidateBoneCache;
     MemAlloc* memalloc;
     std::string* forceRelayCluster;
-    std::add_pointer_t<int __CDECL(const int, ...)> randomSeed;
-    std::add_pointer_t<float __CDECL(const float, const float, ...)> randomFloat;
 
     short makePanoramaSymbol(const char* name) const noexcept
     {
