@@ -528,6 +528,8 @@ static void to_json(json& j, const AntiAimConfig& o, const AntiAimConfig& dummy 
     WRITE("Fake lag limit", flLimit);
     WRITE("Fake lag triggers", flTriggers);
     WRITE("Fake lag trigger limit", flTriggerLimit);
+    WRITE("Fake duck", fakeDuck);
+    WRITE("Fake duck key", fakeDuckKey);
 }
 
 json AntiAim::toJson() noexcept
@@ -573,6 +575,8 @@ static void from_json(const json& j, AntiAimConfig& a)
     read(j, "Fake lag limit", a.flLimit);
     read<value_t::object>(j, "Fake lag triggers", a.flTriggers);
     read(j, "Fake lag trigger limit", a.flTriggerLimit);
+    read(j, "Fake duck", a.fakeDuck);
+    read(j, "Fake duck key", a.fakeDuckKey);
 }
 
 void AntiAim::fromJson(const json& j) noexcept
