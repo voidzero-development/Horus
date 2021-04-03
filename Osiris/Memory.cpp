@@ -195,6 +195,8 @@ Memory::Memory() noexcept
     InvalidateBoneCache = findPattern(CLIENT_DLL, "\x80\x3D?????\x74\x16\xA1????\x48\xC7\x81");
     memalloc = *reinterpret_cast<MemAlloc**>(GetProcAddress(GetModuleHandleA("tier0.dll"), "g_pMemAlloc"));
     forceRelayCluster = *(std::string**)(findPattern("steamnetworkingsockets", "\xB8????\xB9????\x0F\x43") + 1);
+    randomSeed = reinterpret_cast<decltype(randomSeed)>(GetProcAddress(GetModuleHandleW(L"vstdlib"), "RandomSeed"));
+    randomFloat = reinterpret_cast<decltype(randomFloat)>(GetProcAddress(GetModuleHandleW(L"vstdlib"), "RandomFloat"));
 
     localPlayer.init(*reinterpret_cast<Entity***>(findPattern(CLIENT_DLL, "\xA1????\x89\x45\xBC\x85\xC0") + 1));
 #else
