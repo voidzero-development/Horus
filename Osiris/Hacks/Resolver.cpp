@@ -301,10 +301,10 @@ float Resolver::calculateFeet(Entity* entity) noexcept
             switch (side)
             {
             case 1:
-                finalFeetYaw = eyeAngle - desync;
+                finalFeetYaw = eyeAngle + desync;
                 break;
             case 2:
-                finalFeetYaw = eyeAngle + desync;
+                finalFeetYaw = eyeAngle - desync;
                 break;
             default:
                 finalFeetYaw = entity->getAnimstate()->GoalFeetYaw;
@@ -316,10 +316,10 @@ float Resolver::calculateFeet(Entity* entity) noexcept
             switch (side)
             {
             case 1:
-                finalFeetYaw = eyeAngle + desync;
+                finalFeetYaw = eyeAngle - desync;
                 break;
             case 2:
-                finalFeetYaw = eyeAngle - desync;
+                finalFeetYaw = eyeAngle + desync;
                 break;
             default:
                 finalFeetYaw = entity->getAnimstate()->GoalFeetYaw;
