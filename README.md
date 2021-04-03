@@ -11,7 +11,9 @@ This fork is unfortunately not compatible with GNU/Linux.
 ## License
 
 > Copyright (c) 2021 debooger
+
 > Copyright (c) 2018-2021 Daniel Krupiński
 
 This fork is licensed under the [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.en.html) - see the [LICENSE](https://github.com/debooga/Horus/blob/master/LICENSE) file for details.
+
 The original project is licensed under the [MIT License](https://opensource.org/licenses/mit-license.php) - see the [LICENSE](https://github.com/danielkrupinski/Osiris/blob/master/LICENSE) file for details.
