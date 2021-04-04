@@ -194,7 +194,6 @@ void Ragebot::run(UserCmd* cmd) noexcept
 
         for (const auto& target : enemies) {
             const auto entity{ interfaces->entityList->getEntity(target.id) };
-
             Animations::finishSetup(entity);
 
             const Model* mod = entity->getModel();
@@ -210,7 +209,6 @@ void Ragebot::run(UserCmd* cmd) noexcept
                 if (!(hitbox[j]))
                     continue;
 
-                Animations::finishSetup(entity);
                 for (auto bonePosition : Aimbot::multiPoint(entity, boneMatrices, hdr, j, weaponClass, cfg.multiPoint)) {
                     const auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch);
                     const auto fov = std::hypot(angle.x, angle.y);
@@ -236,6 +234,8 @@ void Ragebot::run(UserCmd* cmd) noexcept
 
                     if (localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP)))
                         shouldRunAutoStop.at(weaponClass) = cfg.autoStop;
+
+                    cmd->tickCount = Backtrack::timeToTicks(entity->simulationTime() + Backtrack::getLerp());
 
                     if (!Aimbot::hitChance(localPlayer.get(), entity, activeWeapon, angle, cmd, cfg.hitChance))
                         continue;
@@ -299,6 +299,9 @@ void Ragebot::run(UserCmd* cmd) noexcept
 
                     if (localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP)))
                         shouldRunAutoStop.at(weaponClass) = cfg.autoStop;
+
+                    cmd->tickCount = Backtrack::timeToTicks(currentRecord.simulationTime + Backtrack::getLerp());
+                    Animations::setup(entity, currentRecord);
 
                     if (!Aimbot::hitChance(localPlayer.get(), entity, activeWeapon, angle, cmd, cfg.hitChance))
                         continue;

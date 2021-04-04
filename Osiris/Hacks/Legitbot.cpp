@@ -190,13 +190,13 @@ void Legitbot::run(UserCmd* cmd) noexcept
             StudioHdr* hdr = interfaces->modelInfo->getStudioModel(mod);
             matrix3x4 boneMatrices[256];
             entity->setupBones(boneMatrices, 256, 0x7FF00, memory->globalVars->currenttime);
+            Animations::finishSetup(entity);
 
             for (int j = 0; j < 19; j++)
             {
                 if (!(hitbox[j]))
                     continue;
 
-                Animations::finishSetup(entity);
                 for (auto bonePosition : Aimbot::multiPoint(entity, boneMatrices, hdr, j, weaponClass, cfg.multiPoint)) {
                     const auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch);
                     const auto fov = std::hypot(angle.x, angle.y);
@@ -222,6 +222,8 @@ void Legitbot::run(UserCmd* cmd) noexcept
 
                     if (localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP)))
                         shouldRunAutoStop.at(weaponClass) = cfg.autoStop;
+
+                    cmd->tickCount = Backtrack::timeToTicks(entity->simulationTime() + Backtrack::getLerp());
 
                     if (!Aimbot::hitChance(localPlayer.get(), entity, activeWeapon, angle, cmd, cfg.hitChance))
                         continue;
@@ -286,6 +288,9 @@ void Legitbot::run(UserCmd* cmd) noexcept
                     if (localPlayer->flags() & 1 && !(cmd->buttons & (UserCmd::IN_JUMP)))
                         shouldRunAutoStop.at(weaponClass) = cfg.autoStop;
 
+                    cmd->tickCount = Backtrack::timeToTicks(currentRecord.simulationTime + Backtrack::getLerp());
+                    Animations::setup(entity, currentRecord);
+
                     if (!Aimbot::hitChance(localPlayer.get(), entity, activeWeapon, angle, cmd, cfg.hitChance))
                         continue;
 
@@ -295,6 +300,7 @@ void Legitbot::run(UserCmd* cmd) noexcept
                         bestAngle = angle;
                     }
                 }
+                Animations::finishSetup(entity);
             }
         }
 

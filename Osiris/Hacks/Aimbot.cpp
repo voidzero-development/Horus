@@ -2,27 +2,12 @@
 #include "Backtrack.h"
 #include "Misc.h"
 
-static void setRandomSeed(int seed) noexcept
-{
-    using randomSeedFn = void(*)(int);
-    const auto vstdlib = GetModuleHandleW(L"vstdlib");
-    static auto randomSeed{ reinterpret_cast<randomSeedFn>(GetProcAddress(GetModuleHandleW(L"vstdlib"), "RandomSeed")) };
-    randomSeed(seed);
-}
-
-static float getRandom(float min, float max) noexcept
-{
-    using randomFloatFn = float(*)(float, float);
-    static auto randomFloat{ reinterpret_cast<randomFloatFn>(GetProcAddress(GetModuleHandleW(L"vstdlib"), "RandomFloat")) };
-    return randomFloat(min, max);
-}
-
 bool Aimbot::hitChance(Entity* localPlayer, Entity* entity, Entity* weaponData, const Vector& destination, const UserCmd* cmd, const int hitChance) noexcept
 {
     if (!hitChance)
         return true;
 
-    constexpr int maxSeed = 256;
+    constexpr int maxSeed = 255;
 
     const Angle angles(destination + cmd->viewangles);
 
@@ -34,13 +19,13 @@ bool Aimbot::hitChance(Entity* localPlayer, Entity* entity, Entity* weaponData, 
     const auto localEyePosition = localPlayer->getEyePosition();
     const auto range = weaponData->getWeaponData()->range;
 
-    for (int i = 0; i < maxSeed; ++i)
+    for (int i = 0; i < maxSeed; i++)
     {
-        setRandomSeed(i + 1);
-        const float spreadX = getRandom(0.f, 2.f * static_cast<float>(M_PI));
-        const float spreadY = getRandom(0.f, 2.f * static_cast<float>(M_PI));
-        float inaccuracy = weapInaccuracy * getRandom(0.f, 1.f);
-        float spread = weapSpread * getRandom(0.f, 1.f);
+        srand(i + 1);
+        const float spreadX = randomFloat(0.f, 2.f * static_cast<float>(M_PI));
+        const float spreadY = randomFloat(0.f, 2.f * static_cast<float>(M_PI));
+        auto inaccuracy = weapInaccuracy * randomFloat(0.f, 1.f);
+        auto spread = weapSpread * randomFloat(0.f, 1.f);
 
         Vector spreadView{ (cosf(spreadX) * inaccuracy) + (cosf(spreadY) * spread),
                            (sinf(spreadX) * inaccuracy) + (sinf(spreadY) * spread) };
