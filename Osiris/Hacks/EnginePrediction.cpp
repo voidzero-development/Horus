@@ -28,10 +28,12 @@ void EnginePrediction::run(UserCmd* cmd) noexcept
     memory->globalVars->currenttime = memory->globalVars->serverTime();
     memory->globalVars->frametime = memory->globalVars->intervalPerTick;
 
+    interfaces->gameMovement->start_track_prediction_errors(localPlayer.get());
     memory->moveHelper->setHost(localPlayer.get());
     interfaces->prediction->setupMove(localPlayer.get(), cmd, memory->moveHelper, memory->moveData);
     interfaces->gameMovement->processMovement(localPlayer.get(), memory->moveData);
     interfaces->prediction->finishMove(localPlayer.get(), cmd, memory->moveData);
+    interfaces->gameMovement->finish_track_prediction_errors(localPlayer.get());
     memory->moveHelper->setHost(nullptr);
 
     *memory->predictionRandomSeed = -1;
